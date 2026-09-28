@@ -1,0 +1,388 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  PLATFORM_SUPER_ADMIN
+  PLATFORM_ADMIN
+  ORG_SUPER_ADMIN
+  ORG_ADMIN
+  RECRUITER
+  CANDIDATE
+}
+
+enum JobStatus {
+  DRAFT
+  PUBLISHED
+  PAUSED
+  CLOSED
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+  REMOTE
+}
+
+enum WorkMode {
+  ONSITE
+  REMOTE
+  HYBRID
+}
+
+enum ApplicationStage {
+  APPLIED
+  SCREENING
+  SHORTLISTED
+  INTERVIEW
+  OFFER
+  HIRED
+  REJECTED
+}
+
+enum InterviewType {
+  VIDEO
+  ONSITE
+  PHONE
+}
+
+enum InterviewStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  RESCHEDULED
+}
+
+enum Recommendation {
+  PROCEED
+  HOLD
+  REJECT
+}
+
+enum OfferStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+  EXPIRED
+  WITHDRAWN
+}
+
+model User {
+  id           String               @id @default(uuid())
+  email        String               @unique
+  passwordHash String
+  name         String
+  phone        String?
+  avatar       String?
+  role         Role                 @default(RECRUITER)
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  memberships  OrganizationMember[]
+  jobsAssigned Job[]                @relation("RecruiterJobs")
+  notesWritten ApplicationNote[]
+  offersSent   Offer[]              @relation("RecruiterOffers")
+  notifications Notification[]
+  auditLogs    AuditLog[]
+}
+
+model Organization {
+  id           String               @id @default(uuid())
+  name         String
+  slug         String               @unique
+  logo         String?
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  members      OrganizationMember[]
+  jobs         Job[]
+  applications Application[]
+  interviews   Interview[]
+  offers       Offer[]
+  notifications Notification[]
+  auditLogs    AuditLog[]
+}
+
+model OrganizationMember {
+  id             String       @id @default(uuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role           Role         @default(RECRUITER)
+  createdAt      DateTime     @default(now())
+
+  @@unique([organizationId, userId])
+}
+
+model Job {
+  id                  String         @id @default(uuid())
+  organizationId      String
+  organization        Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  recruiterId         String
+  recruiter           User           @relation("RecruiterJobs", fields: [recruiterId], references: [id])
+  title               String
+  department          String
+  location            String
+  workMode            WorkMode       @default(HYBRID)
+  employmentType      EmploymentType @default(FULL_TIME)
+  experienceMin       Int            @default(0)
+  experienceMax       Int?
+  salaryMin           Int?
+  salaryMax           Int?
+  currency            String         @default("USD")
+  openings            Int            @default(1)
+  applicationDeadline DateTime?
+  status              JobStatus      @default(DRAFT)
+  summary             String         @db.Text
+  description         String?        @db.Text
+  responsibilities    String[]
+  requiredSkills      String[]
+  preferredSkills     String[]
+  qualifications      String[]
+  screeningQuestions  Json?
+  viewsCount          Int            @default(0)
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  publishedAt         DateTime?
+  applications        Application[]
+  interviews          Interview[]
+  offers              Offer[]
+
+  @@index([organizationId, status])
+}
+
+model Candidate {
+  id              String         @id @default(uuid())
+  name            String
+  email           String         @unique
+  phone           String?
+  avatar          String?
+  title           String?
+  location        String?
+  experienceYears Int            @default(0)
+  skills          String[]
+  education       String?
+  currentCompany  String?
+  resumeUrl       String?
+  matchScore      Int?           @default(80)
+  availability    String?
+  summary         String?        @db.Text
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  applications    Application[]
+  interviews      Interview[]
+  offers          Offer[]
+}
+
+model Application {
+  id             String                @id @default(uuid())
+  organizationId String
+  organization   Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  jobId          String
+  job            Job                   @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  candidateId    String
+  candidate      Candidate             @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  stage          ApplicationStage      @default(APPLIED)
+  matchScore     Int?                  @default(85)
+  appliedAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  notes          ApplicationNote[]
+  timeline       ApplicationTimeline[]
+  interviews     Interview[]
+  offers         Offer[]
+
+  @@unique([jobId, candidateId])
+  @@index([organizationId, stage])
+}
+
+model ApplicationNote {
+  id            String      @id @default(uuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  recruiterId   String
+  recruiter     User        @relation(fields: [recruiterId], references: [id])
+  content       String      @db.Text
+  createdAt     DateTime    @default(now())
+}
+
+model ApplicationTimeline {
+  id            String           @id @default(uuid())
+  applicationId String
+  application   Application      @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  stage         ApplicationStage
+  description   String
+  updatedById   String
+  createdAt     DateTime         @default(now())
+}
+
+model Interview {
+  id               String             @id @default(uuid())
+  organizationId   String
+  organization     Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  applicationId    String
+  application      Application        @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  jobId            String
+  job              Job                @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  candidateId      String
+  candidate        Candidate          @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  roundName        String
+  interviewerName  String
+  interviewerEmail String
+  date             DateTime
+  startTime        String
+  endTime          String
+  type             InterviewType      @default(VIDEO)
+  meetingLink      String?
+  notes            String?            @db.Text
+  status           InterviewStatus    @default(SCHEDULED)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  feedback         InterviewFeedback?
+
+  @@index([organizationId, status])
+}
+
+model InterviewFeedback {
+  id                    String         @id @default(uuid())
+  interviewId           String         @unique
+  interview             Interview      @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  candidateId           String
+  technicalRating       Int            @default(4)
+  communicationRating   Int            @default(4)
+  problemSolvingRating  Int            @default(4)
+  roleSuitability       Int            @default(4)
+  strengths             String?        @db.Text
+  areasForImprovement   String?        @db.Text
+  overallFeedback       String         @db.Text
+  recommendation        Recommendation @default(PROCEED)
+  submittedById         String
+  submittedAt           DateTime       @default(now())
+}
+
+model Offer {
+  id             String       @id @default(uuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  applicationId  String
+  application    Application  @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  candidateId    String
+  candidate      Candidate    @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  jobId          String
+  job            Job          @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  recruiterId    String
+  recruiter      User         @relation("RecruiterOffers", fields: [recruiterId], references: [id])
+  baseSalary     Int
+  bonus          Int?         @default(0)
+  equity         String?
+  currency       String       @default("USD")
+  joiningDate    DateTime
+  notes          String?      @db.Text
+  status         OfferStatus  @default(DRAFT)
+  offerDate      DateTime     @default(now())
+  sentAt         DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([organizationId, status])
+}
+
+model Notification {
+  id             String       @id @default(uuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title          String
+  message        String
+  type           String
+  link           String?
+  isRead         Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+
+  @@index([userId, isRead])
+}
+
+model AuditLog {
+  id             String       @id @default(uuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id])
+  action         String
+  target         String
+  details        Json?
+  createdAt      DateTime     @default(now())
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  COMPLETED
+  OVERDUE
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model RecruiterTask {
+  id             String       @id @default(uuid())
+  organizationId String
+  recruiterId    String
+  title          String
+  description    String?      @db.Text
+  dueDate        DateTime
+  priority       TaskPriority @default(MEDIUM)
+  status         TaskStatus   @default(TODO)
+  jobId          String?
+  candidateId    String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model RecruiterMessage {
+  id             String   @id @default(uuid())
+  organizationId String
+  senderId       String
+  candidateId    String
+  senderName     String
+  candidateName  String
+  content        String   @db.Text
+  attachments    String[]
+  isRead         Boolean  @default(false)
+  createdAt      DateTime @default(now())
+}
+
+model SavedCandidate {
+  id             String   @id @default(uuid())
+  organizationId String
+  recruiterId    String
+  candidateId    String
+  notes          String?  @db.Text
+  tags           String[]
+  createdAt      DateTime @default(now())
+
+  @@unique([organizationId, recruiterId, candidateId])
+}
+
+model TokenLedger {
+  id             String   @id @default(uuid())
+  organizationId String
+  recruiterId    String
+  feature        String
+  tokensUsed     Int
+  balanceAfter   Int
+  description    String?
+  createdAt      DateTime @default(now())
+}
+
