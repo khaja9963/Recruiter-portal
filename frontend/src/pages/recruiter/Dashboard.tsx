@@ -74,7 +74,7 @@ export const Dashboard: React.FC = () => {
           </h1>
 
           <p className="text-slate-300 text-xs leading-relaxed max-w-xl">
-            Manage authorized jobs, ATS pipelines, interviews, and candidate offers for ABC Recruitment.
+            Manage authorized jobs, ATS pipelines, interviews, and candidate offers for Clyptus Software Solution.
           </p>
         </div>
 

@@ -71,7 +71,7 @@ export const RecruiterHeader: React.FC = () => {
               </span>
             </div>
             <div className="text-[11px] text-slate-500 mt-0.5 font-medium">
-              ABC Recruitment Pvt Ltd • Recruiter Workspace
+              Clyptus Software Solution • Recruiter Workspace
             </div>
           </div>
         </div>
