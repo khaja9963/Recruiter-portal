@@ -1,7 +1,7 @@
-import React from 'react';
-import { Eye, Edit3, PauseCircle, PlayCircle, XCircle, Users, Calendar, MapPin, Briefcase } from 'lucide-react';
+import React, { useState } from 'react';
+import { Eye, Edit3, MapPin, Briefcase, Users, Calendar, BarChart2, CheckCircle2, UserCheck } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Job, JobStatus } from '../../types/recruiter.types';
+import { Job } from '../../types/recruiter.types';
 import { useRecruiterStore } from '../../store/recruiterStore';
 
 interface JobCardProps {
@@ -11,110 +11,135 @@ interface JobCardProps {
 export const JobCard: React.FC<JobCardProps> = ({ job }) => {
   const navigate = useNavigate();
   const { organizationId = 'clyptus' } = useParams<{ organizationId: string }>();
-  const { updateJobStatus } = useRecruiterStore();
-
-  const getStatusBadge = (status: JobStatus) => {
-    switch (status) {
-      case 'Published':
-        return <span className="px-2.5 py-0.5 text-xs font-semibold badge-published rounded-full">Published</span>;
-      case 'Draft':
-        return <span className="px-2.5 py-0.5 text-xs font-semibold badge-draft rounded-full">Draft</span>;
-      case 'Paused':
-        return <span className="px-2.5 py-0.5 text-xs font-semibold badge-paused rounded-full">Paused</span>;
-      case 'Closed':
-        return <span className="px-2.5 py-0.5 text-xs font-semibold badge-closed rounded-full">Closed</span>;
-    }
-  };
+  const { updateJobStatus, profile } = useRecruiterStore();
+  const [assignedRecruiter, setAssignedRecruiter] = useState(job.assignedRecruiterName || profile.name);
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200/80 p-5 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between">
-      <div>
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <div>
-            <span className="text-[11px] font-semibold text-blue-600 uppercase tracking-wider">
-              {job.department}
-            </span>
-            <h3
-              onClick={() => navigate(`/org/${organizationId}/recruiter/jobs/${job.id}`)}
-              className="text-base font-bold text-slate-900 hover:text-blue-600 cursor-pointer transition-colors line-clamp-1"
-            >
-              {job.title}
-            </h3>
-          </div>
-          {getStatusBadge(job.status)}
-        </div>
-
-        <div className="flex flex-wrap items-center gap-y-1.5 gap-x-4 text-xs text-slate-500 mb-4 font-medium">
-          <span className="flex items-center gap-1">
-            <MapPin className="w-3.5 h-3.5 text-slate-400" /> {job.location} ({job.workMode})
-          </span>
-          <span className="flex items-center gap-1">
-            <Briefcase className="w-3.5 h-3.5 text-slate-400" /> {job.employmentType}
-          </span>
-          <span className="flex items-center gap-1">
-            <Calendar className="w-3.5 h-3.5 text-slate-400" /> Posted {job.postedDate}
-          </span>
-        </div>
-
-        <p className="text-xs text-slate-600 line-clamp-2 mb-4 leading-relaxed">{job.summary}</p>
+    <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between space-y-4">
+      {/* Top Row: Department Tag & Status Badge */}
+      <div className="flex items-center justify-between gap-2">
+        <span className="px-3 py-1 bg-indigo-50 text-indigo-700 font-bold text-[11px] rounded-full border border-indigo-100">
+          {job.department}
+        </span>
+        <span className="px-3 py-1 bg-emerald-50 text-emerald-700 font-bold text-[11px] rounded-full border border-emerald-200 flex items-center gap-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> {job.status}
+        </span>
       </div>
 
+      {/* Title & Summary */}
       <div>
-        <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-xs text-slate-600 mb-4">
-          <div className="flex items-center gap-1.5">
-            <Users className="w-4 h-4 text-indigo-500" />
-            <span className="font-bold text-slate-900">{job.applicationsCount}</span> Applications
+        <h3
+          onClick={() => navigate(`/org/${organizationId}/recruiter/jobs/${job.id}`)}
+          className="text-base font-extrabold text-slate-900 hover:text-indigo-600 cursor-pointer transition-colors line-clamp-1"
+        >
+          {job.title}
+        </h3>
+        <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed font-normal">
+          {job.summary}
+        </p>
+      </div>
+
+      {/* Assigned Recruiter Box */}
+      <div className="bg-slate-50/80 rounded-xl p-3 border border-slate-100 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-full bg-indigo-600 text-white font-extrabold text-[11px] flex items-center justify-center shrink-0">
+            {assignedRecruiter.split(' ').map((n) => n[0]).join('').toUpperCase()}
           </div>
           <div>
-            <span className="font-semibold text-slate-900">{job.shortlistedCount}</span> Shortlisted
-          </div>
-          <div>
-            Openings: <span className="font-bold text-slate-900">{job.openings}</span>
+            <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+              ASSIGNED RECRUITER
+            </div>
+            <div className="text-xs font-bold text-slate-800">{assignedRecruiter}</div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => navigate(`/org/${organizationId}/recruiter/jobs/${job.id}`)}
-            className="flex-1 py-1.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-colors"
-          >
-            <Eye className="w-3.5 h-3.5" /> View
-          </button>
-          <button
-            onClick={() => navigate(`/org/${organizationId}/recruiter/jobs/${job.id}/edit`)}
-            className="py-1.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-colors"
-          >
-            <Edit3 className="w-3.5 h-3.5" /> Edit
-          </button>
+        <select
+          value={assignedRecruiter}
+          onChange={(e) => setAssignedRecruiter(e.target.value)}
+          className="px-2 py-1 bg-white border border-slate-200 rounded-lg text-[11px] font-semibold text-slate-700 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
+        >
+          <option value={profile.name}>{profile.name}</option>
+          <option value="Elena Rostova">Elena Rostova</option>
+          <option value="Kushi">Kushi</option>
+        </select>
+      </div>
 
-          {job.status === 'Published' && (
-            <button
-              onClick={() => updateJobStatus(job.id, 'Paused')}
-              title="Pause Job"
-              className="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg border border-amber-200"
-            >
-              <PauseCircle className="w-4 h-4" />
-            </button>
-          )}
-          {job.status === 'Paused' && (
-            <button
-              onClick={() => updateJobStatus(job.id, 'Published')}
-              title="Resume Job"
-              className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg border border-emerald-200"
-            >
-              <PlayCircle className="w-4 h-4" />
-            </button>
-          )}
-          {job.status === 'Draft' && (
-            <button
-              onClick={() => updateJobStatus(job.id, 'Published')}
-              title="Publish Job"
-              className="py-1.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg"
-            >
-              Publish
-            </button>
-          )}
+      {/* Job Details Grid Box */}
+      <div className="bg-slate-50/50 rounded-xl p-3 border border-slate-100 grid grid-cols-2 gap-2 text-xs">
+        <div>
+          <div className="text-[10px] text-slate-400 font-medium flex items-center gap-1">
+            <MapPin className="w-3 h-3 text-slate-400" /> Location
+          </div>
+          <div className="font-bold text-slate-800 truncate">{job.location}</div>
         </div>
+
+        <div>
+          <div className="text-[10px] text-slate-400 font-medium">Mode</div>
+          <div className="font-bold text-slate-800 uppercase">{job.workMode}</div>
+        </div>
+
+        <div>
+          <div className="text-[10px] text-slate-400 font-medium">Experience</div>
+          <div className="font-bold text-slate-800">{job.experienceLevel}</div>
+        </div>
+
+        <div>
+          <div className="text-[10px] text-slate-400 font-medium">Salary</div>
+          <div className="font-bold text-slate-800">
+            {job.salaryMin && job.salaryMax
+              ? `$${(job.salaryMin / 1000).toFixed(0)}k - $${(job.salaryMax / 1000).toFixed(0)}k`
+              : 'Competitive'}
+          </div>
+        </div>
+      </div>
+
+      {/* Skill Tags */}
+      <div className="flex flex-wrap gap-1.5">
+        {job.requiredSkills &&
+          job.requiredSkills.slice(0, 4).map((skill, idx) => (
+            <span key={idx} className="px-2 py-0.5 bg-slate-100 text-slate-700 text-[10px] font-semibold rounded-md border border-slate-200">
+              {skill}
+            </span>
+          ))}
+      </div>
+
+      {/* Action Buttons Row 1: Status Action & Edit (Matching website theme, NO harsh red) */}
+      <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
+        <button
+          onClick={() => updateJobStatus(job.id, job.status === 'Published' ? 'Paused' : 'Published')}
+          className={`py-2 px-3 text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-2xs ${
+            job.status === 'Published'
+              ? 'bg-[#13113C] hover:bg-[#1E1A55] text-white'
+              : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+          }`}
+        >
+          <CheckCircle2 className="w-3.5 h-3.5" />
+          {job.status === 'Published' ? 'Pause Requisition' : 'Publish Requisition'}
+        </button>
+
+        <button
+          onClick={() => navigate(`/org/${organizationId}/recruiter/jobs/${job.id}/edit`)}
+          className="py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-colors border border-slate-200"
+        >
+          <Edit3 className="w-3.5 h-3.5" /> Edit
+        </button>
+      </div>
+
+      {/* Action Buttons Row 2: Job Analysis & ATS Pipeline */}
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          onClick={() => navigate(`/org/${organizationId}/recruiter/jobs/${job.id}`)}
+          className="py-2 px-3 bg-[#4F46E5] hover:bg-[#4338CA] text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
+        >
+          <BarChart2 className="w-3.5 h-3.5" /> Job Analysis
+        </button>
+
+        <button
+          onClick={() => navigate(`/org/${organizationId}/recruiter/ats?jobId=${job.id}`)}
+          className="py-2 px-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-colors border border-indigo-200"
+        >
+          <Users className="w-3.5 h-3.5" /> ATS Pipeline ({job.applicationsCount})
+        </button>
       </div>
     </div>
   );

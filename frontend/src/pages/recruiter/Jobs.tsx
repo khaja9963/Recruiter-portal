@@ -11,7 +11,7 @@ export const Jobs: React.FC = () => {
   const { organizationId = 'clyptus' } = useParams<{ organizationId: string }>();
   const { jobs } = useRecruiterStore();
 
-  const [viewMode, setViewMode] = useState<'grid' | 'table'>('table');
+  const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [deptFilter, setDeptFilter] = useState<string>('all');
@@ -35,9 +35,17 @@ export const Jobs: React.FC = () => {
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* Page Title Header */}
-      <div className="pb-2 border-b border-slate-200/80">
-        <h1 className="text-xl font-bold text-slate-900 tracking-tight">Job Requisitions</h1>
-        <p className="text-xs text-slate-500">Manage and publish job postings for your organization</p>
+      <div className="pb-2 border-b border-slate-200/80 flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+            <Briefcase className="w-5 h-5 text-indigo-600" /> Posted Jobs Overview ({filteredJobs.length})
+          </h1>
+          <p className="text-xs text-slate-500">Manage and publish job requisitions for your organization</p>
+        </div>
+
+        <span className="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200">
+          Full Admin & Recruiter
+        </span>
       </div>
 
       {/* Filter Toolbar */}
