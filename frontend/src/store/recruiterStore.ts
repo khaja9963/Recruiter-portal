@@ -35,13 +35,193 @@ const initialProfile: RecruiterProfile = {
 };
 
 // Initial State (Clean, Empty Collections)
-const initialJobs: Job[] = [];
-const initialCandidates: Candidate[] = [];
-const initialApplications: Application[] = [];
-const initialInterviews: Interview[] = [];
+// Initial State (1 Working Dummy Candidate Profile & Requisition for testing)
+const initialJobs: Job[] = [
+  {
+    id: 'job-01',
+    organizationId: 'clyptus',
+    title: 'Senior Full Stack Engineer',
+    department: 'Engineering',
+    location: 'San Francisco, CA',
+    employmentType: 'Full-time',
+    workMode: 'Hybrid',
+    experienceLevel: 'Senior',
+    salaryMin: 140000,
+    salaryMax: 185000,
+    currency: 'USD',
+    status: 'Published',
+    postedDate: '2026-09-24',
+    deadline: '2026-10-31',
+    openings: 2,
+    assignedRecruiterId: 'rec_01',
+    assignedRecruiterName: 'Sarah Jenkins',
+    summary: 'Join Clyptus engineering team to scale AI-driven recruitment portal workflows and high-performance Web applications.',
+    responsibilities: [
+      'Architect and deliver responsive React 19 and TypeScript web applications.',
+      'Collaborate with product managers and UX designers on frontend UI systems.',
+      'Optimize API performance and component lifecycle rendering.'
+    ],
+    requiredSkills: ['React', 'TypeScript', 'Node.js', 'Tailwind CSS', 'PostgreSQL'],
+    preferredSkills: ['Next.js', 'GraphQL', 'Zustand', 'Docker'],
+    qualifications: [
+      'B.S. or M.S. in Computer Science or related technical discipline.',
+      '5+ years of professional full-stack development experience.'
+    ],
+    interviewProcess: [
+      '1. Recruiter HR Screen (30 mins)',
+      '2. Technical Coding Assessment (60 mins)',
+      '3. System Architecture & Onsite (90 mins)',
+      '4. Executive Leadership Chat'
+    ],
+    screeningQuestions: [
+      { id: 'q1', question: 'How many years of commercial React & TypeScript experience do you have?', required: true },
+      { id: 'q2', question: 'What is your notice period / availability?', required: true }
+    ],
+    applicationsCount: 1,
+    shortlistedCount: 1,
+    viewsCount: 184
+  }
+];
+
+const initialCandidates: Candidate[] = [
+  {
+    id: 'cand-01',
+    organizationId: 'clyptus',
+    name: 'Alex Morgan',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250',
+    title: 'Senior Full Stack Engineer',
+    email: 'alex.morgan@clyptus.dev',
+    phone: '+1 (555) 234-8901',
+    location: 'San Francisco, CA',
+    experienceYears: 6,
+    skills: ['React', 'TypeScript', 'Node.js', 'GraphQL', 'PostgreSQL', 'Tailwind CSS'],
+    education: 'B.S. Computer Science, Stanford University (2018)',
+    currentCompany: 'Vanguard Tech Solutions',
+    resumeUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    matchScore: 94,
+    overallRating: 4.8,
+    availability: 'Immediate (2 weeks notice)',
+    appliedJobsCount: 1,
+    summary: 'Accomplished Full Stack Software Engineer with 6+ years building real-time micro-frontends, high-concurrency Node.js microservices, and slick developer tools.',
+    workHistory: [
+      {
+        company: 'Vanguard Tech Solutions',
+        role: 'Senior Full Stack Engineer',
+        duration: '2021 - Present',
+        description: 'Led a team of 4 engineers building enterprise SaaS dashboards using React, TypeScript, and GraphQL. Improved page render performance by 42%.'
+      },
+      {
+        company: 'Apex Digital Labs',
+        role: 'Frontend Developer',
+        duration: '2018 - 2021',
+        description: 'Developed scalable UI component libraries, customer portals, and optimized state management pipelines.'
+      }
+    ],
+    educationList: [
+      {
+        degree: 'B.S. Computer Science',
+        institution: 'Stanford University',
+        year: '2014 - 2018'
+      }
+    ],
+    projects: [
+      {
+        title: 'Open Source UI Design Tokens Engine',
+        description: 'Created an open-source design token transpiler with over 2.4k GitHub stars.',
+        link: 'https://github.com/example/tokens-engine'
+      }
+    ],
+    certifications: [
+      'AWS Certified Solutions Architect',
+      'Meta Senior Front-End Developer Specialization'
+    ]
+  }
+];
+
+const initialApplications: Application[] = [
+  {
+    id: 'app-01',
+    candidateId: 'cand-01',
+    jobId: 'job-01',
+    organizationId: 'clyptus',
+    candidateName: 'Alex Morgan',
+    candidateAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250',
+    candidateEmail: 'alex.morgan@clyptus.dev',
+    candidatePhone: '+1 (555) 234-8901',
+    candidateTitle: 'Senior Full Stack Engineer',
+    candidateLocation: 'San Francisco, CA',
+    candidateExperienceYears: 6,
+    candidateSkills: ['React', 'TypeScript', 'Node.js', 'PostgreSQL'],
+    jobTitle: 'Senior Full Stack Engineer',
+    department: 'Engineering',
+    appliedDate: '2026-09-25',
+    stage: 'Interview',
+    matchScore: 94,
+    resumeUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    notes: [
+      {
+        id: 'note-1',
+        authorName: 'Sarah Jenkins',
+        authorAvatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=250',
+        content: 'Strong technical background with 6 years experience in React & TypeScript. Passed initial HR screening with high marks.',
+        createdAt: '2026-09-26 10:30 AM'
+      }
+    ],
+    timeline: [
+      { id: 'tl-1', stage: 'Applied', date: '2026-09-25', description: 'Application submitted online', updatedBy: 'Alex Morgan' },
+      { id: 'tl-2', stage: 'Screening', date: '2026-09-26', description: 'Passed HR Screening', updatedBy: 'Sarah Jenkins' },
+      { id: 'tl-3', stage: 'Shortlisted', date: '2026-09-27', description: 'Moved to Shortlisted pool', updatedBy: 'Sarah Jenkins' },
+      { id: 'tl-4', stage: 'Interview', date: '2026-09-28', description: 'Technical Deep Dive Interview Scheduled', updatedBy: 'Sarah Jenkins' }
+    ]
+  }
+];
+
+const initialInterviews: Interview[] = [
+  {
+    id: 'int-01',
+    applicationId: 'app-01',
+    candidateId: 'cand-01',
+    jobId: 'job-01',
+    organizationId: 'clyptus',
+    candidateName: 'Alex Morgan',
+    candidateAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250',
+    candidateEmail: 'alex.morgan@clyptus.dev',
+    jobTitle: 'Senior Full Stack Engineer',
+    roundName: 'Technical Coding & System Architecture',
+    interviewerName: 'Sarah Jenkins',
+    interviewerEmail: 'sarah.jenkins@clyptus.com',
+    date: '2026-10-02',
+    time: '02:00 PM',
+    type: 'Video',
+    meetingLink: 'https://meet.google.com/abc-defg-hij',
+    status: 'Scheduled',
+    notes: 'Focus on React 19 Hooks, Zustand state management, and API design.'
+  }
+];
+
 const initialOffers: Offer[] = [];
-const initialNotifications: NotificationItem[] = [];
-const initialActivities: ActivityItem[] = [];
+const initialNotifications: NotificationItem[] = [
+  {
+    id: 'notif-01',
+    title: 'New Candidate Applied',
+    message: 'Alex Morgan applied for Senior Full Stack Engineer (94% Match)',
+    type: 'application',
+    timestamp: '2 hours ago',
+    read: false,
+    link: '/candidates/cand-01'
+  }
+];
+const initialActivities: ActivityItem[] = [
+  {
+    id: 'act-01',
+    type: 'interview',
+    user: 'Sarah Jenkins',
+    action: 'scheduled interview',
+    target: 'Alex Morgan (Technical Coding)',
+    time: 'Yesterday',
+    badgeColor: 'bg-purple-100 text-purple-800'
+  }
+];
 
 interface RecruiterState {
   profile: RecruiterProfile;
