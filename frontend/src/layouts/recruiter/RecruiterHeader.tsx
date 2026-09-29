@@ -8,8 +8,8 @@ import {
   LogOut,
   Building2,
   ChevronDown,
-  CheckCircle2,
-  Plus
+  Plus,
+  Coins
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useRecruiterStore } from '../../store/recruiterStore';
@@ -48,7 +48,8 @@ export const RecruiterHeader: React.FC = () => {
   }, []);
 
   return (
-    <header className="h-16 bg-white/95 backdrop-blur-xs border-b border-slate-200/80 px-4 lg:px-6 flex items-center justify-between sticky top-0 z-20">
+    <header className="h-16 bg-white border-b border-slate-200/90 px-4 lg:px-6 flex items-center justify-between sticky top-0 z-20 shadow-xs">
+      {/* Left Branding & Scope */}
       <div className="flex items-center gap-3">
         <button
           onClick={toggleSidebar}
@@ -58,38 +59,66 @@ export const RecruiterHeader: React.FC = () => {
           <Menu className="w-5 h-5" />
         </button>
 
-        <div className="hidden sm:flex items-center gap-2 px-2.5 py-1 bg-slate-50 border border-slate-200/70 rounded-md text-xs font-medium text-slate-700">
-          <Building2 className="w-3.5 h-3.5 text-[#2563EB]" />
-          <span>{profile.organizationName}</span>
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-extrabold text-lg shadow-sm shrink-0">
+            C
+          </div>
+          <div className="leading-none">
+            <div className="flex items-center gap-2">
+              <span className="font-extrabold text-base text-slate-900 tracking-tight">Clyptus</span>
+              <span className="bg-indigo-50 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-indigo-100 uppercase tracking-wider">
+                RECRUITER PORTAL
+              </span>
+            </div>
+            <div className="text-[11px] text-slate-500 mt-0.5 font-medium">
+              ABC Recruitment Pvt Ltd • Recruiter Workspace
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Global Search Bar */}
-      <div className="flex-1 max-w-md mx-4">
+      {/* Center / Global Search Trigger */}
+      <div className="hidden lg:flex flex-1 max-w-xs mx-4">
         <button
           onClick={() => setGlobalSearchOpen(true)}
-          className="w-full flex items-center justify-between bg-slate-50 hover:bg-slate-100/80 text-slate-500 text-xs px-3 py-1.5 rounded-lg border border-slate-200 transition-colors"
+          className="w-full flex items-center justify-between bg-slate-50 hover:bg-slate-100/80 text-slate-400 text-xs px-3 py-1.5 rounded-xl border border-slate-200 transition-colors"
         >
           <div className="flex items-center gap-2">
             <Search className="w-3.5 h-3.5 text-slate-400" />
-            <span>Search candidates, jobs, notes...</span>
+            <span>Search candidates, jobs...</span>
           </div>
-          <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono bg-white text-slate-400 rounded border border-slate-200">
+          <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-white text-slate-400 rounded border border-slate-200">
             Ctrl K
           </kbd>
         </button>
       </div>
 
       {/* Right Controls */}
-      <div className="flex items-center gap-2.5">
+      <div className="flex items-center gap-3">
+        {/* Recruiter Credit Quota Badge */}
+        <div className="hidden sm:flex items-center gap-2 bg-amber-50/90 border border-amber-200/80 rounded-xl px-3 py-1.5 shadow-2xs">
+          <div className="w-7 h-7 rounded-lg bg-amber-500/15 flex items-center justify-center text-amber-600 shrink-0">
+            <Coins className="w-4 h-4" />
+          </div>
+          <div className="text-left leading-tight">
+            <div className="text-[9px] font-bold uppercase text-amber-800 tracking-wider">
+              RECRUITER CREDIT QUOTA
+            </div>
+            <div className="text-xs font-extrabold text-slate-900">
+              840 <span className="text-[10px] font-medium text-slate-500">credits</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Post New Job Primary Button */}
         <button
           onClick={() => navigate(`/org/${organizationId}/recruiter/jobs/create`)}
-          className="hidden md:flex items-center gap-1.5 py-1.5 px-3 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-semibold rounded-lg shadow-xs transition-colors"
+          className="flex items-center gap-1.5 py-2 px-4 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold rounded-xl shadow-xs transition-colors"
         >
-          <Plus className="w-3.5 h-3.5" /> Post Requisition
+          <Plus className="w-4 h-4" /> Post New Job
         </button>
 
-        {/* Notifications Popover */}
+        {/* Notifications */}
         <div className="relative" ref={notifRef}>
           <button
             onClick={() => setIsNotifOpen(!isNotifOpen)}
@@ -148,14 +177,18 @@ export const RecruiterHeader: React.FC = () => {
         <div className="relative" ref={profileRef}>
           <button
             onClick={() => setIsProfileOpen(!isProfileOpen)}
-            className="flex items-center gap-2 p-1 hover:bg-slate-100 rounded-xl transition-colors"
+            className="flex items-center gap-2.5 p-1 hover:bg-slate-100 rounded-xl transition-colors"
           >
-            <img src={profile.avatar} alt={profile.name} className="w-8 h-8 rounded-full object-cover border border-slate-200" />
-            <div className="hidden lg:block text-left">
-              <div className="text-xs font-bold text-slate-800 leading-tight">{profile.name}</div>
-              <div className="text-[10px] text-slate-400 leading-tight">{profile.role}</div>
+            <img
+              src={profile.avatar}
+              alt={profile.name}
+              className="w-8 h-8 rounded-full object-cover border border-slate-200"
+            />
+            <div className="hidden lg:block text-left leading-tight">
+              <div className="text-xs font-bold text-slate-900">{profile.name}</div>
+              <div className="text-[10px] text-slate-500">{profile.email}</div>
             </div>
-            <ChevronDown className="w-4 h-4 text-slate-400 hidden lg:block" />
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden lg:block" />
           </button>
 
           {isProfileOpen && (
@@ -168,11 +201,11 @@ export const RecruiterHeader: React.FC = () => {
                 <button
                   onClick={() => {
                     setIsProfileOpen(false);
-                    navigate(`/org/${organizationId}/recruiter/settings`);
+                    navigate(`/org/${organizationId}/recruiter/profile`);
                   }}
                   className="w-full px-4 py-2 text-left text-xs text-slate-700 hover:bg-slate-50 font-medium flex items-center gap-2"
                 >
-                  <Settings className="w-4 h-4 text-slate-400" /> Recruiter Settings
+                  <User className="w-4 h-4 text-slate-400" /> Recruiter Profile
                 </button>
               </div>
               <div className="pt-1 border-t border-slate-100">
@@ -195,3 +228,4 @@ export const RecruiterHeader: React.FC = () => {
     </header>
   );
 };
+

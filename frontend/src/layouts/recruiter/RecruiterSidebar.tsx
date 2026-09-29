@@ -17,9 +17,7 @@ import {
   BarChart3,
   Bell,
   UserCheck,
-  Building2,
-  LogOut,
-  ChevronRight
+  LogOut
 } from 'lucide-react';
 import { useRecruiterStore } from '../../store/recruiterStore';
 
@@ -42,7 +40,7 @@ export const RecruiterSidebar: React.FC = () => {
     { label: 'Offers', path: `/org/${organizationId}/recruiter/offers`, icon: Gift },
     { label: 'Messages', path: `/org/${organizationId}/recruiter/messages`, icon: MessageSquare },
     { label: 'Tasks', path: `/org/${organizationId}/recruiter/tasks`, icon: CheckSquare },
-    { label: 'AI Tools', path: `/org/${organizationId}/recruiter/ai-tools`, icon: Sparkles },
+    { label: 'AI Tools', path: `/org/${organizationId}/recruiter/ai-tools`, icon: Sparkles, tag: 'Gemini' },
     { label: 'Token Usage', path: `/org/${organizationId}/recruiter/tokens`, icon: Coins },
     { label: 'Analytics', path: `/org/${organizationId}/recruiter/analytics`, icon: BarChart3 },
     { label: 'Notifications', path: `/org/${organizationId}/recruiter/notifications`, icon: Bell, badge: unreadCount },
@@ -53,26 +51,18 @@ export const RecruiterSidebar: React.FC = () => {
 
   return (
     <aside className="w-64 bg-[#0F172A] text-slate-300 flex flex-col h-screen sticky top-0 z-30 border-r border-slate-800/80 shrink-0 select-none">
-      {/* Brand & Organization Header */}
-      <div className="h-16 px-4 border-b border-slate-800/80 flex items-center gap-3 shrink-0">
-        <div className="w-8 h-8 rounded-lg bg-[#2563EB] flex items-center justify-center text-white font-bold text-sm shadow-xs shrink-0">
-          <Building2 className="w-4 h-4" />
-        </div>
-        <div className="overflow-hidden min-w-0">
-          <h2 className="text-sm font-semibold text-white tracking-tight truncate leading-tight">
-            {profile.organizationName || 'Clyptus'}
-          </h2>
-          <span className="inline-flex items-center text-[10px] font-medium text-slate-400 mt-0.5">
-            Employee Portal
-          </span>
-        </div>
+      {/* Scope Header */}
+      <div className="h-14 px-4 border-b border-slate-800/80 flex items-center justify-between shrink-0">
+        <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">
+          RECRUITER WORKSPACE
+        </span>
+        <span className="text-[9px] font-bold text-blue-400 bg-blue-950/70 border border-blue-500/40 px-1.5 py-0.5 rounded">
+          ORG SCOPE
+        </span>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
-        <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider px-2.5 py-1 mb-1">
-          Hiring Operations
-        </div>
+      {/* Navigation Links */}
+      <nav className="flex-1 px-3 py-3 space-y-1 overflow-y-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
           return (
@@ -80,24 +70,31 @@ export const RecruiterSidebar: React.FC = () => {
               key={item.path}
               to={item.path}
               className={({ isActive }) =>
-                `flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium transition-colors relative group ${
+                `flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all relative group ${
                   isActive
-                    ? 'bg-slate-800/90 text-white font-semibold'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                    ? 'bg-[#4F46E5] text-white shadow-sm'
+                    : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/50'
                 }`
               }
             >
               {({ isActive }) => (
                 <>
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <Icon className={`w-4 h-4 shrink-0 transition-colors ${isActive ? 'text-[#38BDF8]' : 'text-slate-400 group-hover:text-slate-300'}`} />
+                    <Icon className={`w-4 h-4 shrink-0 transition-colors ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'}`} />
                     <span className="truncate">{item.label}</span>
                   </div>
+
+                  {item.tag && (
+                    <span className="px-1.5 py-0.2 text-[9px] font-bold bg-indigo-950 text-indigo-300 border border-indigo-500/40 rounded-md shrink-0">
+                      {item.tag}
+                    </span>
+                  )}
+
                   {item.badge !== undefined && item.badge > 0 && (
                     <span
                       className={`px-1.5 py-0.2 text-[10px] font-semibold rounded-full shrink-0 ${
                         isActive
-                          ? 'bg-[#2563EB] text-white'
+                          ? 'bg-white text-indigo-700 font-bold'
                           : 'bg-slate-800 text-slate-300 border border-slate-700'
                       }`}
                     >
@@ -141,3 +138,4 @@ export const RecruiterSidebar: React.FC = () => {
     </aside>
   );
 };
+
