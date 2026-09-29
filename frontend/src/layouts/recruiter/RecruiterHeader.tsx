@@ -110,13 +110,7 @@ export const RecruiterHeader: React.FC = () => {
           </div>
         </div>
 
-        {/* Post New Job Primary Button */}
-        <button
-          onClick={() => navigate(`/org/${organizationId}/recruiter/jobs/create`)}
-          className="flex items-center gap-1.5 py-2 px-4 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold rounded-xl shadow-xs transition-colors"
-        >
-          <Plus className="w-4 h-4" /> Post New Job
-        </button>
+
 
         {/* Notifications */}
         <div className="relative" ref={notifRef}>
