@@ -1,18 +1,11 @@
 import React, { useState } from 'react';
 import {
   User,
-  Bell,
   Shield,
-  Sliders,
   Save,
   Check,
   Lock,
-  Building2,
   Camera,
-  MapPin,
-  Clock,
-  Briefcase,
-  AlertCircle,
   KeyRound,
   Smartphone
 } from 'lucide-react';
@@ -42,13 +35,7 @@ export const Settings: React.FC = () => {
   const [enable2FA, setEnable2FA] = useState(true);
   const [passwordSaved, setPasswordSaved] = useState(false);
 
-  // Notification States
-  const [notifAppAlerts, setNotifAppAlerts] = useState(true);
-  const [notifInterviewDigest, setNotifInterviewDigest] = useState(true);
-  const [notifFeedbackAlerts, setNotifFeedbackAlerts] = useState(true);
-  const [notifOfferUpdates, setNotifOfferUpdates] = useState(true);
-
-  const [activeTab, setActiveTab] = useState<'profile' | 'notifications' | 'security'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'security'>('profile');
   const [isSaved, setIsSaved] = useState(false);
 
   const handleSaveProfile = (e: React.FormEvent) => {
@@ -90,7 +77,7 @@ export const Settings: React.FC = () => {
             Recruiter Profile & Settings
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Manage your personal profile, contact information, notification alerts, and security settings.
+            Manage your personal profile, contact information, and security settings.
           </p>
         </div>
       </div>
@@ -101,7 +88,7 @@ export const Settings: React.FC = () => {
         <div className="space-y-0.5">
           <h4 className="font-bold text-amber-950 text-xs">Organization Scope & Governance Policy</h4>
           <p className="text-amber-800 leading-snug">
-            As a Recruiter user, you can update your personal profile details, notification preferences, and account security. You <strong>cannot modify organization ownership</strong>, organization-level security policies, or billing configurations.
+            As a Recruiter user, you can update your personal profile details and account security. You <strong>cannot modify organization ownership</strong>, organization-level security policies, or billing configurations.
           </p>
         </div>
       </div>
@@ -110,7 +97,6 @@ export const Settings: React.FC = () => {
       <div className="flex items-center gap-2 border-b border-slate-200 pb-3 overflow-x-auto">
         {[
           { id: 'profile', label: 'Personal & Profile Info', icon: User },
-          { id: 'notifications', label: 'Notification Preferences', icon: Bell },
           { id: 'security', label: 'Password & Security Settings', icon: Shield }
         ].map((tab) => {
           const Icon = tab.icon;
@@ -299,81 +285,7 @@ export const Settings: React.FC = () => {
         </form>
       )}
 
-      {/* Tab 2: Notification Preferences */}
-      {activeTab === 'notifications' && (
-        <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-6 text-xs">
-          <div>
-            <h3 className="font-extrabold text-slate-900 text-base">Notification Preferences</h3>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Choose which recruitment activity alerts and digests you wish to receive.
-            </p>
-          </div>
-
-          <div className="space-y-3">
-            <label className="flex items-start gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-200 cursor-pointer hover:bg-slate-100/60 transition-colors">
-              <input
-                type="checkbox"
-                checked={notifAppAlerts}
-                onChange={(e) => setNotifAppAlerts(e.target.checked)}
-                className="mt-0.5 rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4"
-              />
-              <div>
-                <div className="font-bold text-slate-900">New Application Received Alerts</div>
-                <div className="text-[11px] text-slate-500 mt-0.5">
-                  Receive real-time notifications when candidates submit applications to your requisitions.
-                </div>
-              </div>
-            </label>
-
-            <label className="flex items-start gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-200 cursor-pointer hover:bg-slate-100/60 transition-colors">
-              <input
-                type="checkbox"
-                checked={notifInterviewDigest}
-                onChange={(e) => setNotifInterviewDigest(e.target.checked)}
-                className="mt-0.5 rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4"
-              />
-              <div>
-                <div className="font-bold text-slate-900">Daily Morning Interview Digest</div>
-                <div className="text-[11px] text-slate-500 mt-0.5">
-                  Receive a daily email summary of interviews scheduled for your candidates.
-                </div>
-              </div>
-            </label>
-
-            <label className="flex items-start gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-200 cursor-pointer hover:bg-slate-100/60 transition-colors">
-              <input
-                type="checkbox"
-                checked={notifFeedbackAlerts}
-                onChange={(e) => setNotifFeedbackAlerts(e.target.checked)}
-                className="mt-0.5 rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4"
-              />
-              <div>
-                <div className="font-bold text-slate-900">Interviewer Scorecard Submission Alerts</div>
-                <div className="text-[11px] text-slate-500 mt-0.5">
-                  Get notified immediately when an interviewer submits scorecard feedback for your candidate.
-                </div>
-              </div>
-            </label>
-
-            <label className="flex items-start gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-200 cursor-pointer hover:bg-slate-100/60 transition-colors">
-              <input
-                type="checkbox"
-                checked={notifOfferUpdates}
-                onChange={(e) => setNotifOfferUpdates(e.target.checked)}
-                className="mt-0.5 rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4"
-              />
-              <div>
-                <div className="font-bold text-slate-900">Candidate Offer Acceptance / Rejection Status</div>
-                <div className="text-[11px] text-slate-500 mt-0.5">
-                  Receive priority alerts when candidates accept or decline extended offer letters.
-                </div>
-              </div>
-            </label>
-          </div>
-        </div>
-      )}
-
-      {/* Tab 3: Password & Personal Security */}
+      {/* Tab 2: Password & Personal Security */}
       {activeTab === 'security' && (
         <div className="space-y-6 text-xs">
           {/* Change Password Card */}
