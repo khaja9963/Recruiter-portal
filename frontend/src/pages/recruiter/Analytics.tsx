@@ -4,7 +4,6 @@ import { useRecruiterStore } from '../../store/recruiterStore';
 
 export const Analytics: React.FC = () => {
   const { jobs, applications } = useRecruiterStore();
-  const [timeRange, setTimeRange] = useState<'7D' | '30D' | '90D' | 'YTD'>('30D');
 
   // Compute funnel stage metrics to match design
   const totalApps = applications.length || 4;
@@ -61,38 +60,19 @@ export const Analytics: React.FC = () => {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12 font-sans antialiased text-slate-900 animate-in fade-in duration-200">
-      {/* Top Header Row with Time Filter Pills */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200/80">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-indigo-50 text-[#4F46E5] flex items-center justify-center font-bold shrink-0">
-              <BarChart3 className="w-5 h-5" />
-            </div>
-            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
-              Recruiter Performance Analytics
-            </h1>
+      {/* Top Header Row */}
+      <div className="pb-2 border-b border-slate-200/80">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-indigo-50 text-[#4F46E5] flex items-center justify-center font-bold shrink-0">
+            <BarChart3 className="w-5 h-5" />
           </div>
-          <p className="text-xs text-slate-400 mt-1 font-medium">
-            Authorized workload and funnel conversion metrics for your recruiter account.
-          </p>
+          <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
+            Recruiter Performance Analytics
+          </h1>
         </div>
-
-        {/* Time Filter Controls */}
-        <div className="bg-slate-100/90 p-1 rounded-full flex items-center gap-1 border border-slate-200/60 shrink-0 self-start sm:self-auto">
-          {(['7D', '30D', '90D', 'YTD'] as const).map((range) => (
-            <button
-              key={range}
-              onClick={() => setTimeRange(range)}
-              className={`px-3.5 py-1 text-xs font-bold rounded-full transition-all ${
-                timeRange === range
-                  ? 'bg-[#4F46E5] text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              {range}
-            </button>
-          ))}
-        </div>
+        <p className="text-xs text-slate-400 mt-1 font-medium">
+          Authorized workload and funnel conversion metrics for your recruiter account.
+        </p>
       </div>
 
       {/* Card 1: Application to Hire Conversion Funnel */}

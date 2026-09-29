@@ -40,7 +40,7 @@ export const RecruiterSidebar: React.FC = () => {
     { label: 'Offers', path: `/org/${organizationId}/recruiter/offers`, icon: Gift },
     { label: 'Messages', path: `/org/${organizationId}/recruiter/messages`, icon: MessageSquare },
     { label: 'Tasks', path: `/org/${organizationId}/recruiter/tasks`, icon: CheckSquare },
-    { label: 'AI Tools', path: `/org/${organizationId}/recruiter/ai-tools`, icon: Sparkles, tag: 'Gemini' },
+    { label: 'AI Tools', path: `/org/${organizationId}/recruiter/ai-tools`, icon: Sparkles },
     { label: 'Token Usage', path: `/org/${organizationId}/recruiter/tokens`, icon: Coins },
     { label: 'Analytics', path: `/org/${organizationId}/recruiter/analytics`, icon: BarChart3 },
     { label: 'Notifications', path: `/org/${organizationId}/recruiter/notifications`, icon: Bell, badge: unreadCount },
@@ -52,12 +52,9 @@ export const RecruiterSidebar: React.FC = () => {
   return (
     <aside className="w-64 bg-[#0F172A] text-slate-300 flex flex-col h-screen sticky top-0 z-30 border-r border-slate-800/80 shrink-0 select-none">
       {/* Scope Header */}
-      <div className="h-14 px-4 border-b border-slate-800/80 flex items-center justify-between shrink-0">
+      <div className="h-14 px-4 border-b border-slate-800/80 flex items-center shrink-0">
         <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">
           RECRUITER WORKSPACE
-        </span>
-        <span className="text-[9px] font-bold text-blue-400 bg-blue-950/70 border border-blue-500/40 px-1.5 py-0.5 rounded">
-          ORG SCOPE
         </span>
       </div>
 
@@ -83,12 +80,6 @@ export const RecruiterSidebar: React.FC = () => {
                     <Icon className={`w-4 h-4 shrink-0 transition-colors ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'}`} />
                     <span className="truncate">{item.label}</span>
                   </div>
-
-                  {item.tag && (
-                    <span className="px-1.5 py-0.2 text-[9px] font-bold bg-indigo-950 text-indigo-300 border border-indigo-500/40 rounded-md shrink-0">
-                      {item.tag}
-                    </span>
-                  )}
 
                   {item.badge !== undefined && item.badge > 0 && (
                     <span
@@ -138,4 +129,5 @@ export const RecruiterSidebar: React.FC = () => {
     </aside>
   );
 };
+
 
