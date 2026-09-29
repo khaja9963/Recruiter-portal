@@ -49,9 +49,14 @@ export interface Job {
   employmentType: EmploymentType;
   workMode: WorkMode;
   experienceLevel: ExperienceLevel;
+  experienceMin?: number;
+  experienceMax?: number;
+  noticePeriod?: string;
+  educationLevel?: string;
   salaryMin: number;
   salaryMax: number;
   currency: string;
+  hideSalary?: boolean;
   status: JobStatus;
   postedDate: string;
   deadline: string;
