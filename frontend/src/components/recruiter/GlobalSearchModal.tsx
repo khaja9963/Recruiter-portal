@@ -15,6 +15,8 @@ export const GlobalSearchModal: React.FC = () => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         setGlobalSearchOpen(!isGlobalSearchOpen);
+      } else if (e.key === 'Escape' && isGlobalSearchOpen) {
+        setGlobalSearchOpen(false);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -47,8 +49,14 @@ export const GlobalSearchModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 bg-slate-900/60 backdrop-blur-xs p-4">
-      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-150">
+    <div
+      onClick={() => setGlobalSearchOpen(false)}
+      className="fixed inset-0 z-50 flex items-start justify-center pt-20 bg-slate-900/60 backdrop-blur-xs p-4 cursor-pointer"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-150 cursor-default"
+      >
         <div className="flex items-center px-4 py-3 border-b border-slate-100 bg-slate-50/50">
           <Search className="w-5 h-5 text-slate-400 mr-3" />
           <input
