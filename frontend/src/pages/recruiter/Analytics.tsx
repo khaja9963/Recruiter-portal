@@ -1,62 +1,51 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { BarChart3, TrendingUp, Briefcase } from 'lucide-react';
 import { useRecruiterStore } from '../../store/recruiterStore';
 
 export const Analytics: React.FC = () => {
   const { jobs, applications } = useRecruiterStore();
 
-  // Compute funnel stage metrics to match design
-  const totalApps = applications.length || 4;
+  // Dynamically compute funnel metrics directly from applications array
+  const totalApps = applications.length;
   const screeningApps = applications.filter((a) => a.stage === 'Screening').length;
-  const shortlistedApps = applications.filter((a) => a.stage === 'Shortlisted').length || 2;
-  const interviewApps = applications.filter((a) => a.stage === 'Interview').length || 1;
-  const offerApps = applications.filter((a) => a.stage === 'Offer').length || 1;
+  const shortlistedApps = applications.filter((a) => a.stage === 'Shortlisted').length;
+  const interviewApps = applications.filter((a) => a.stage === 'Interview').length;
+  const offerApps = applications.filter((a) => a.stage === 'Offer').length;
   const hiredApps = applications.filter((a) => a.stage === 'Hired').length;
 
   const funnelStages = [
-    { label: 'Applications', count: totalApps, max: 4, percent: 100 },
-    { label: 'Screening', count: screeningApps, max: 4, percent: 0 },
-    { label: 'Shortlisted', count: shortlistedApps, max: 4, percent: 50 },
-    { label: 'Interviews', count: interviewApps, max: 4, percent: 25 },
-    { label: 'Offers', count: offerApps, max: 4, percent: 25 },
-    { label: 'Hired', count: hiredApps, max: 4, percent: 8 }
+    { label: 'Applications', count: totalApps, percent: totalApps > 0 ? 100 : 0 },
+    { label: 'Screening', count: screeningApps, percent: totalApps > 0 ? Math.round((screeningApps / totalApps) * 100) : 0 },
+    { label: 'Shortlisted', count: shortlistedApps, percent: totalApps > 0 ? Math.round((shortlistedApps / totalApps) * 100) : 0 },
+    { label: 'Interviews', count: interviewApps, percent: totalApps > 0 ? Math.round((interviewApps / totalApps) * 100) : 0 },
+    { label: 'Offers', count: offerApps, percent: totalApps > 0 ? Math.round((offerApps / totalApps) * 100) : 0 },
+    { label: 'Hired', count: hiredApps, percent: totalApps > 0 ? Math.round((hiredApps / totalApps) * 100) : 0 }
   ];
 
-  // Requisitions performance data matching user screenshot
-  const jobPerformanceList = [
-    {
-      title: 'Senior Python & FastAPI Engineer',
-      status: 'PUBLISHED',
-      statusColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-      totalApplications: 34,
-      shortlisted: 6,
-      conversionRate: '18%'
-    },
-    {
-      title: 'Lead React & Frontend Architect',
-      status: 'PUBLISHED',
-      statusColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-      totalApplications: 42,
-      shortlisted: 8,
-      conversionRate: '19%'
-    },
-    {
-      title: 'DevOps & Cloud Systems Lead',
-      status: 'REVIEW',
-      statusColor: 'bg-amber-50 text-amber-700 border-amber-200',
-      totalApplications: 12,
-      shortlisted: 2,
-      conversionRate: '17%'
-    },
-    {
-      title: 'Product Designer (UI/UX)',
-      status: 'PUBLISHED',
-      statusColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-      totalApplications: 28,
-      shortlisted: 5,
-      conversionRate: '21%'
-    }
-  ];
+  // Dynamically compute job performance list from jobs & applications
+  const jobPerformanceList = jobs.map((job) => {
+    const jobApps = applications.filter((a) => a.jobId === job.id);
+    const totalJobApps = jobApps.length;
+    const shortlistedCount = jobApps.filter(
+      (a) => a.stage === 'Shortlisted' || a.stage === 'Interview' || a.stage === 'Offer' || a.stage === 'Hired'
+    ).length;
+    const conversionRate = totalJobApps > 0 ? `${Math.round((shortlistedCount / totalJobApps) * 100)}%` : '0%';
+
+    let statusColor = 'bg-slate-100 text-slate-700 border-slate-200';
+    if (job.status === 'Published') statusColor = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    if (job.status === 'Draft') statusColor = 'bg-slate-100 text-slate-700 border-slate-200';
+    if (job.status === 'Paused') statusColor = 'bg-amber-50 text-amber-700 border-amber-200';
+    if (job.status === 'Closed') statusColor = 'bg-rose-50 text-rose-700 border-rose-200';
+
+    return {
+      title: job.title,
+      status: job.status.toUpperCase(),
+      statusColor,
+      totalApplications: totalJobApps,
+      shortlisted: shortlistedCount,
+      conversionRate
+    };
+  });
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12 font-sans antialiased text-slate-900 animate-in fade-in duration-200">
@@ -124,21 +113,29 @@ export const Analytics: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {jobPerformanceList.map((job, idx) => (
-                <tr key={idx} className="hover:bg-slate-50/60 transition-colors">
-                  <td className="py-3.5 px-4 font-bold text-slate-900">{job.title}</td>
-                  <td className="py-3.5 px-4">
-                    <span
-                      className={`px-2 py-0.5 rounded-md font-bold text-[10px] border uppercase ${job.statusColor}`}
-                    >
-                      {job.status}
-                    </span>
+              {jobPerformanceList.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-8 text-center text-xs text-slate-400">
+                    No job requisitions found. Create a job to view performance metrics.
                   </td>
-                  <td className="py-3.5 px-4 font-bold text-slate-800">{job.totalApplications}</td>
-                  <td className="py-3.5 px-4 font-bold text-[#4F46E5]">{job.shortlisted}</td>
-                  <td className="py-3.5 px-4 font-bold text-emerald-600">{job.conversionRate}</td>
                 </tr>
-              ))}
+              ) : (
+                jobPerformanceList.map((job, idx) => (
+                  <tr key={idx} className="hover:bg-slate-50/60 transition-colors">
+                    <td className="py-3.5 px-4 font-bold text-slate-900">{job.title}</td>
+                    <td className="py-3.5 px-4">
+                      <span
+                        className={`px-2 py-0.5 rounded-md font-bold text-[10px] border uppercase ${job.statusColor}`}
+                      >
+                        {job.status}
+                      </span>
+                    </td>
+                    <td className="py-3.5 px-4 font-bold text-slate-800">{job.totalApplications}</td>
+                    <td className="py-3.5 px-4 font-bold text-[#4F46E5]">{job.shortlisted}</td>
+                    <td className="py-3.5 px-4 font-bold text-emerald-600">{job.conversionRate}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
