@@ -72,7 +72,7 @@ export const CreateJob: React.FC = () => {
   return (
     <div className="space-y-6 max-w-4xl mx-auto animate-in fade-in duration-200 pb-12">
       {/* Top Header */}
-      <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+      <div className="border-b border-slate-200 pb-4">
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate(-1)}
@@ -84,30 +84,6 @@ export const CreateJob: React.FC = () => {
             <h1 className="text-xl font-bold text-slate-900">Create New Job Posting</h1>
             <p className="text-xs text-slate-500">Draft or publish a job requisition for your organization</p>
           </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => handleSave('Draft')}
-            className="px-4 py-2 border border-slate-300 rounded-xl text-slate-700 text-xs font-semibold hover:bg-slate-100 flex items-center gap-1.5"
-          >
-            <Save className="w-4 h-4 text-slate-500" /> Save Draft
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsPreviewOpen(true)}
-            className="px-4 py-2 border border-slate-300 rounded-xl text-slate-700 text-xs font-semibold hover:bg-slate-100 flex items-center gap-1.5"
-          >
-            <Eye className="w-4 h-4 text-blue-600" /> Preview
-          </button>
-          <button
-            type="button"
-            onClick={() => handleSave('Published')}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5"
-          >
-            <Send className="w-4 h-4" /> Publish Job
-          </button>
         </div>
       </div>
 
@@ -305,6 +281,31 @@ export const CreateJob: React.FC = () => {
               />
             </div>
           </div>
+        </div>
+
+        {/* Action Buttons at the Bottom */}
+        <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs flex items-center justify-end gap-3">
+          <button
+            type="button"
+            onClick={() => handleSave('Draft')}
+            className="px-4 py-2.5 border border-slate-300 rounded-xl text-slate-700 text-xs font-semibold hover:bg-slate-100 flex items-center gap-1.5 transition-colors"
+          >
+            <Save className="w-4 h-4 text-slate-500" /> Save Draft
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsPreviewOpen(true)}
+            className="px-4 py-2.5 border border-slate-300 rounded-xl text-slate-700 text-xs font-semibold hover:bg-slate-100 flex items-center gap-1.5 transition-colors"
+          >
+            <Eye className="w-4 h-4 text-blue-600" /> Preview
+          </button>
+          <button
+            type="button"
+            onClick={() => handleSave('Published')}
+            className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-colors"
+          >
+            <Send className="w-4 h-4" /> Publish Job
+          </button>
         </div>
       </form>
     </div>

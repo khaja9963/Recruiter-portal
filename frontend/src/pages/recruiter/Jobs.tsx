@@ -35,17 +35,9 @@ export const Jobs: React.FC = () => {
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* Page Title Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">Job Requisitions</h1>
-          <p className="text-xs text-slate-500">Manage and publish job postings for your organization</p>
-        </div>
-        <button
-          onClick={() => navigate(`/org/${organizationId}/recruiter/jobs/create`)}
-          className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs transition-colors flex items-center gap-2 self-start sm:self-auto"
-        >
-          <Plus className="w-4 h-4" /> Create Job Posting
-        </button>
+      <div className="pb-2 border-b border-slate-200/80">
+        <h1 className="text-xl font-bold text-slate-900 tracking-tight">Job Requisitions</h1>
+        <p className="text-xs text-slate-500">Manage and publish job postings for your organization</p>
       </div>
 
       {/* Filter Toolbar */}
