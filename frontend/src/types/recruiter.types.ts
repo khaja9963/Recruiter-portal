@@ -28,6 +28,10 @@ export interface RecruiterProfile {
   organizationName: string;
   role: 'Recruiter' | 'Senior Recruiter' | 'Lead Recruiter' | 'Talent Acquisition Manager';
   joinedDate: string;
+  department?: string;
+  location?: string;
+  bio?: string;
+  timezone?: string;
 }
 
 export interface ScreeningQuestion {

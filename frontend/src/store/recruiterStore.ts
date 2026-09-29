@@ -27,7 +27,11 @@ const initialProfile: RecruiterProfile = {
   organizationId: 'clyptus',
   organizationName: 'Clyptus',
   role: 'Senior Recruiter',
-  joinedDate: '2023-03-15'
+  joinedDate: '2023-03-15',
+  department: 'Talent Acquisition & Technical Hiring',
+  location: 'San Francisco, CA',
+  bio: 'Experienced Technical Recruiter specializing in scaling high-growth engineering teams across React, Node.js, AI, and Cloud Infrastructure.',
+  timezone: 'Pacific Time (US & Canada) (PST/PDT)'
 };
 
 // Initial Jobs
