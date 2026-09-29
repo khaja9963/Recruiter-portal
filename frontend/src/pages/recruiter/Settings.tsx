@@ -68,8 +68,32 @@ export const Settings: React.FC = () => {
     setTimeout(() => setPasswordSaved(false), 2500);
   };
 
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === 'string') {
+          setAvatar(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
     <div className="space-y-6 max-w-4xl mx-auto font-sans antialiased text-slate-900 pb-12 animate-in fade-in duration-200">
+      {/* Hidden File Input for Device Gallery */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        accept="image/*"
+        onChange={handleFileChange}
+        className="hidden"
+      />
+
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-slate-200/80">
         <div>
@@ -121,20 +145,20 @@ export const Settings: React.FC = () => {
         <form onSubmit={handleSaveProfile} className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-6 text-xs">
           {/* Avatar & Summary Card */}
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 p-4 bg-slate-50/80 rounded-2xl border border-slate-100">
-            <div className="relative group">
+            <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
               <img
                 src={avatar || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=250'}
                 alt={name}
-                className="w-20 h-20 rounded-full object-cover border-2 border-white shadow-md shrink-0"
+                className="w-20 h-20 rounded-full object-cover border-2 border-white shadow-md shrink-0 group-hover:opacity-90 transition-opacity"
               />
               <button
                 type="button"
-                onClick={() => {
-                  const newAvatar = prompt('Enter image URL for profile photo:', avatar);
-                  if (newAvatar) setAvatar(newAvatar);
+                onClick={(e) => {
+                  e.stopPropagation();
+                  fileInputRef.current?.click();
                 }}
                 className="absolute bottom-0 right-0 p-1.5 bg-slate-900 text-white rounded-full shadow-md hover:bg-indigo-600 transition-colors"
-                title="Change photo"
+                title="Choose photo from gallery"
               >
                 <Camera className="w-3.5 h-3.5" />
               </button>
