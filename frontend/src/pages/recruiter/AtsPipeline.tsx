@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import {
   Kanban,
   Filter,
@@ -12,7 +12,8 @@ import {
   ChevronRight,
   UserCheck,
   Building2,
-  Clock
+  Clock,
+  Plus
 } from 'lucide-react';
 import { useRecruiterStore } from '../../store/recruiterStore';
 import { ApplicationStage } from '../../types/recruiter.types';
@@ -28,7 +29,10 @@ interface StageColumn {
 export const AtsPipeline: React.FC = () => {
   const { organizationId = 'clyptus' } = useParams<{ organizationId: string }>();
   const navigate = useNavigate();
-  const { applications, jobs, updateApplicationStage } = useRecruiterStore();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeStageParam = searchParams.get('stage') as ApplicationStage | null;
+
+  const { applications, jobs, updateApplicationStage, seedDemoApplications } = useRecruiterStore();
 
   const [selectedJobId, setSelectedJobId] = useState<string>('all');
   const [successToast, setSuccessToast] = useState<string | null>(null);
@@ -74,19 +78,30 @@ export const AtsPipeline: React.FC = () => {
           </p>
         </div>
 
-        {/* Filter by Job Requisition */}
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-500 font-medium">Requisition:</span>
-          <select
-            value={selectedJobId}
-            onChange={(e) => setSelectedJobId(e.target.value)}
-            className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-700 focus:outline-hidden focus:ring-1 focus:ring-blue-500"
-          >
-            <option value="all">All Active Jobs ({applications.length} Candidates)</option>
-            {jobs.map((job) => (
-              <option key={job.id} value={job.id}>{job.title}</option>
-            ))}
-          </select>
+        {/* Filter by Job Requisition & Actions */}
+        <div className="flex items-center gap-3">
+          {applications.length === 0 && (
+            <button
+              onClick={seedDemoApplications}
+              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1 shadow-2xs"
+            >
+              <Plus className="w-3.5 h-3.5" /> Populate Demo Candidates
+            </button>
+          )}
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-slate-500 font-medium">Requisition:</span>
+            <select
+              value={selectedJobId}
+              onChange={(e) => setSelectedJobId(e.target.value)}
+              className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-700 focus:outline-hidden focus:ring-1 focus:ring-blue-500 shadow-2xs"
+            >
+              <option value="all">All Active Jobs ({applications.length} Candidates)</option>
+              {jobs.map((job) => (
+                <option key={job.id} value={job.id}>{job.title}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
@@ -94,11 +109,21 @@ export const AtsPipeline: React.FC = () => {
       <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2 bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
         {stages.map((stage) => {
           const count = filteredApps.filter((a) => a.stage === stage.id).length;
+          const isSelected = activeStageParam === stage.id;
+
           return (
-            <div key={stage.id} className="text-center p-2 rounded-lg bg-slate-50/70 border border-slate-100">
-              <div className="text-[11px] font-medium text-slate-500 truncate">{stage.title}</div>
-              <div className="text-lg font-bold text-slate-900 mt-0.5">{count}</div>
-            </div>
+            <button
+              key={stage.id}
+              onClick={() => setSearchParams({ stage: stage.id })}
+              className={`text-center p-2 rounded-lg border transition-all cursor-pointer ${
+                isSelected
+                  ? 'bg-indigo-50 border-indigo-400 ring-2 ring-indigo-500/20'
+                  : 'bg-slate-50/70 border-slate-100 hover:bg-slate-100'
+              }`}
+            >
+              <div className="text-[11px] font-bold text-slate-600 truncate">{stage.title}</div>
+              <div className="text-lg font-extrabold text-slate-900 mt-0.5">{count}</div>
+            </button>
           );
         })}
       </div>
@@ -107,16 +132,21 @@ export const AtsPipeline: React.FC = () => {
       <div className="flex gap-4 overflow-x-auto pb-4 pt-1 items-start min-h-[550px]">
         {stages.map((column) => {
           const stageApps = filteredApps.filter((app) => app.stage === column.id);
+          const isHighlighted = activeStageParam === column.id;
 
           return (
             <div
               key={column.id}
-              className="w-72 shrink-0 bg-slate-100/80 rounded-xl p-3 border border-slate-200 flex flex-col max-h-[750px]"
+              className={`w-72 shrink-0 rounded-xl p-3 border transition-all flex flex-col max-h-[750px] ${
+                isHighlighted
+                  ? 'bg-indigo-50/60 border-indigo-300 ring-2 ring-indigo-400/30'
+                  : 'bg-slate-100/80 border-slate-200'
+              }`}
             >
               {/* Column Header */}
               <div className="flex items-center justify-between pb-3 mb-2 border-b border-slate-200/80">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-slate-800">{column.title}</span>
+                  <span className="text-xs font-extrabold text-slate-900">{column.title}</span>
                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${column.badgeBg} ${column.badgeText}`}>
                     {stageApps.length}
                   </span>
@@ -126,8 +156,8 @@ export const AtsPipeline: React.FC = () => {
               {/* Column Cards List */}
               <div className="flex-1 overflow-y-auto space-y-2.5 pr-1">
                 {stageApps.length === 0 ? (
-                  <div className="p-6 text-center text-xs text-slate-400 border border-dashed border-slate-200 rounded-lg">
-                    No candidates
+                  <div className="p-6 text-center text-xs text-slate-400 border border-dashed border-slate-200 rounded-lg bg-white/50">
+                    No candidates in {column.title}
                   </div>
                 ) : (
                   stageApps.map((app) => (
@@ -155,46 +185,44 @@ export const AtsPipeline: React.FC = () => {
                         )}
                       </div>
 
-                      <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-100">
+                      {/* Stage Selector Dropdown */}
+                      <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+                        <span className="text-[10px] font-semibold text-slate-400">Move to:</span>
+                        <select
+                          value={app.stage}
+                          onChange={(e) => handleStageChange(app.id, e.target.value as ApplicationStage, app.candidateName)}
+                          className="px-2 py-1 bg-slate-50 border border-slate-200 rounded text-[11px] font-semibold text-slate-700 focus:outline-hidden focus:ring-1 focus:ring-blue-500"
+                        >
+                          {stages.map((st) => (
+                            <option key={st.id} value={st.id}>
+                              {st.title}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
                         <span className="flex items-center gap-1">
-                          <Clock className="w-3 h-3" /> {app.appliedDate}
+                          <Clock className="w-3 h-3 text-slate-400" /> {app.appliedDate}
                         </span>
 
-                        {/* Stage Transition Quick Actions */}
-                        <div className="flex items-center gap-1">
-                          {column.id !== 'Interview' && column.id !== 'Hired' && column.id !== 'Rejected' && (
-                            <button
-                              onClick={() => {
-                                const nextIndex = stages.findIndex((s) => s.id === column.id) + 1;
-                                if (nextIndex < stages.length - 1) {
-                                  handleStageChange(app.id, stages[nextIndex].id, app.candidateName);
-                                }
-                              }}
-                              title="Advance to next stage"
-                              className="p-1 hover:bg-blue-50 text-slate-400 hover:text-blue-600 rounded transition-colors"
-                            >
-                              <ArrowRight className="w-3.5 h-3.5" />
-                            </button>
-                          )}
+                        {column.id === 'Interview' && (
+                          <button
+                            onClick={() => navigate(`/org/${organizationId}/recruiter/interviews`)}
+                            className="px-1.5 py-0.5 bg-purple-50 text-purple-700 hover:bg-purple-100 rounded text-[10px] font-semibold transition-colors flex items-center gap-0.5"
+                          >
+                            <Calendar className="w-3 h-3" /> Schedule
+                          </button>
+                        )}
 
-                          {column.id === 'Interview' && (
-                            <button
-                              onClick={() => navigate(`/org/${organizationId}/recruiter/interviews`)}
-                              className="px-1.5 py-0.5 bg-purple-50 text-purple-700 hover:bg-purple-100 rounded text-[10px] font-semibold transition-colors flex items-center gap-0.5"
-                            >
-                              <Calendar className="w-3 h-3" /> Schedule
-                            </button>
-                          )}
-
-                          {column.id === 'Offer' && (
-                            <button
-                              onClick={() => navigate(`/org/${organizationId}/recruiter/offers`)}
-                              className="px-1.5 py-0.5 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded text-[10px] font-semibold transition-colors"
-                            >
-                              Send Offer
-                            </button>
-                          )}
-                        </div>
+                        {column.id === 'Offer' && (
+                          <button
+                            onClick={() => navigate(`/org/${organizationId}/recruiter/offers`)}
+                            className="px-1.5 py-0.5 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded text-[10px] font-semibold transition-colors"
+                          >
+                            Send Offer
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))

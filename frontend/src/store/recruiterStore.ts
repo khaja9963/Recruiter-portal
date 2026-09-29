@@ -87,6 +87,7 @@ interface RecruiterState {
   markNotificationAsRead: (id: string) => void;
   markAllNotificationsAsRead: () => void;
   updateProfile: (profileUpdates: Partial<RecruiterProfile>) => void;
+  seedDemoApplications: () => void;
 }
 
 export const useRecruiterStore = create<RecruiterState>((set, get) => ({
@@ -367,6 +368,136 @@ export const useRecruiterStore = create<RecruiterState>((set, get) => ({
         offers: state.offers.map((o) => (o.id === offerId ? { ...o, status } : o))
       };
     });
+  },
+
+  seedDemoApplications: () => {
+    const demoJobs: Job[] = [
+      {
+        id: 'job-demo-1',
+        organizationId: 'clyptus',
+        title: 'Senior React Developer',
+        department: 'Engineering',
+        location: 'San Francisco, CA',
+        employmentType: 'Full-time',
+        workMode: 'Remote',
+        experienceLevel: 'Senior',
+        salaryMin: 140000,
+        salaryMax: 180000,
+        currency: 'USD',
+        status: 'Published',
+        postedDate: '2026-09-20',
+        deadline: '2026-10-30',
+        openings: 2,
+        assignedRecruiterId: 'rec_01',
+        assignedRecruiterName: 'Sarah Jenkins',
+        summary: 'Build scalable front-end Web apps using React and TypeScript.',
+        responsibilities: ['Architect UI components', 'Optimize state management'],
+        requiredSkills: ['React', 'TypeScript', 'Tailwind CSS'],
+        preferredSkills: ['Next.js', 'Zustand'],
+        qualifications: ['BS in Computer Science or equivalent'],
+        interviewProcess: ['HR Screening', 'Technical Assessment', 'System Design'],
+        screeningQuestions: [],
+        applicationsCount: 4,
+        shortlistedCount: 2,
+        viewsCount: 142
+      }
+    ];
+
+    const demoApps: Application[] = [
+      {
+        id: 'app-demo-1',
+        candidateId: 'cand-1',
+        jobId: 'job-demo-1',
+        organizationId: 'clyptus',
+        candidateName: 'Alex Morgan',
+        candidateAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+        candidateEmail: 'alex.morgan@gmail.com',
+        candidatePhone: '+1 (555) 123-4567',
+        candidateTitle: 'Full Stack Engineer',
+        candidateLocation: 'Austin, TX',
+        candidateExperienceYears: 5,
+        candidateSkills: ['React', 'TypeScript', 'Node.js'],
+        jobTitle: 'Senior React Developer',
+        department: 'Engineering',
+        appliedDate: '2026-09-22',
+        stage: 'Applied',
+        matchScore: 92,
+        resumeUrl: 'https://example.com/resume.pdf',
+        notes: [],
+        timeline: [{ id: 'tl-1', stage: 'Applied', date: '2026-09-22', description: 'Application submitted', updatedBy: 'System' }]
+      },
+      {
+        id: 'app-demo-2',
+        candidateId: 'cand-2',
+        jobId: 'job-demo-1',
+        organizationId: 'clyptus',
+        candidateName: 'David Chen',
+        candidateAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
+        candidateEmail: 'david.chen@tech.io',
+        candidatePhone: '+1 (555) 987-6543',
+        candidateTitle: 'Senior Frontend Developer',
+        candidateLocation: 'Seattle, WA',
+        candidateExperienceYears: 7,
+        candidateSkills: ['React', 'Redux', 'System Design'],
+        jobTitle: 'Senior React Developer',
+        department: 'Engineering',
+        appliedDate: '2026-09-21',
+        stage: 'Screening',
+        matchScore: 95,
+        resumeUrl: 'https://example.com/resume2.pdf',
+        notes: [],
+        timeline: [{ id: 'tl-2', stage: 'Screening', date: '2026-09-23', description: 'Screening initiated', updatedBy: 'Sarah Jenkins' }]
+      },
+      {
+        id: 'app-demo-3',
+        candidateId: 'cand-3',
+        jobId: 'job-demo-1',
+        organizationId: 'clyptus',
+        candidateName: 'Sophia Martinez',
+        candidateAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150',
+        candidateEmail: 'sophia.m@designcode.com',
+        candidatePhone: '+1 (555) 456-7890',
+        candidateTitle: 'UI Engineer',
+        candidateLocation: 'San Francisco, CA',
+        candidateExperienceYears: 4,
+        candidateSkills: ['React', 'Tailwind', 'Figma'],
+        jobTitle: 'Senior React Developer',
+        department: 'Engineering',
+        appliedDate: '2026-09-19',
+        stage: 'Shortlisted',
+        matchScore: 88,
+        resumeUrl: 'https://example.com/resume3.pdf',
+        notes: [],
+        timeline: [{ id: 'tl-3', stage: 'Shortlisted', date: '2026-09-24', description: 'Shortlisted for interview', updatedBy: 'Sarah Jenkins' }]
+      },
+      {
+        id: 'app-demo-4',
+        candidateId: 'cand-4',
+        jobId: 'job-demo-1',
+        organizationId: 'clyptus',
+        candidateName: 'Marcus Vance',
+        candidateAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150',
+        candidateEmail: 'marcus.v@cloud.net',
+        candidatePhone: '+1 (555) 321-7654',
+        candidateTitle: 'Lead Web Engineer',
+        candidateLocation: 'Remote',
+        candidateExperienceYears: 8,
+        candidateSkills: ['React', 'TypeScript', 'GraphQL'],
+        jobTitle: 'Senior React Developer',
+        department: 'Engineering',
+        appliedDate: '2026-09-18',
+        stage: 'Interview',
+        matchScore: 96,
+        resumeUrl: 'https://example.com/resume4.pdf',
+        notes: [],
+        timeline: [{ id: 'tl-4', stage: 'Interview', date: '2026-09-25', description: 'Technical Interview scheduled', updatedBy: 'Sarah Jenkins' }]
+      }
+    ];
+
+    set((state) => ({
+      jobs: state.jobs.length === 0 ? demoJobs : state.jobs,
+      applications: demoApps
+    }));
   },
 
   markNotificationAsRead: (id) => {

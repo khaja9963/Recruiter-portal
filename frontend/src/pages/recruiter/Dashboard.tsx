@@ -20,12 +20,12 @@ import {
 import { useRecruiterStore } from '../../store/recruiterStore';
 import { ScheduleInterviewModal } from '../../components/recruiter/ScheduleInterviewModal';
 import { ChangeStageModal } from '../../components/recruiter/ChangeStageModal';
-import { Application } from '../../types/recruiter.types';
+import { Application, ApplicationStage } from '../../types/recruiter.types';
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { organizationId = 'clyptus' } = useParams<{ organizationId: string }>();
-  const { profile, jobs, applications, interviews } = useRecruiterStore();
+  const { profile, jobs, applications, interviews, seedDemoApplications } = useRecruiterStore();
 
   const [selectedAppForStage, setSelectedAppForStage] = useState<Application | null>(null);
   const [isScheduleOpen, setIsScheduleOpen] = useState(false);
@@ -45,6 +45,15 @@ export const Dashboard: React.FC = () => {
     tokensRemaining: 840,
     tokensUsed: 160
   };
+
+  const funnelStages: { id: ApplicationStage; label: string; count: number; color: string }[] = [
+    { id: 'Applied', label: 'APPLICATIONS', count: kpis.newApplications, color: 'bg-blue-500' },
+    { id: 'Screening', label: 'SCREENING', count: kpis.screeningCount, color: 'bg-purple-500' },
+    { id: 'Shortlisted', label: 'SHORTLISTED', count: kpis.shortlistedCount, color: 'bg-indigo-500' },
+    { id: 'Interview', label: 'INTERVIEW', count: kpis.interviewCount, color: 'bg-amber-500' },
+    { id: 'Offer', label: 'OFFER', count: kpis.offerCount, color: 'bg-emerald-500' },
+    { id: 'Hired', label: 'HIRED', count: kpis.hiredCount, color: 'bg-teal-500' }
+  ];
 
   const recentApplications = applications.slice(0, 5);
   const upcomingInterviews = interviews.filter((i) => i.status === 'Scheduled').slice(0, 3);
@@ -189,90 +198,57 @@ export const Dashboard: React.FC = () => {
             <TrendingUp className="w-5 h-5 text-indigo-600" />
             <h3 className="font-extrabold text-slate-900 text-base">Hiring Pipeline Funnel</h3>
           </div>
-          <button
-            onClick={() => navigate(`/org/${organizationId}/recruiter/ats`)}
-            className="text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1 transition-colors"
-          >
-            Open Kanban ATS <ArrowRight className="w-3.5 h-3.5" />
-          </button>
+          <div className="flex items-center gap-2">
+            {applications.length === 0 && (
+              <button
+                onClick={seedDemoApplications}
+                className="text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-3 py-1 rounded-lg transition-colors flex items-center gap-1"
+              >
+                + Populate Demo Funnel Data
+              </button>
+            )}
+            <button
+              onClick={() => navigate(`/org/${organizationId}/recruiter/ats`)}
+              className="text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1 transition-colors"
+            >
+              Open Kanban ATS <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
         <p className="text-xs text-slate-400">
-          Real-time breakdown of candidates progressing across ATS stages.
+          Real-time breakdown of candidates progressing across ATS stages. Click any stage to open ATS pipeline.
         </p>
 
         {/* 6 Stage Mini Cards Row */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mt-5">
-          {/* Stage 1: Applications */}
-          <div className="bg-slate-50/80 rounded-xl p-3.5 border border-slate-100 flex flex-col justify-between h-24">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                APPLICATIONS
-              </span>
-              <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />
-            </div>
-            <div className="text-2xl font-extrabold text-slate-900">{kpis.newApplications}</div>
-            <div className="w-full bg-slate-200 h-1 rounded-full overflow-hidden mt-1" />
-          </div>
+          {funnelStages.map((stage) => {
+            const pct = applications.length > 0 ? Math.round((stage.count / applications.length) * 100) : 0;
 
-          {/* Stage 2: Screening */}
-          <div className="bg-slate-50/80 rounded-xl p-3.5 border border-slate-100 flex flex-col justify-between h-24">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                SCREENING
-              </span>
-              <span className="w-2 h-2 rounded-full bg-purple-500 shrink-0" />
-            </div>
-            <div className="text-2xl font-extrabold text-slate-900">{kpis.screeningCount}</div>
-            <div className="w-full bg-slate-200 h-1 rounded-full overflow-hidden mt-1" />
-          </div>
-
-          {/* Stage 3: Shortlisted */}
-          <div className="bg-slate-50/80 rounded-xl p-3.5 border border-slate-100 flex flex-col justify-between h-24">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                SHORTLISTED
-              </span>
-              <span className="w-2 h-2 rounded-full bg-purple-500 shrink-0" />
-            </div>
-            <div className="text-2xl font-extrabold text-slate-900">{kpis.shortlistedCount}</div>
-            <div className="w-full bg-purple-500 h-1 rounded-full mt-1" />
-          </div>
-
-          {/* Stage 4: Interview */}
-          <div className="bg-slate-50/80 rounded-xl p-3.5 border border-slate-100 flex flex-col justify-between h-24">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                INTERVIEW
-              </span>
-              <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
-            </div>
-            <div className="text-2xl font-extrabold text-slate-900">{kpis.interviewCount}</div>
-            <div className="w-full bg-amber-500 h-1 rounded-full mt-1" />
-          </div>
-
-          {/* Stage 5: Offer */}
-          <div className="bg-slate-50/80 rounded-xl p-3.5 border border-slate-100 flex flex-col justify-between h-24">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                OFFER
-              </span>
-              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-            </div>
-            <div className="text-2xl font-extrabold text-slate-900">{kpis.offerCount}</div>
-            <div className="w-full bg-emerald-500 h-1 rounded-full mt-1" />
-          </div>
-
-          {/* Stage 6: Hired */}
-          <div className="bg-slate-50/80 rounded-xl p-3.5 border border-slate-100 flex flex-col justify-between h-24">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                HIRED
-              </span>
-              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-            </div>
-            <div className="text-2xl font-extrabold text-slate-900">{kpis.hiredCount}</div>
-            <div className="w-full bg-slate-200 h-1 rounded-full overflow-hidden mt-1" />
-          </div>
+            return (
+              <div
+                key={stage.id}
+                onClick={() => navigate(`/org/${organizationId}/recruiter/ats?stage=${stage.id}`)}
+                className="bg-slate-50/80 hover:bg-indigo-50/50 hover:border-indigo-300 transition-all duration-200 rounded-xl p-3.5 border border-slate-100 flex flex-col justify-between h-24 cursor-pointer group shadow-2xs hover:shadow-sm"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 group-hover:text-indigo-600">
+                    {stage.label}
+                  </span>
+                  <span className={`w-2 h-2 rounded-full ${stage.color} shrink-0`} />
+                </div>
+                <div className="flex items-baseline justify-between">
+                  <span className="text-2xl font-extrabold text-slate-900">{stage.count}</span>
+                  <span className="text-[10px] font-semibold text-slate-400">{pct}%</span>
+                </div>
+                <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden mt-1">
+                  <div
+                    className={`h-full ${stage.color} transition-all duration-500 rounded-full`}
+                    style={{ width: `${Math.max(pct, stage.count > 0 ? 15 : 0)}%` }}
+                  />
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
