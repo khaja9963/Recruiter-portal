@@ -34,7 +34,7 @@ export const CandidateSearch: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const initialQuery = searchParams.get('q') || '';
-  const { candidates } = useRecruiterStore();
+  const { candidates, addRecentSearch } = useRecruiterStore();
 
   // Search Mode Tabs
   const [searchMode, setSearchMode] = useState<'form' | 'jd'>('form');
@@ -189,8 +189,9 @@ export const CandidateSearch: React.FC = () => {
         );
       }
       setHasSearched(true);
+      addRecentSearch(queryParam, 'All Locations', 1);
     }
-  }, [searchParams]);
+  }, [searchParams, addRecentSearch]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -288,6 +289,25 @@ export const CandidateSearch: React.FC = () => {
 
   const handleSearch = () => {
     setHasSearched(true);
+
+    let queryText = '';
+    if (booleanSearch && booleanQuery.trim()) {
+      queryText = booleanQuery.trim();
+    } else if (keywordTags.length > 0) {
+      queryText = keywordTags.map((t) => (t.isMandatory ? `"${t.text}"` : t.text)).join(' AND ');
+    } else if (tagInput.trim()) {
+      queryText = tagInput.trim();
+    } else if (companyInput.trim()) {
+      queryText = `Company: ${companyInput.trim()}`;
+    } else {
+      queryText = 'All Sourced Candidates';
+    }
+
+    const locationText = locationTags.length > 0 ? locationTags.join(', ') : 'All Locations';
+    const count = filteredCandidates.length;
+
+    addRecentSearch(queryText, locationText, count);
+
     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
   };
 

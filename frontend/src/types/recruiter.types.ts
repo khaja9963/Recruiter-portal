@@ -247,3 +247,12 @@ export interface ActivityItem {
   time: string;
   badgeColor?: string;
 }
+
+export interface RecentSearchItem {
+  id: string;
+  query: string;
+  location: string;
+  candidatesCount: number;
+  timestamp?: string;
+  isSaved?: boolean;
+}

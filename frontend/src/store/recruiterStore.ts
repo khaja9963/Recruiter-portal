@@ -10,6 +10,7 @@ import {
   NotificationItem,
   RecruiterKPIs,
   ActivityItem,
+  RecentSearchItem,
   ApplicationStage,
   JobStatus,
   InterviewStatus,
@@ -223,6 +224,17 @@ const initialActivities: ActivityItem[] = [
   }
 ];
 
+const initialRecentSearches: RecentSearchItem[] = [
+  { id: '1', query: '"React 19" AND "TypeScript" AND "Full Stack"', location: 'San Francisco, CA', candidatesCount: 24, timestamp: '1 hour ago' },
+  { id: '2', query: '("Node.js" OR "Python") AND ("PostgreSQL" OR "System Design")', location: 'Remote', candidatesCount: 18, timestamp: '3 hours ago' },
+  { id: '3', query: '"Senior Frontend Engineer" AND ("Tailwind CSS" OR "Zustand")', location: 'Austin, TX', candidatesCount: 12, timestamp: 'Yesterday' }
+];
+
+const initialSavedSearches: RecentSearchItem[] = [
+  { id: 's1', query: 'Lead Software Architect AND ("Cloud" OR "AWS")', location: 'San Francisco, CA', candidatesCount: 8, timestamp: '2 days ago', isSaved: true },
+  { id: 's2', query: 'Data Engineer AND ("Python" OR "Spark")', location: 'Remote', candidatesCount: 15, timestamp: '3 days ago', isSaved: true }
+];
+
 interface RecruiterState {
   profile: RecruiterProfile;
   jobs: Job[];
@@ -232,6 +244,8 @@ interface RecruiterState {
   offers: Offer[];
   notifications: NotificationItem[];
   activities: ActivityItem[];
+  recentSearches: RecentSearchItem[];
+  savedSearches: RecentSearchItem[];
   sidebarOpen: boolean;
   globalSearchQuery: string;
   isGlobalSearchOpen: boolean;
@@ -241,6 +255,11 @@ interface RecruiterState {
   setSidebarOpen: (open: boolean) => void;
   setGlobalSearchQuery: (query: string) => void;
   setGlobalSearchOpen: (open: boolean) => void;
+
+  // Search Actions
+  addRecentSearch: (query: string, location?: string, candidatesCount?: number) => void;
+  toggleSaveSearch: (id: string) => void;
+  deleteRecentSearch: (id: string) => void;
 
   // Job Actions
   createJob: (jobData: Omit<Job, 'id' | 'organizationId' | 'postedDate' | 'applicationsCount' | 'shortlistedCount' | 'viewsCount'>) => Job;
@@ -279,6 +298,8 @@ export const useRecruiterStore = create<RecruiterState>((set, get) => ({
   offers: initialOffers,
   notifications: initialNotifications,
   activities: initialActivities,
+  recentSearches: initialRecentSearches,
+  savedSearches: initialSavedSearches,
   sidebarOpen: true,
   globalSearchQuery: '',
   isGlobalSearchOpen: false,
@@ -287,6 +308,51 @@ export const useRecruiterStore = create<RecruiterState>((set, get) => ({
   setSidebarOpen: (open) => set({ sidebarOpen: open }),
   setGlobalSearchQuery: (query) => set({ globalSearchQuery: query }),
   setGlobalSearchOpen: (open) => set({ isGlobalSearchOpen: open }),
+
+  addRecentSearch: (query, location = 'All Locations', candidatesCount = 1) => {
+    if (!query || query.trim().length === 0) return;
+    const cleanQuery = query.trim();
+    set((state) => {
+      const filtered = state.recentSearches.filter(
+        (s) => s.query.toLowerCase() !== cleanQuery.toLowerCase()
+      );
+      const newSearch: RecentSearchItem = {
+        id: `search-${Date.now()}`,
+        query: cleanQuery,
+        location: location.trim() || 'All Locations',
+        candidatesCount: candidatesCount || 1,
+        timestamp: 'Just now'
+      };
+      return {
+        recentSearches: [newSearch, ...filtered].slice(0, 10)
+      };
+    });
+  },
+
+  toggleSaveSearch: (id) => {
+    set((state) => {
+      const isSaved = state.savedSearches.some((s) => s.id === id);
+      if (isSaved) {
+        return {
+          savedSearches: state.savedSearches.filter((s) => s.id !== id)
+        };
+      }
+      const itemToSave = state.recentSearches.find((s) => s.id === id);
+      if (itemToSave) {
+        return {
+          savedSearches: [{ ...itemToSave, isSaved: true }, ...state.savedSearches]
+        };
+      }
+      return state;
+    });
+  },
+
+  deleteRecentSearch: (id) => {
+    set((state) => ({
+      recentSearches: state.recentSearches.filter((s) => s.id !== id),
+      savedSearches: state.savedSearches.filter((s) => s.id !== id)
+    }));
+  },
 
   createJob: (jobData) => {
     const newJob: Job = {

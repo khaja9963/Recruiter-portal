@@ -24,7 +24,7 @@ import { Application, ApplicationStage } from '../../types/recruiter.types';
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { organizationId = 'clyptus' } = useParams<{ organizationId: string }>();
-  const { profile, jobs, applications, candidates, seedDemoApplications } = useRecruiterStore();
+  const { profile, jobs, applications, candidates, recentSearches, savedSearches, seedDemoApplications } = useRecruiterStore();
 
   const [selectedAppForStage, setSelectedAppForStage] = useState<Application | null>(null);
   const [searchTab, setSearchTab] = useState<'recent' | 'saved'>('recent');
@@ -52,17 +52,6 @@ export const Dashboard: React.FC = () => {
     { id: 'Interview', label: 'INTERVIEW', count: kpis.interviewCount, color: 'bg-amber-500' },
     { id: 'Offer', label: 'OFFER', count: kpis.offerCount, color: 'bg-emerald-500' },
     { id: 'Hired', label: 'HIRED', count: kpis.hiredCount, color: 'bg-teal-500' }
-  ];
-
-  const recentSearches = [
-    { id: '1', query: '"React 19" AND "TypeScript" AND "Full Stack"', location: 'San Francisco, CA', candidatesCount: 24 },
-    { id: '2', query: '("Node.js" OR "Python") AND ("PostgreSQL" OR "System Design")', location: 'Remote', candidatesCount: 18 },
-    { id: '3', query: '"Senior Frontend Engineer" AND ("Tailwind CSS" OR "Zustand")', location: 'Austin, TX', candidatesCount: 12 }
-  ];
-
-  const savedSearches = [
-    { id: 's1', query: 'Lead Software Architect AND ("Cloud" OR "AWS")', location: 'San Francisco, CA', candidatesCount: 8 },
-    { id: 's2', query: 'Data Engineer AND ("Python" OR "Spark")', location: 'Remote', candidatesCount: 15 }
   ];
 
   const recentApplications = applications.slice(0, 5);
