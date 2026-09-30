@@ -177,9 +177,6 @@ export const RecruiterHeader: React.FC = () => {
         >
           <Search className="w-3.5 h-3.5 text-slate-400" />
           <span className="hidden sm:inline font-medium">Search...</span>
-          <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-white text-slate-400 rounded border border-slate-200">
-            Ctrl K
-          </kbd>
         </button>
 
         {/* Profile Avatar */}
