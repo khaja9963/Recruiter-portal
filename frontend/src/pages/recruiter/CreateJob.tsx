@@ -123,7 +123,7 @@ export const CreateJob: React.FC = () => {
               <Briefcase className="w-6 h-6 text-indigo-600" /> Create New Job Posting
             </h1>
             <p className="text-xs text-slate-500 font-medium">
-              Foundit Requisition Portal • Fill in mandatory candidate details, notice period, and experience ranges
+              Clyptus Requisition Portal • Fill in mandatory candidate details, notice period, and experience ranges
             </p>
           </div>
         </div>
@@ -223,11 +223,11 @@ export const CreateJob: React.FC = () => {
           </div>
         </div>
 
-        {/* Section 2: Foundit Candidate Experience & Requirements */}
+        {/* Section 2: Candidate Experience & Requirements */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-4">
           <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
             <Award className="w-4 h-4 text-indigo-600" />
-            <h2 className="text-sm font-extrabold text-slate-900">2. Foundit Experience & Candidate Requirements</h2>
+            <h2 className="text-sm font-extrabold text-slate-900">2. Candidate Experience & Requirements</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -387,7 +387,7 @@ export const CreateJob: React.FC = () => {
           </div>
         </div>
 
-        {/* Section 4: Foundit Key Skills & Job Content */}
+        {/* Section 4: Key Skills & Job Content */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-4">
           <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
             <Clock className="w-4 h-4 text-indigo-600" />

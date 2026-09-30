@@ -249,8 +249,6 @@ interface RecruiterState {
   deleteJob: (jobId: string) => void;
 
   // Application & Candidate Actions
-  addCandidate: (candidateData: Omit<Candidate, 'id' | 'organizationId' | 'appliedJobsCount'>) => Candidate;
-  updateCandidate: (candidateId: string, updates: Partial<Candidate>) => void;
   updateApplicationStage: (applicationId: string, newStage: ApplicationStage) => void;
   addRecruiterNote: (applicationId: string, noteContent: string) => void;
   shortlistCandidate: (candidateId: string, jobId?: string) => void;
@@ -335,38 +333,6 @@ export const useRecruiterStore = create<RecruiterState>((set, get) => ({
   deleteJob: (jobId) => {
     set((state) => ({
       jobs: state.jobs.filter((j) => j.id !== jobId)
-    }));
-  },
-
-  addCandidate: (candidateData) => {
-    const newCand: Candidate = {
-      ...candidateData,
-      id: `cand-${Date.now()}`,
-      organizationId: get().profile.organizationId,
-      appliedJobsCount: 0
-    };
-
-    set((state) => ({
-      candidates: [newCand, ...state.candidates]
-    }));
-
-    return newCand;
-  },
-
-  updateCandidate: (candidateId, updates) => {
-    set((state) => ({
-      candidates: state.candidates.map((c) => (c.id === candidateId ? { ...c, ...updates } : c)),
-      applications: state.applications.map((a) =>
-        a.candidateId === candidateId
-          ? {
-              ...a,
-              candidateName: updates.name || a.candidateName,
-              candidateEmail: updates.email || a.candidateEmail,
-              candidateTitle: updates.title || a.candidateTitle,
-              resumeUrl: updates.resumeUrl || a.resumeUrl
-            }
-          : a
-      )
     }));
   },
 

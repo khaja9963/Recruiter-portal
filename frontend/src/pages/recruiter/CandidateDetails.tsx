@@ -28,8 +28,7 @@ export const CandidateDetails: React.FC = () => {
     candidateId: string;
   }>();
 
-  const { candidates, applications, interviews, shortlistCandidate, updateCandidate } = useRecruiterStore();
-  const resumeInputRef = React.useRef<HTMLInputElement>(null);
+  const { candidates, applications, interviews, shortlistCandidate } = useRecruiterStore();
 
   const candidate = candidates.find((c) => c.id === candidateId);
   const candidateApps = applications.filter((a) => a.candidateId === candidateId);
@@ -38,20 +37,6 @@ export const CandidateDetails: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'profile' | 'resume' | 'applications' | 'interviews' | 'notes'>('profile');
   const [isScheduleOpen, setIsScheduleOpen] = useState(false);
   const [isNoteOpen, setIsNoteOpen] = useState(false);
-
-  const handleResumeFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && candidate) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (typeof reader.result === 'string') {
-          updateCandidate(candidate.id, { resumeUrl: reader.result });
-          alert(`Successfully uploaded real PDF resume: ${file.name}`);
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   if (!candidate) {
     return (
@@ -211,57 +196,20 @@ export const CandidateDetails: React.FC = () => {
       )}
 
       {activeTab === 'resume' && (
-        <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-4">
-          <input
-            type="file"
-            ref={resumeInputRef}
-            onChange={handleResumeFileChange}
-            accept=".pdf,.doc,.docx"
-            className="hidden"
-          />
-
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
-            <div>
-              <h3 className="font-extrabold text-slate-900 text-sm flex items-center gap-2">
-                <FileText className="w-4 h-4 text-indigo-600" /> Candidate Resume Document
-              </h3>
-              <p className="text-xs text-slate-500">
-                View or upload real PDF resume for {candidate.name}
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => resumeInputRef.current?.click()}
-                className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-2xs flex items-center gap-1.5 transition-colors"
-              >
-                <Plus className="w-4 h-4" /> Upload Real PDF Resume
-              </button>
-
-              <a
-                href={candidate.resumeUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl border border-slate-200 flex items-center gap-1.5 transition-colors"
-              >
-                <ExternalLink className="w-4 h-4" /> Open / Download PDF
-              </a>
-            </div>
+        <div className="bg-white p-6 rounded-xl border border-slate-200/80 shadow-xs space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-bold text-slate-900 text-sm">Resume Preview</h3>
+            <a
+              href={candidate.resumeUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="px-3 py-1.5 bg-blue-600 text-white text-xs font-bold rounded-lg flex items-center gap-1.5"
+            >
+              <FileText className="w-4 h-4" /> Download Resume PDF
+            </a>
           </div>
-
-          <div className="w-full bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden shadow-inner min-h-[600px] flex flex-col">
-            {candidate.resumeUrl ? (
-              <iframe
-                src={candidate.resumeUrl}
-                title={`${candidate.name} Resume`}
-                className="w-full h-[650px] border-0 rounded-2xl"
-              />
-            ) : (
-              <div className="p-12 text-center text-xs text-slate-400 font-medium">
-                No PDF resume uploaded yet. Click "Upload Real PDF Resume" above to select a file from your computer.
-              </div>
-            )}
+          <div className="bg-slate-100 p-8 rounded-xl border border-slate-200 text-center font-mono text-xs text-slate-500">
+            [ Interactive PDF Resume Viewer Simulated for {candidate.name} ]
           </div>
         </div>
       )}
