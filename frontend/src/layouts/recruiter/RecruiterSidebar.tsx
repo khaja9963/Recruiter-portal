@@ -2,10 +2,6 @@ import React from 'react';
 import { NavLink, useParams, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
-  Briefcase,
-  PlusCircle,
-  Users,
-  Search,
   FileText,
   Kanban,
   MessageSquare,
@@ -23,10 +19,6 @@ export const RecruiterSidebar: React.FC = () => {
 
   const navItems = [
     { label: 'Dashboard', path: `/org/${organizationId}/recruiter/dashboard`, icon: LayoutDashboard },
-    { label: 'My Jobs', path: `/org/${organizationId}/recruiter/jobs`, icon: Briefcase },
-    { label: 'Create Job', path: `/org/${organizationId}/recruiter/jobs/create`, icon: PlusCircle },
-    { label: 'Candidates', path: `/org/${organizationId}/recruiter/candidates`, icon: Users },
-    { label: 'Candidate Search', path: `/org/${organizationId}/recruiter/candidates/search`, icon: Search },
     { label: 'Applications', path: `/org/${organizationId}/recruiter/applications`, icon: FileText },
     { label: 'ATS / Pipeline', path: `/org/${organizationId}/recruiter/ats`, icon: Kanban },
     { label: 'Messages', path: `/org/${organizationId}/recruiter/messages`, icon: MessageSquare },
