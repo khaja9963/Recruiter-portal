@@ -95,20 +95,6 @@ export const RecruiterHeader: React.FC = () => {
 
       {/* Right Controls */}
       <div className="flex items-center gap-3">
-        {/* Recruiter Credit Quota Badge */}
-        <div className="hidden sm:flex items-center gap-2 bg-amber-50/90 border border-amber-200/80 rounded-xl px-3 py-1.5 shadow-2xs">
-          <div className="w-7 h-7 rounded-lg bg-amber-500/15 flex items-center justify-center text-amber-600 shrink-0">
-            <Coins className="w-4 h-4" />
-          </div>
-          <div className="text-left leading-tight">
-            <div className="text-[9px] font-bold uppercase text-amber-800 tracking-wider">
-              RECRUITER CREDIT QUOTA
-            </div>
-            <div className="text-xs font-extrabold text-slate-900">
-              840 <span className="text-[10px] font-medium text-slate-500">credits</span>
-            </div>
-          </div>
-        </div>
 
 
 

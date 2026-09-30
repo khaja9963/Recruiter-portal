@@ -60,42 +60,6 @@ export const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12 font-sans antialiased text-slate-900">
-      {/* Hero Banner Card */}
-      <div className="bg-[#13113C] rounded-2xl p-6 lg:p-7 text-white shadow-md relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-        <div className="space-y-2 max-w-2xl">
-          <div className="inline-flex items-center gap-2 bg-indigo-500/20 text-indigo-300 border border-indigo-400/30 text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wide">
-            <span>RECRUITER EXECUTION WORKSPACE</span>
-            <span>•</span>
-            <span className="capitalize">{profile.name || 'Elena Rostova'}</span>
-          </div>
-
-          <h1 className="text-2xl lg:text-3xl font-extrabold tracking-tight text-white">
-            Recruitment Command Center
-          </h1>
-
-          <p className="text-slate-300 text-xs leading-relaxed max-w-xl">
-            Manage authorized jobs, ATS pipelines, interviews, and candidate offers for Clyptus Software Solution.
-          </p>
-        </div>
-
-        {/* Hero Actions */}
-        <div className="flex flex-wrap items-center gap-3 shrink-0">
-          <button
-            onClick={() => navigate(`/org/${organizationId}/recruiter/jobs/create`)}
-            className="bg-[#4F46E5] hover:bg-[#4338CA] text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm flex items-center gap-2 transition-colors"
-          >
-            <Briefcase className="w-4 h-4" /> + Post New Job
-          </button>
-
-          <button
-            onClick={() => navigate(`/org/${organizationId}/recruiter/ai-tools`)}
-            className="bg-white/10 hover:bg-white/15 text-white font-semibold text-xs px-4 py-2.5 rounded-xl border border-white/20 flex items-center gap-2 transition-colors backdrop-blur-xs"
-          >
-            <Sparkles className="w-4 h-4 text-indigo-300" /> AI Co-Pilot
-          </button>
-        </div>
-      </div>
-
       {/* Top 4 KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Card 1: Active Jobs */}
