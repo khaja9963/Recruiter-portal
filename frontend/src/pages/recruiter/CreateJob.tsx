@@ -40,6 +40,7 @@ export const CreateJob: React.FC = () => {
   const [jobCategory, setJobCategory] = useState<'Permanent' | 'Contract' | 'Walk-in'>('Permanent');
   const [employmentType, setEmploymentType] = useState<EmploymentType>('Full-time');
   const [scheduleMode, setScheduleMode] = useState<'now' | 'date'>('now');
+  const [scheduleDate, setScheduleDate] = useState('2026-10-01');
   const [expiryDate, setExpiryDate] = useState('2026-11-29');
   
   // Walk-in venue details
@@ -298,6 +299,20 @@ Qualifications & Requirements:
                       <span>Choose a date</span>
                     </label>
                   </div>
+
+                  {scheduleMode === 'date' && (
+                    <div className="pt-1.5 animate-in fade-in duration-150">
+                      <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                        Select Posting Date
+                      </label>
+                      <input
+                        type="date"
+                        value={scheduleDate}
+                        onChange={(e) => setScheduleDate(e.target.value)}
+                        className="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -343,6 +358,20 @@ Qualifications & Requirements:
                       <span>Choose a date</span>
                     </label>
                   </div>
+
+                  {scheduleMode === 'date' && (
+                    <div className="pt-1.5 animate-in fade-in duration-150">
+                      <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                        Select Posting Date
+                      </label>
+                      <input
+                        type="date"
+                        value={scheduleDate}
+                        onChange={(e) => setScheduleDate(e.target.value)}
+                        className="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -734,21 +763,6 @@ Qualifications & Requirements:
                     <option value={5000000}>₹ 50 Lakhs+</option>
                   </select>
                 </div>
-              </div>
-
-              {/* Keep Salary Confidential Switch */}
-              <div className="flex items-center gap-3 pt-1">
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={hideSalary}
-                    onChange={(e) => setHideSalary(e.target.checked)}
-                    className="sr-only peer"
-                  />
-                  <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
-                </label>
-                <span className="text-xs font-bold text-slate-800">Keep salary confidential</span>
-                <span className="text-xs font-bold text-amber-600">(Get 3X relevant applications if the salary is mentioned)</span>
               </div>
             </div>
 
