@@ -2,6 +2,7 @@ import React from 'react';
 import { NavLink, useParams } from 'react-router-dom';
 import {
   LayoutDashboard,
+  Search,
   MessageSquare,
   Sparkles,
   Coins
@@ -14,6 +15,7 @@ export const RecruiterSidebar: React.FC = () => {
 
   const navItems = [
     { label: 'Dashboard', path: `/org/${organizationId}/recruiter/dashboard`, icon: LayoutDashboard },
+    { label: 'Candidate Search', path: `/org/${organizationId}/recruiter/candidates/search`, icon: Search },
     { label: 'Messages', path: `/org/${organizationId}/recruiter/messages`, icon: MessageSquare },
     { label: 'AI Tools', path: `/org/${organizationId}/recruiter/ai-tools`, icon: Sparkles },
     { label: 'Token Usage', path: `/org/${organizationId}/recruiter/tokens`, icon: Coins }

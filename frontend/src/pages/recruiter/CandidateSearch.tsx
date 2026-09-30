@@ -105,6 +105,7 @@ export const CandidateSearch: React.FC = () => {
 
   // Time Range (Matching Screenshot 3)
   const [timeRangeFilter, setTimeRangeFilter] = useState<string>('In last 6 months');
+  const [timeRangeOpen, setTimeRangeOpen] = useState(false);
 
   // Search Execution & Results
   const [hasSearched, setHasSearched] = useState(initialQuery ? true : false);
