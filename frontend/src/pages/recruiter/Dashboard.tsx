@@ -154,63 +154,7 @@ export const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Foundit Style: Your Searches Card */}
-      <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
-          <div className="flex items-center gap-2">
-            <Search className="w-5 h-5 text-indigo-600" />
-            <h3 className="font-extrabold text-slate-900 text-base">Your Searches</h3>
-          </div>
 
-          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 self-start sm:self-auto">
-            <button
-              onClick={() => setSearchTab('recent')}
-              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                searchTab === 'recent' ? 'bg-white text-indigo-600 shadow-2xs' : 'text-slate-500 hover:text-slate-800'
-              }`}
-            >
-              Recent
-            </button>
-            <button
-              onClick={() => setSearchTab('saved')}
-              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                searchTab === 'saved' ? 'bg-white text-indigo-600 shadow-2xs' : 'text-slate-500 hover:text-slate-800'
-              }`}
-            >
-              Saved
-            </button>
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <div className="text-xs font-semibold text-slate-400 mb-2">
-            {searchTab === 'recent' ? 'Continue Your Recent Candidate Searches' : 'Your Saved Search Queries'}
-          </div>
-
-          {(searchTab === 'recent' ? recentSearches : savedSearches).map((item) => (
-            <div
-              key={item.id}
-              onClick={() => navigate(`/org/${organizationId}/recruiter/candidates/search?q=${encodeURIComponent(item.query)}`)}
-              className="p-3 bg-slate-50/80 hover:bg-indigo-50/50 hover:border-indigo-300 rounded-xl border border-slate-100 flex items-center justify-between transition-all cursor-pointer group"
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <Search className="w-4 h-4 text-slate-400 group-hover:text-indigo-600 shrink-0 transition-colors" />
-                <span className="text-xs font-bold text-slate-800 group-hover:text-indigo-600 truncate transition-colors">
-                  {item.query}
-                </span>
-              </div>
-
-              <div className="flex items-center gap-3 shrink-0 text-xs text-slate-500">
-                <span className="hidden sm:inline font-medium text-slate-400">{item.location}</span>
-                <span className="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-bold text-[10px] border border-indigo-100">
-                  {item.candidatesCount} Candidates
-                </span>
-                <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-indigo-600 transition-colors" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
 
       {/* Hiring Pipeline Funnel Card */}
       <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
@@ -355,16 +299,7 @@ export const Dashboard: React.FC = () => {
               <p className="text-[11px] text-slate-500">Create & publish job requisition</p>
             </button>
 
-            <button
-              onClick={() => navigate(`/org/${organizationId}/recruiter/candidates/search`)}
-              className="p-4 bg-blue-50/70 hover:bg-blue-100/70 border border-blue-100 rounded-xl flex flex-col justify-between text-left transition-all cursor-pointer group"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-bold text-xs text-blue-900 group-hover:text-blue-700">Candidate Search</span>
-                <Search className="w-4 h-4 text-blue-600" />
-              </div>
-              <p className="text-[11px] text-slate-500">Search database by skills & location</p>
-            </button>
+
 
             <button
               onClick={() => navigate(`/org/${organizationId}/recruiter/jobs`)}
