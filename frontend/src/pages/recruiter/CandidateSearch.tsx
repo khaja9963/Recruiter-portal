@@ -176,7 +176,7 @@ export const CandidateSearch: React.FC = () => {
       const terms = queryParam
         .replace(/["()]/g, '')
         .split(/\s+AND\s+|\s+OR\s+|\s+/)
-        .map((t) => t.trim())
+        .map((t) => t.trim().toLowerCase())
         .filter((t) => t.length > 0);
 
       if (terms.length > 0) {
@@ -189,9 +189,15 @@ export const CandidateSearch: React.FC = () => {
         );
       }
       setHasSearched(true);
-      addRecentSearch(queryParam, 'All Locations', 1);
+
+      const count = candidates.filter((cand) => {
+        const fullCandidateText = `${cand.name} ${cand.title} ${cand.skills.join(' ')} ${cand.location} ${cand.summary || ''}`.toLowerCase();
+        return terms.some((term) => fullCandidateText.includes(term));
+      }).length;
+
+      addRecentSearch(queryParam, 'All Locations', count);
     }
-  }, [searchParams, addRecentSearch]);
+  }, [searchParams, candidates, addRecentSearch]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {

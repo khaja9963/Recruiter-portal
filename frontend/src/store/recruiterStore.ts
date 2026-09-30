@@ -309,7 +309,7 @@ export const useRecruiterStore = create<RecruiterState>((set, get) => ({
   setGlobalSearchQuery: (query) => set({ globalSearchQuery: query }),
   setGlobalSearchOpen: (open) => set({ isGlobalSearchOpen: open }),
 
-  addRecentSearch: (query, location = 'All Locations', candidatesCount = 1) => {
+  addRecentSearch: (query, location = 'All Locations', candidatesCount = 0) => {
     if (!query || query.trim().length === 0) return;
     const cleanQuery = query.trim();
     set((state) => {
@@ -320,7 +320,7 @@ export const useRecruiterStore = create<RecruiterState>((set, get) => ({
         id: `search-${Date.now()}`,
         query: cleanQuery,
         location: location.trim() || 'All Locations',
-        candidatesCount: candidatesCount || 1,
+        candidatesCount: typeof candidatesCount === 'number' ? candidatesCount : 0,
         timestamp: 'Just now'
       };
       return {
