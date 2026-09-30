@@ -85,10 +85,26 @@ export const CandidateSearch: React.FC = () => {
   const [industryInput, setIndustryInput] = useState('');
   const [companyInput, setCompanyInput] = useState('');
 
-  // Visa & Filters
+  // Additional Details Collapsible (Matching Screenshot 2)
+  const [additionalDetailsOpen, setAdditionalDetailsOpen] = useState(true);
+  const [genderFilter, setGenderFilter] = useState<string>('');
+  const [selectedDiffAbled, setSelectedDiffAbled] = useState<string[]>([]);
+  const [languageInput, setLanguageInput] = useState('');
+
+  // Visa & Filters (Matching Screenshot 4)
   const [selectedVisas, setSelectedVisas] = useState<string[]>([]);
   const [hideCandidatesWith, setHideCandidatesWith] = useState<string[]>([]);
+
+  // Age (Matching Screenshot 1)
+  const [ageMin, setAgeMin] = useState<string>('');
+  const [ageMax, setAgeMax] = useState<string>('');
+  const [includeNoAge, setIncludeNoAge] = useState(true);
+
+  // Show Only Filters
   const [showOnlyFilters, setShowOnlyFilters] = useState<string[]>([]);
+
+  // Time Range (Matching Screenshot 3)
+  const [timeRangeFilter, setTimeRangeFilter] = useState<string>('In last 6 months');
 
   // Search Execution & Results
   const [hasSearched, setHasSearched] = useState(initialQuery ? true : false);
@@ -118,7 +134,6 @@ export const CandidateSearch: React.FC = () => {
   useEffect(() => {
     const queryParam = searchParams.get('q');
     if (queryParam !== null && queryParam.trim().length > 0) {
-      // Parse initial query into tags if provided
       const terms = queryParam
         .replace(/["()]/g, '')
         .split(/\s+AND\s+|\s+OR\s+|\s+/)
@@ -185,15 +200,25 @@ export const CandidateSearch: React.FC = () => {
     setPgQual('Any PG');
     setIndustryInput('');
     setCompanyInput('');
+    setGenderFilter('');
+    setSelectedDiffAbled([]);
+    setLanguageInput('');
     setSelectedVisas([]);
     setHideCandidatesWith([]);
+    setAgeMin('');
+    setAgeMax('');
     setShowOnlyFilters([]);
+    setTimeRangeFilter('In last 6 months');
     setHasSearched(false);
   };
 
   const handleSearch = () => {
     setHasSearched(true);
     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  };
+
+  const toggleDiffAbled = (item: string) => {
+    setSelectedDiffAbled((prev) => (prev.includes(item) ? prev.filter((v) => v !== item) : [...prev, item]));
   };
 
   const toggleVisa = (visa: string) => {
@@ -219,13 +244,11 @@ export const CandidateSearch: React.FC = () => {
 
     const fullCandidateText = `${cand.name} ${cand.title} ${cand.skills.join(' ')} ${cand.location} ${cand.summary || ''}`.toLowerCase();
 
-    // Must match ALL mandatory tags if any exist
     if (mandatoryTags.length > 0) {
       const matchesAllMandatory = mandatoryTags.every((t) => fullCandidateText.includes(t));
       if (!matchesAllMandatory) return false;
     }
 
-    // Must match at least ONE optional tag if no mandatory tags exist
     if (mandatoryTags.length === 0 && optionalTags.length > 0) {
       const matchesAnyOptional = optionalTags.some((t) => fullCandidateText.includes(t));
       if (!matchesAnyOptional) return false;
@@ -244,7 +267,7 @@ export const CandidateSearch: React.FC = () => {
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-32 font-sans text-slate-900 select-none animate-in fade-in duration-200">
       
-      {/* Top Title & Mode Switcher (Clean Header) */}
+      {/* Top Title & Mode Switcher */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div className="flex items-center gap-2">
           <Sparkles className="w-6 h-6 text-indigo-600" />
@@ -268,7 +291,7 @@ export const CandidateSearch: React.FC = () => {
         </div>
       </div>
 
-      {/* Mode Switcher Tabs (Removed BETA badge and Voice Search as requested) */}
+      {/* Mode Switcher Tabs */}
       <div className="flex items-center gap-2 bg-slate-100/80 p-1.5 rounded-2xl max-w-md border border-slate-200">
         <button
           onClick={() => setSearchMode('form')}
@@ -295,7 +318,7 @@ export const CandidateSearch: React.FC = () => {
         {/* Card 1: Keywords & Basic Criteria */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-5">
           
-          {/* Keywords row (Interactive Tag Input Box matching Screenshots 1, 2, 3) */}
+          {/* Keywords row */}
           <div>
             <div className="flex items-center justify-between mb-1">
               <label className="text-xs font-bold text-slate-800">
@@ -343,7 +366,6 @@ export const CandidateSearch: React.FC = () => {
                           : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
                       }`}
                     >
-                      {/* Star Button for Mandatory Toggle */}
                       <button
                         type="button"
                         onClick={() => toggleTagMandatory(tag.id)}
@@ -363,7 +385,6 @@ export const CandidateSearch: React.FC = () => {
 
                       <span>{tag.text}</span>
 
-                      {/* Remove Tag Button */}
                       <button
                         type="button"
                         onClick={() => handleRemoveTag(tag.id)}
@@ -373,7 +394,6 @@ export const CandidateSearch: React.FC = () => {
                       </button>
                     </span>
 
-                    {/* Tooltip for Mandatory Keyword */}
                     {tag.isMandatory && activeTooltipId === tag.id && (
                       <div className="absolute bottom-full left-0 mb-1.5 z-50 whitespace-nowrap bg-[#1E1B4B] text-white text-[11px] font-bold px-2.5 py-1 rounded-lg shadow-xl animate-in fade-in duration-100">
                         This keyword is marked as 'Mandatory'.
@@ -382,7 +402,6 @@ export const CandidateSearch: React.FC = () => {
                   </div>
                 ))}
 
-                {/* Text input inside box */}
                 <input
                   type="text"
                   value={tagInput}
@@ -396,7 +415,6 @@ export const CandidateSearch: React.FC = () => {
                   className="flex-1 min-w-[160px] bg-transparent text-xs font-semibold text-slate-900 border-none focus:outline-none py-1"
                 />
 
-                {/* Clear All Keywords Button */}
                 {keywordTags.length > 0 && (
                   <button
                     type="button"
@@ -409,7 +427,7 @@ export const CandidateSearch: React.FC = () => {
                 )}
               </div>
 
-              {/* Autocomplete Dropdown (Matching Screenshot 2) */}
+              {/* Autocomplete Dropdown */}
               {showSuggestions && availableSuggestions.length > 0 && (
                 <div className="absolute left-0 right-0 mt-1.5 bg-white rounded-xl shadow-xl border border-slate-200 py-1.5 z-50 animate-in fade-in zoom-in duration-100">
                   {availableSuggestions.map((suggestion) => (
@@ -674,187 +692,374 @@ export const CandidateSearch: React.FC = () => {
           </div>
         </div>
 
-        {/* Card 3: Collapsible Education & Employment Details */}
-        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs divide-y divide-slate-100">
-          
-          {/* Education Details */}
-          <div className="p-6 space-y-4">
-            <button
-              type="button"
-              onClick={() => setEducationOpen(!educationOpen)}
-              className="w-full flex items-center justify-between text-left text-sm font-extrabold text-slate-900 cursor-pointer"
-            >
-              <div className="flex items-center gap-2">
-                <GraduationCap className="w-5 h-5 text-indigo-600" />
-                <span>Education details</span>
-              </div>
-              {educationOpen ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-            </button>
+        {/* Card 3: Collapsible Education Details */}
+        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 space-y-4">
+          <button
+            type="button"
+            onClick={() => setEducationOpen(!educationOpen)}
+            className="w-full flex items-center justify-between text-left text-sm font-extrabold text-slate-900 cursor-pointer"
+          >
+            <div className="flex items-center gap-2">
+              <GraduationCap className="w-5 h-5 text-indigo-600" />
+              <span>Education details</span>
+            </div>
+            {educationOpen ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+          </button>
 
-            {educationOpen && (
-              <div className="space-y-4 pt-2 text-xs">
-                <div>
-                  <div className="font-bold text-slate-800 mb-2">Under graduation qualification</div>
-                  <div className="flex items-center gap-2">
-                    {(['Any UG', 'Specific UG', 'No UG'] as const).map((opt) => (
-                      <button
-                        key={opt}
-                        type="button"
-                        onClick={() => setUgQual(opt)}
-                        className={`px-4 py-1.5 rounded-full font-bold border transition-all cursor-pointer ${
-                          ugQual === opt ? 'bg-indigo-50 text-indigo-700 border-indigo-300' : 'bg-white text-slate-700 border-slate-300'
-                        }`}
-                      >
-                        {opt}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <div className="font-bold text-slate-800 mb-2">Post graduation qualification</div>
-                  <div className="flex items-center gap-2">
-                    {(['Any PG', 'Specific PG', 'No PG'] as const).map((opt) => (
-                      <button
-                        key={opt}
-                        type="button"
-                        onClick={() => setPgQual(opt)}
-                        className={`px-4 py-1.5 rounded-full font-bold border transition-all cursor-pointer ${
-                          pgQual === opt ? 'bg-indigo-50 text-indigo-700 border-indigo-300' : 'bg-white text-slate-700 border-slate-300'
-                        }`}
-                      >
-                        {opt}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <button type="button" className="text-xs font-bold text-indigo-600 hover:underline cursor-pointer">
-                    + Add Doctorate qualification
-                  </button>
+          {educationOpen && (
+            <div className="space-y-4 pt-2 text-xs">
+              <div>
+                <div className="font-bold text-slate-800 mb-2">Under graduation qualification</div>
+                <div className="flex items-center gap-2">
+                  {(['Any UG', 'Specific UG', 'No UG'] as const).map((opt) => (
+                    <button
+                      key={opt}
+                      type="button"
+                      onClick={() => setUgQual(opt)}
+                      className={`px-4 py-1.5 rounded-full font-bold border transition-all cursor-pointer ${
+                        ugQual === opt ? 'bg-indigo-50 text-indigo-700 border-indigo-300' : 'bg-white text-slate-700 border-slate-300'
+                      }`}
+                    >
+                      {opt}
+                    </button>
+                  ))}
                 </div>
               </div>
-            )}
-          </div>
 
-          {/* Employment Details */}
-          <div className="p-6 space-y-4">
-            <button
-              type="button"
-              onClick={() => setEmploymentOpen(!employmentOpen)}
-              className="w-full flex items-center justify-between text-left text-sm font-extrabold text-slate-900 cursor-pointer"
-            >
-              <div className="flex items-center gap-2">
-                <Briefcase className="w-5 h-5 text-indigo-600" />
-                <span>Employment details</span>
-              </div>
-              {employmentOpen ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-            </button>
-
-            {employmentOpen && (
-              <div className="space-y-4 pt-2 text-xs">
-                <div>
-                  <label className="block font-bold text-slate-800 mb-1">Industry</label>
-                  <input
-                    type="text"
-                    value={industryInput}
-                    onChange={(e) => setIndustryInput(e.target.value)}
-                    placeholder="Enter industry (e.g. IT Software, Fintech, Healthcare)"
-                    className="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:ring-2 focus:ring-indigo-500"
-                  />
-                  <div className="text-[11px] text-slate-400 mt-1 font-medium">Include: Current or past industry</div>
-                </div>
-
-                <div>
-                  <label className="block font-bold text-slate-800 mb-1">Company</label>
-                  <input
-                    type="text"
-                    value={companyInput}
-                    onChange={(e) => setCompanyInput(e.target.value)}
-                    placeholder="Enter company name"
-                    className="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:ring-2 focus:ring-indigo-500"
-                  />
-                  <div className="text-[11px] text-slate-400 mt-1 font-medium">Include: Current employees</div>
+              <div>
+                <div className="font-bold text-slate-800 mb-2">Post graduation qualification</div>
+                <div className="flex items-center gap-2">
+                  {(['Any PG', 'Specific PG', 'No PG'] as const).map((opt) => (
+                    <button
+                      key={opt}
+                      type="button"
+                      onClick={() => setPgQual(opt)}
+                      className={`px-4 py-1.5 rounded-full font-bold border transition-all cursor-pointer ${
+                        pgQual === opt ? 'bg-indigo-50 text-indigo-700 border-indigo-300' : 'bg-white text-slate-700 border-slate-300'
+                      }`}
+                    >
+                      {opt}
+                    </button>
+                  ))}
                 </div>
               </div>
-            )}
-          </div>
+
+              <div>
+                <button type="button" className="text-xs font-bold text-indigo-600 hover:underline cursor-pointer">
+                  + Add Doctorate qualification
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Card 4: Advanced Visa & Filter Preferences */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-5 text-xs">
-          <div>
-            <div className="font-bold text-slate-800 mb-2">Visa status</div>
-            <div className="flex flex-wrap items-center gap-2">
-              {['Have H1 Visa', 'Have L1 Visa', 'TN Permit Holder', 'Green Card Holder', 'US Citizen', 'Authorized to work in the US'].map((v) => (
-                <button
-                  key={v}
-                  type="button"
-                  onClick={() => toggleVisa(v)}
-                  className={`px-3.5 py-1.5 rounded-full font-bold border transition-all cursor-pointer ${
-                    selectedVisas.includes(v)
-                      ? 'bg-indigo-50 text-indigo-700 border-indigo-300 ring-1 ring-indigo-200'
-                      : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
-                  }`}
+        {/* Card 4: Collapsible Employment Details */}
+        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 space-y-4">
+          <button
+            type="button"
+            onClick={() => setEmploymentOpen(!employmentOpen)}
+            className="w-full flex items-center justify-between text-left text-sm font-extrabold text-slate-900 cursor-pointer"
+          >
+            <div className="flex items-center gap-2">
+              <Briefcase className="w-5 h-5 text-indigo-600" />
+              <span>Employment details</span>
+            </div>
+            {employmentOpen ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+          </button>
+
+          {employmentOpen && (
+            <div className="space-y-4 pt-2 text-xs">
+              <div>
+                <label className="block font-bold text-slate-800 mb-1">Industry</label>
+                <input
+                  type="text"
+                  value={industryInput}
+                  onChange={(e) => setIndustryInput(e.target.value)}
+                  placeholder="Enter industry (e.g. IT Software, Fintech, Healthcare)"
+                  className="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:ring-2 focus:ring-indigo-500"
+                />
+                <div className="text-[11px] text-slate-400 mt-1 font-medium">Include: Current or past industry</div>
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-800 mb-1">Company</label>
+                <input
+                  type="text"
+                  value={companyInput}
+                  onChange={(e) => setCompanyInput(e.target.value)}
+                  placeholder="Enter company name"
+                  className="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:ring-2 focus:ring-indigo-500"
+                />
+                <div className="text-[11px] text-slate-400 mt-1 font-medium">Include: Current employees</div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Card 5: Collapsible Additional Details (Matching Screenshot 2) */}
+        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 space-y-5">
+          <button
+            type="button"
+            onClick={() => setAdditionalDetailsOpen(!additionalDetailsOpen)}
+            className="w-full flex items-center justify-between text-left text-sm font-extrabold text-slate-900 cursor-pointer"
+          >
+            <div className="flex items-center gap-2">
+              <FileText className="w-5 h-5 text-indigo-600" />
+              <span>Additional details</span>
+            </div>
+            {additionalDetailsOpen ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+          </button>
+
+          {additionalDetailsOpen && (
+            <div className="space-y-5 pt-2 text-xs">
+              {/* Gender */}
+              <div>
+                <div className="font-bold text-slate-800 mb-2">Gender</div>
+                <div className="flex flex-wrap items-center gap-2">
+                  {['Male candidates', 'Female candidates'].map((g) => {
+                    const isSelected = genderFilter === g;
+                    return (
+                      <button
+                        key={g}
+                        type="button"
+                        onClick={() => setGenderFilter(isSelected ? '' : g)}
+                        className={`px-4 py-2 rounded-full font-semibold border text-xs transition-all cursor-pointer flex items-center gap-1.5 ${
+                          isSelected
+                            ? 'bg-indigo-50 text-indigo-700 border-indigo-300 ring-2 ring-indigo-500/20 shadow-2xs'
+                            : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+                        }`}
+                      >
+                        <span>{g}</span>
+                        <span className="font-bold">{isSelected ? '✓' : '+'}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Differently abled */}
+              <div>
+                <div className="font-bold text-slate-800 mb-2">Differently abled</div>
+                <div className="bg-slate-100/90 border border-slate-200/70 text-slate-600 px-3.5 py-2 rounded-xl text-xs font-medium mb-3 flex items-center gap-2 max-w-2xl">
+                  <Info className="w-4 h-4 text-slate-500 shrink-0" />
+                  <span>Filter not applicable to sourced profiles</span>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  {['Developmental', 'Mental', 'Physical'].map((item) => {
+                    const isSelected = selectedDiffAbled.includes(item);
+                    return (
+                      <button
+                        key={item}
+                        type="button"
+                        onClick={() => toggleDiffAbled(item)}
+                        className={`px-4 py-2 rounded-full font-semibold border text-xs transition-all cursor-pointer flex items-center gap-1.5 ${
+                          isSelected
+                            ? 'bg-indigo-50 text-indigo-700 border-indigo-300 ring-2 ring-indigo-500/20 shadow-2xs'
+                            : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+                        }`}
+                      >
+                        <span>{item}</span>
+                        <span className="font-bold">{isSelected ? '✓' : '+'}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Languages */}
+              <div>
+                <div className="font-bold text-slate-800 mb-2">Languages</div>
+                <div className="bg-slate-100/90 border border-slate-200/70 text-slate-600 px-3.5 py-2 rounded-xl text-xs font-medium mb-3 flex items-center gap-2 max-w-2xl">
+                  <Info className="w-4 h-4 text-slate-500 shrink-0" />
+                  <span>Filter not applicable to sourced profiles</span>
+                </div>
+                <input
+                  type="text"
+                  value={languageInput}
+                  onChange={(e) => setLanguageInput(e.target.value)}
+                  placeholder="Enter language"
+                  className="w-full max-w-xl px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-slate-400"
+                />
+              </div>
+
+              {/* Visa status */}
+              <div>
+                <div className="font-bold text-slate-800 mb-2">Visa status</div>
+                <div className="bg-slate-100/90 border border-slate-200/70 text-slate-600 px-3.5 py-2 rounded-xl text-xs font-medium mb-3 flex items-center gap-2 max-w-2xl">
+                  <Info className="w-4 h-4 text-slate-500 shrink-0" />
+                  <span>Filter not applicable to sourced profiles</span>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  {[
+                    'Have H1 Visa',
+                    'Have L1 Visa',
+                    'TN Permit Holder',
+                    'Green Card Holder',
+                    'US Citizen',
+                    'Authorized to work in the US'
+                  ].map((v) => {
+                    const isSelected = selectedVisas.includes(v);
+                    return (
+                      <button
+                        key={v}
+                        type="button"
+                        onClick={() => toggleVisa(v)}
+                        className={`px-4 py-2 rounded-full font-semibold border text-xs transition-all cursor-pointer flex items-center gap-1.5 ${
+                          isSelected
+                            ? 'bg-indigo-50 text-indigo-700 border-indigo-300 ring-2 ring-indigo-500/20 shadow-2xs'
+                            : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+                        }`}
+                      >
+                        <span>{v}</span>
+                        <span className="font-bold">{isSelected ? '✓' : '+'}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Card 6: Age & Show Only Preferences (Matching Screenshot 1) */}
+        <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-6 text-xs">
+          
+          {/* Age (Years) */}
+          <div className="space-y-3">
+            <div className="font-bold text-slate-800 text-sm">Age (Years)</div>
+            
+            <div className="bg-slate-100/90 border border-slate-200/70 text-slate-600 px-3.5 py-2 rounded-xl text-xs font-medium flex items-center gap-2 max-w-2xl">
+              <Info className="w-4 h-4 text-slate-500 shrink-0" />
+              <span>Filter not applicable to sourced profiles</span>
+            </div>
+
+            <div className="flex items-center gap-3 max-w-xs">
+              <div className="relative flex-1">
+                <select
+                  value={ageMin}
+                  onChange={(e) => setAgeMin(e.target.value)}
+                  className="w-full appearance-none bg-white border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer pr-8"
                 >
-                  {v} +
-                </button>
-              ))}
+                  <option value="">Min</option>
+                  {[18, 20, 22, 25, 28, 30, 35, 40, 45, 50].map((a) => (
+                    <option key={a} value={a}>{a}</option>
+                  ))}
+                </select>
+                <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" />
+              </div>
+
+              <div className="relative flex-1">
+                <select
+                  value={ageMax}
+                  onChange={(e) => setAgeMax(e.target.value)}
+                  className="w-full appearance-none bg-white border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer pr-8"
+                >
+                  <option value="">Max</option>
+                  {[22, 25, 30, 35, 40, 45, 50, 55, 60, 65].map((a) => (
+                    <option key={a} value={a}>{a}</option>
+                  ))}
+                </select>
+                <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" />
+              </div>
+            </div>
+
+            {/* Switch toggle matching screenshot 1 */}
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={() => setIncludeNoAge(!includeNoAge)}
+                className="flex items-center gap-2.5 cursor-pointer group select-none"
+              >
+                <div className={`w-9 h-5 flex items-center rounded-full p-0.5 transition-colors ${includeNoAge ? 'bg-[#2D1B69]' : 'bg-slate-300'}`}>
+                  <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform flex items-center justify-center ${includeNoAge ? 'translate-x-4' : 'translate-x-0'}`}>
+                    {includeNoAge && <span className="text-[9px] text-[#2D1B69] font-black">✓</span>}
+                  </div>
+                </div>
+                <span className="text-xs font-semibold text-slate-800">Include profiles without age</span>
+              </button>
             </div>
           </div>
 
-          <div>
-            <div className="font-bold text-slate-800 mb-2">Hide candidates with</div>
+          {/* Show only section matching screenshot 1 */}
+          <div className="space-y-3 pt-2 border-t border-slate-100">
+            <div className="font-bold text-slate-800 text-sm">Show only</div>
             <div className="flex flex-wrap items-center gap-2">
-              {['Already contacted by SMS', 'Already contacted by Email', 'Already downloaded resumes'].map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  onClick={() => toggleHideCandidate(item)}
-                  className={`px-3.5 py-1.5 rounded-full font-bold border transition-all cursor-pointer ${
-                    hideCandidatesWith.includes(item)
-                      ? 'bg-indigo-50 text-indigo-700 border-indigo-300 ring-1 ring-indigo-200'
-                      : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
-                  }`}
-                >
-                  {item} +
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <div className="font-bold text-slate-800 mb-2">Show only</div>
-            <div className="flex flex-wrap items-center gap-2">
-              {['Unseen profiles', 'Profiles with verified email-id', 'Profiles with verified mobile no.', 'Profiles with resume'].map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  onClick={() => toggleShowOnly(item)}
-                  className={`px-3.5 py-1.5 rounded-full font-bold border transition-all cursor-pointer ${
-                    showOnlyFilters.includes(item)
-                      ? 'bg-indigo-50 text-indigo-700 border-indigo-300 ring-1 ring-indigo-200'
-                      : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
-                  }`}
-                >
-                  {item} +
-                </button>
-              ))}
+              {[
+                'Unseen profiles',
+                'Profiles with verified email-id',
+                'Profiles with verified mobile no.',
+                'Profiles with resume'
+              ].map((item) => {
+                const isSelected = showOnlyFilters.includes(item);
+                return (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => toggleShowOnly(item)}
+                    className={`px-4 py-2 rounded-full font-semibold border text-xs transition-all cursor-pointer flex items-center gap-1.5 ${
+                      isSelected
+                        ? 'bg-indigo-50 text-indigo-700 border-indigo-300 ring-2 ring-indigo-500/20 shadow-2xs'
+                        : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+                    }`}
+                  >
+                    <span>{item}</span>
+                    <span className="font-bold">{isSelected ? '✓' : '+'}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
 
       </div>
 
-      {/* Sticky Bottom Action Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 p-4 shadow-xl z-30 flex items-center justify-between px-6 lg:px-12">
-        <div className="flex items-center gap-3 text-xs font-semibold">
-          <select className="bg-slate-50 border border-slate-300 px-3.5 py-2 rounded-xl font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 cursor-pointer">
-            <option>In last 6 months</option>
-            <option>In last 3 months</option>
-            <option>In last 1 month</option>
-          </select>
+      {/* Sticky Bottom Action Bar (Matching Screenshot 3) */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 p-4 shadow-xl z-40 flex items-center justify-between px-6 lg:px-12">
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setTimeRangeOpen(!timeRangeOpen)}
+            className="bg-white border border-slate-300 px-4 py-2 rounded-xl text-xs font-bold text-slate-800 hover:bg-slate-50 transition-colors flex items-center gap-2 cursor-pointer shadow-2xs"
+          >
+            <span>{timeRangeFilter}</span>
+            <ChevronUp className={`w-4 h-4 text-slate-500 transition-transform ${timeRangeOpen ? 'rotate-180' : ''}`} />
+          </button>
+
+          {/* Time Range Dropdown Menu Popup (Matching Screenshot 3) */}
+          {timeRangeOpen && (
+            <div className="absolute bottom-full left-0 mb-2 w-56 bg-white rounded-xl shadow-2xl border border-slate-200 py-1.5 z-50 animate-in fade-in slide-in-from-bottom-2 duration-150">
+              <div className="max-h-60 overflow-y-auto divide-y divide-slate-100">
+                {[
+                  'In last 1 day',
+                  'In last 3 days',
+                  'In last 7 days',
+                  'In last 15 days',
+                  'In last 1 month',
+                  'In last 3 months',
+                  'In last 6 months'
+                ].map((range) => (
+                  <button
+                    key={range}
+                    type="button"
+                    onClick={() => {
+                      setTimeRangeFilter(range);
+                      setTimeRangeOpen(false);
+                    }}
+                    className={`w-full px-4 py-2.5 text-left text-xs font-semibold flex items-center justify-between transition-colors cursor-pointer ${
+                      timeRangeFilter === range
+                        ? 'bg-slate-100 text-indigo-700 font-extrabold'
+                        : 'text-slate-800 hover:bg-slate-50'
+                    }`}
+                  >
+                    <span>{range}</span>
+                    {timeRangeFilter === range && (
+                      <ChevronUp className="w-3.5 h-3.5 text-indigo-600" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-4">
@@ -887,7 +1092,7 @@ export const CandidateSearch: React.FC = () => {
                 Search Results ({filteredCandidates.length} Candidates Found)
               </h2>
               <p className="text-xs text-slate-500 font-medium">
-                Matching keyword tags within Clyptus Talent Directory
+                Matching query criteria within Clyptus Talent Directory
               </p>
             </div>
 
