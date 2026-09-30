@@ -194,7 +194,7 @@ Qualifications & Requirements:
     <div className="space-y-6 max-w-7xl mx-auto pb-24 font-sans text-slate-900 select-none animate-in fade-in duration-200">
       
       {/* Sub-Header & Breadcrumb Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200/90 shadow-xs">
+      <div className="flex items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200/90 shadow-xs">
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate(-1)}
@@ -211,56 +211,6 @@ Qualifications & Requirements:
             <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
               Create Job Requisition
             </h1>
-          </div>
-        </div>
-
-        {/* Top Right Quick Actions (Foundit Header links) */}
-        <div className="flex flex-wrap items-center gap-4 text-xs font-bold">
-          <a
-            href="#rules"
-            onClick={(e) => { e.preventDefault(); alert('Clyptus Equal Opportunity Employer & Fair Hiring Guidelines policy active.'); }}
-            className="text-indigo-600 hover:underline flex items-center gap-1 cursor-pointer"
-          >
-            <ShieldAlert className="w-3.5 h-3.5" /> Prohibited listing & rules
-          </a>
-          <span className="text-slate-300">|</span>
-          <a
-            href="#help"
-            onClick={(e) => { e.preventDefault(); alert('For assistance, contact Clyptus Recruiter Support at support@clyptus.com'); }}
-            className="text-indigo-600 hover:underline flex items-center gap-1 cursor-pointer"
-          >
-            <HelpCircle className="w-3.5 h-3.5" /> Help & FAQs
-          </a>
-          <span className="text-slate-300">|</span>
-
-          {/* Clone dropdown */}
-          <div className="relative">
-            <select
-              onChange={(e) => e.target.value && handleCloneJob(e.target.value)}
-              defaultValue=""
-              className="bg-slate-50 hover:bg-slate-100 border border-slate-300 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 cursor-pointer focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="" disabled>Clone from existing job</option>
-              {jobs.map((j) => (
-                <option key={j.id} value={j.id}>{j.title}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Country Selector */}
-          <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-300 px-3 py-1 rounded-xl text-xs font-bold text-slate-800">
-            <Globe className="w-3.5 h-3.5 text-indigo-600" />
-            <select
-              value={selectedCountry}
-              onChange={(e) => setSelectedCountry(e.target.value)}
-              className="bg-transparent font-bold text-slate-800 focus:outline-none cursor-pointer"
-            >
-              <option value="India">🇮🇳 India</option>
-              <option value="United States">🇺🇸 United States</option>
-              <option value="United Kingdom">🇬🇧 United Kingdom</option>
-              <option value="Singapore">🇸🇬 Singapore</option>
-              <option value="UAE">🇦🇪 UAE</option>
-            </select>
           </div>
         </div>
       </div>
