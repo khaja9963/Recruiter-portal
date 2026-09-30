@@ -41,12 +41,13 @@ export const CreateJob: React.FC = () => {
   const [employmentType, setEmploymentType] = useState<EmploymentType>('Full-time');
   const [scheduleMode, setScheduleMode] = useState<'now' | 'date'>('now');
   const [expiryDate, setExpiryDate] = useState('2026-11-29');
-  const [autoRenew, setAutoRenew] = useState('Off');
   
-  // Notification Preferences
-  const [notifyDailySummary, setNotifyDailySummary] = useState(true);
-  const [notifyIndividualApps, setNotifyIndividualApps] = useState(true);
-  const [notificationScope, setNotificationScope] = useState<'all_matching' | 'top_only' | 'all'>('all_matching');
+  // Walk-in venue details
+  const [venueAddress, setVenueAddress] = useState('');
+  const [walkinStartDate, setWalkinStartDate] = useState('2026-10-01');
+  const [walkinStartTime, setWalkinStartTime] = useState('12:00 AM');
+  const [walkinEndDate, setWalkinEndDate] = useState('2026-10-02');
+  const [walkinEndTime, setWalkinEndTime] = useState('12:00 AM');
 
   // Main Job Details (Right Column)
   const [title, setTitle] = useState('');
@@ -209,7 +210,7 @@ Qualifications & Requirements:
               <span className="text-indigo-600 font-bold">Post Job</span>
             </div>
             <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
-              Create Job Requisition
+              Create Job
             </h1>
           </div>
         </div>
@@ -236,7 +237,7 @@ Qualifications & Requirements:
                     type="button"
                     onClick={() => setJobCategory(cat)}
                     className={`py-1.5 rounded-lg transition-all cursor-pointer ${
-                      jobCategory === cat ? 'bg-white text-indigo-700 shadow-2xs' : 'text-slate-600 hover:text-slate-900'
+                      jobCategory === cat ? 'bg-white text-indigo-700 shadow-2xs border border-slate-200' : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
                     {cat}
@@ -245,162 +246,192 @@ Qualifications & Requirements:
               </div>
             </div>
 
-            {/* Radio: Full time vs Part time */}
-            <div className="flex items-center gap-6 pt-1 text-xs font-semibold text-slate-800">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  name="empType"
-                  checked={employmentType === 'Full-time'}
-                  onChange={() => setEmploymentType('Full-time')}
-                  className="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
-                />
-                <span>Full time</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  name="empType"
-                  checked={employmentType === 'Part-time'}
-                  onChange={() => setEmploymentType('Part-time')}
-                  className="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
-                />
-                <span>Part time</span>
-              </label>
-            </div>
-
-            {/* Schedule Job Post: Post Now vs Choose Date */}
-            <div className="space-y-2 pt-2 border-t border-slate-100">
-              <label className="block text-xs font-bold text-slate-700">
-                Schedule job post *
-              </label>
-              <div className="flex items-center gap-6 text-xs font-semibold text-slate-800">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="schedule"
-                    checked={scheduleMode === 'now'}
-                    onChange={() => setScheduleMode('now')}
-                    className="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
-                  />
-                  <span>Post now</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="schedule"
-                    checked={scheduleMode === 'date'}
-                    onChange={() => setScheduleMode('date')}
-                    className="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
-                  />
-                  <span>Choose a date</span>
-                </label>
-              </div>
-            </div>
-
-            {/* Expiry Date */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
-                Expiry date
-              </label>
-              <div className="relative">
-                <input
-                  type="date"
-                  value={expiryDate}
-                  onChange={(e) => setExpiryDate(e.target.value)}
-                  className="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-            </div>
-
-            {/* Auto Renew Dropdown */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
-                Auto renew
-              </label>
-              <select
-                value={autoRenew}
-                onChange={(e) => setAutoRenew(e.target.value)}
-                className="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 bg-white focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-              >
-                <option value="Off">Off</option>
-                <option value="Every 15 Days">Every 15 Days</option>
-                <option value="Every 30 Days">Every 30 Days</option>
-                <option value="Every 60 Days">Every 60 Days</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Card 2: Notify me for */}
-          <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs space-y-4">
-            <h3 className="font-extrabold text-slate-900 text-sm border-b border-slate-100 pb-2">
-              Notify me for
-            </h3>
-
-            <div className="space-y-3 text-xs">
-              <label className="flex items-center gap-2 font-bold text-slate-800 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={notifyDailySummary}
-                  onChange={(e) => setNotifyDailySummary(e.target.checked)}
-                  className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
-                />
-                <span>Daily application summary</span>
-                <Info className="w-3.5 h-3.5 text-slate-400" title="Receive a daily digest of new applicant activity" />
-              </label>
-
-              <label className="flex items-center gap-2 font-bold text-slate-800 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={notifyIndividualApps}
-                  onChange={(e) => setNotifyIndividualApps(e.target.checked)}
-                  className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
-                />
-                <span>Individual applications</span>
-              </label>
-
-              {notifyIndividualApps && (
-                <div className="pl-6 space-y-2 pt-1 font-semibold text-slate-700">
-                  <label className="flex items-start gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="notifyScope"
-                      checked={notificationScope === 'all_matching'}
-                      onChange={() => setNotificationScope('all_matching')}
-                      className="w-4 h-4 text-indigo-600 mt-0.5 focus:ring-indigo-500"
-                    />
-                    <div>
-                      <div className="font-bold text-slate-900">All matching applicants</div>
-                      <div className="text-[11px] text-slate-500 font-normal">
-                        We will not send non matching applications
-                      </div>
-                    </div>
-                  </label>
-
+            {/* Permanent View */}
+            {jobCategory === 'Permanent' && (
+              <>
+                <div className="flex items-center gap-6 pt-1 text-xs font-semibold text-slate-800">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="radio"
-                      name="notifyScope"
-                      checked={notificationScope === 'top_only'}
-                      onChange={() => setNotificationScope('top_only')}
+                      name="empType"
+                      checked={employmentType === 'Full-time'}
+                      onChange={() => setEmploymentType('Full-time')}
                       className="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
                     />
-                    <span>Top applicants only</span>
+                    <span>Full time</span>
                   </label>
-
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="radio"
-                      name="notifyScope"
-                      checked={notificationScope === 'all'}
-                      onChange={() => setNotificationScope('all')}
+                      name="empType"
+                      checked={employmentType === 'Part-time'}
+                      onChange={() => setEmploymentType('Part-time')}
                       className="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
                     />
-                    <span>All applicants</span>
+                    <span>Part time</span>
                   </label>
                 </div>
-              )}
-            </div>
+
+                <div className="space-y-2 pt-2 border-t border-slate-100">
+                  <label className="block text-xs font-bold text-slate-700">
+                    Schedule job post
+                  </label>
+                  <div className="flex items-center gap-6 text-xs font-semibold text-slate-800">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="schedule"
+                        checked={scheduleMode === 'now'}
+                        onChange={() => setScheduleMode('now')}
+                        className="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
+                      />
+                      <span>Post now</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="schedule"
+                        checked={scheduleMode === 'date'}
+                        onChange={() => setScheduleMode('date')}
+                        className="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
+                      />
+                      <span>Choose a date</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Expiry date
+                  </label>
+                  <input
+                    type="date"
+                    value={expiryDate}
+                    onChange={(e) => setExpiryDate(e.target.value)}
+                    className="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+              </>
+            )}
+
+            {/* Contract View (Matching Screenshot 1) */}
+            {jobCategory === 'Contract' && (
+              <>
+                <div className="space-y-2 pt-1">
+                  <label className="block text-xs font-bold text-slate-700">
+                    Schedule job post
+                  </label>
+                  <div className="flex items-center gap-6 text-xs font-semibold text-slate-800">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="scheduleContract"
+                        checked={scheduleMode === 'now'}
+                        onChange={() => setScheduleMode('now')}
+                        className="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
+                      />
+                      <span>Post now</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="scheduleContract"
+                        checked={scheduleMode === 'date'}
+                        onChange={() => setScheduleMode('date')}
+                        className="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
+                      />
+                      <span>Choose a date</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Expiry date
+                  </label>
+                  <input
+                    type="date"
+                    value={expiryDate}
+                    onChange={(e) => setExpiryDate(e.target.value)}
+                    className="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+              </>
+            )}
+
+            {/* Walk-in View (Matching Screenshot 2) */}
+            {jobCategory === 'Walk-in' && (
+              <>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Venue address <span className="text-rose-500">*</span>
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={venueAddress}
+                    onChange={(e) => setVenueAddress(e.target.value)}
+                    placeholder="Write address here"
+                    className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-medium text-slate-800 focus:ring-2 focus:ring-indigo-500 resize-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                      Start Date <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="date"
+                      value={walkinStartDate}
+                      onChange={(e) => setWalkinStartDate(e.target.value)}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                      Start time <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={walkinStartTime}
+                      onChange={(e) => setWalkinStartTime(e.target.value)}
+                      placeholder="12:00 AM"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                      End Date <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="date"
+                      value={walkinEndDate}
+                      onChange={(e) => setWalkinEndDate(e.target.value)}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                      End time <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={walkinEndTime}
+                      onChange={(e) => setWalkinEndTime(e.target.value)}
+                      placeholder="12:00 AM"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="text-[11px] text-slate-500 font-medium leading-tight pt-1">
+                  Note: This is the closing date of the job. The job will be expired once passed this date
+                </div>
+              </>
+            )}
           </div>
 
         </div>
