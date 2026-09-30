@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  Menu,
   Search,
   User,
   LogOut,
@@ -10,7 +9,9 @@ import {
   Users,
   FileText,
   Bookmark,
-  UserCheck
+  UserCheck,
+  LayoutDashboard,
+  Coins
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useRecruiterStore } from '../../store/recruiterStore';
@@ -18,7 +19,7 @@ import { useRecruiterStore } from '../../store/recruiterStore';
 export const RecruiterHeader: React.FC = () => {
   const { organizationId = 'clyptus' } = useParams<{ organizationId: string }>();
   const navigate = useNavigate();
-  const { profile, toggleSidebar, setGlobalSearchOpen } = useRecruiterStore();
+  const { profile, setGlobalSearchOpen } = useRecruiterStore();
 
   const [activeDropdown, setActiveDropdown] = useState<'jobs' | 'search' | 'apps' | 'profile' | null>(null);
 
@@ -37,15 +38,7 @@ export const RecruiterHeader: React.FC = () => {
   return (
     <header ref={headerRef} className="h-16 bg-white border-b border-slate-200/90 px-4 lg:px-6 flex items-center justify-between sticky top-0 z-40 shadow-xs select-none">
       {/* Left Branding */}
-      <div className="flex items-center gap-4">
-        <button
-          onClick={toggleSidebar}
-          className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
-          title="Toggle Navigation"
-        >
-          <Menu className="w-5 h-5" />
-        </button>
-
+      <div className="flex items-center gap-3">
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate(`/org/${organizationId}/recruiter/dashboard`)}>
           <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-extrabold text-lg shadow-sm shrink-0">
             C
@@ -58,14 +51,26 @@ export const RecruiterHeader: React.FC = () => {
               </span>
             </div>
             <div className="text-[11px] text-slate-500 mt-0.5 font-medium">
-              Clyptus Software Solution • Recruiter Workspace
+              Clyptus Software Solution
             </div>
           </div>
         </div>
       </div>
 
-      {/* Center Top Navigation Dropdowns (Foundit & Naukri Style) */}
-      <nav className="hidden md:flex items-center gap-2">
+      {/* Center Top Navigation Links & Dropdowns */}
+      <nav className="flex items-center gap-1.5 md:gap-2">
+        {/* Dashboard Link (Placed in front of Jobs) */}
+        <button
+          onClick={() => {
+            setActiveDropdown(null);
+            navigate(`/org/${organizationId}/recruiter/dashboard`);
+          }}
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-extrabold text-slate-700 hover:bg-slate-100 transition-all cursor-pointer"
+        >
+          <LayoutDashboard className="w-4 h-4 text-indigo-600" />
+          <span>Dashboard</span>
+        </button>
+
         {/* Jobs Dropdown */}
         <div className="relative">
           <button
@@ -167,6 +172,18 @@ export const RecruiterHeader: React.FC = () => {
             </div>
           )}
         </div>
+
+        {/* Token Usage Link (Placed after Applications) */}
+        <button
+          onClick={() => {
+            setActiveDropdown(null);
+            navigate(`/org/${organizationId}/recruiter/tokens`);
+          }}
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-extrabold text-slate-700 hover:bg-slate-100 transition-all cursor-pointer"
+        >
+          <Coins className="w-4 h-4 text-indigo-600" />
+          <span>Token Usage</span>
+        </button>
       </nav>
 
       {/* Right Controls: Global Search & Recruiter Avatar */}

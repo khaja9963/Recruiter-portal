@@ -6,10 +6,7 @@ import { GlobalSearchModal } from '../../components/recruiter/GlobalSearchModal'
 
 export const RecruiterLayout: React.FC = () => {
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-row font-sans text-slate-900 antialiased selection:bg-blue-500 selection:text-white">
-      {/* Recruiter Sidebar */}
-      <RecruiterSidebar />
-
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-900 antialiased selection:bg-blue-500 selection:text-white">
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         <RecruiterHeader />
