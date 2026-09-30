@@ -9,7 +9,8 @@ import {
   PlusCircle,
   Users,
   FileText,
-  Bookmark
+  Bookmark,
+  UserCheck
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useRecruiterStore } from '../../store/recruiterStore';
@@ -200,11 +201,20 @@ export const RecruiterHeader: React.FC = () => {
                 <button
                   onClick={() => {
                     setActiveDropdown(null);
+                    navigate(`/org/${organizationId}/recruiter/profile`);
+                  }}
+                  className="w-full px-4 py-2 text-left text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-2 cursor-pointer border-b border-slate-100"
+                >
+                  <UserCheck className="w-4 h-4 text-indigo-600" /> Profile & Settings
+                </button>
+                <button
+                  onClick={() => {
+                    setActiveDropdown(null);
                     if (confirm('Log out of Employee Portal?')) {
                       navigate('/');
                     }
                   }}
-                  className="w-full px-4 py-2 text-left text-xs text-rose-600 hover:bg-rose-50 font-bold flex items-center gap-2 cursor-pointer"
+                  className="w-full px-4 py-2 text-left text-xs text-rose-600 hover:bg-rose-50 font-bold flex items-center gap-2 cursor-pointer mt-1"
                 >
                   <LogOut className="w-4 h-4" /> Sign Out
                 </button>

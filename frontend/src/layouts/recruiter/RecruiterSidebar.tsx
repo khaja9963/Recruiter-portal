@@ -8,7 +8,8 @@ import {
   Sparkles,
   Coins,
   BarChart3,
-  LogOut
+  LogOut,
+  UserCheck
 } from 'lucide-react';
 import { useRecruiterStore } from '../../store/recruiterStore';
 
@@ -67,7 +68,15 @@ export const RecruiterSidebar: React.FC = () => {
       </nav>
 
       {/* Bottom Profile Footer */}
-      <div className="p-3 border-t border-slate-800/80 bg-[#0B0F19]/60 shrink-0">
+      <div className="p-3 border-t border-slate-800/80 bg-[#0B0F19]/60 shrink-0 space-y-2">
+        <button
+          onClick={() => navigate(`/org/${organizationId}/recruiter/profile`)}
+          className="w-full px-3 py-2 bg-slate-800/60 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-bold rounded-xl flex items-center gap-2 transition-colors border border-slate-700/60 cursor-pointer"
+        >
+          <UserCheck className="w-4 h-4 text-indigo-400" />
+          <span>Profile & Settings</span>
+        </button>
+
         <div className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-800/50 transition-colors">
           <div className="flex items-center gap-2.5 overflow-hidden min-w-0">
             <img
@@ -87,7 +96,7 @@ export const RecruiterSidebar: React.FC = () => {
               }
             }}
             title="Sign out"
-            className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-md transition-colors shrink-0"
+            className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-md transition-colors shrink-0 cursor-pointer"
           >
             <LogOut className="w-3.5 h-3.5" />
           </button>
