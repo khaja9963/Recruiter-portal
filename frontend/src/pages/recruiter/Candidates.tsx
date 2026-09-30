@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Search, Filter, LayoutGrid, List, UserCheck, Star } from 'lucide-react';
+import { Search, Filter, LayoutGrid, List, UserCheck, Star, Plus, Users } from 'lucide-react';
 import { useRecruiterStore } from '../../store/recruiterStore';
 import { CandidateCard } from '../../components/recruiter/CandidateCard';
 import { CandidateTable } from '../../components/recruiter/CandidateTable';
+import { AddCandidateModal } from '../../components/recruiter/AddCandidateModal';
 
 export const Candidates: React.FC = () => {
   const { candidates } = useRecruiterStore();
@@ -10,6 +11,7 @@ export const Candidates: React.FC = () => {
   const [search, setSearch] = useState('');
   const [skillFilter, setSkillFilter] = useState('all');
   const [expFilter, setExpFilter] = useState('all');
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const filteredCandidates = candidates.filter((cand) => {
     const matchesSearch =
@@ -34,27 +36,38 @@ export const Candidates: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900">Candidate Talent Pool</h1>
-          <p className="text-xs text-slate-500">Discover and manage candidates available to your organization</p>
+          <h1 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+            <Users className="w-5 h-5 text-indigo-600" /> Candidate Talent Pool ({filteredCandidates.length})
+          </h1>
+          <p className="text-xs text-slate-500">Discover, register, and inspect candidate profiles and real PDF resumes</p>
         </div>
 
-        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200">
+        <div className="flex items-center gap-3">
           <button
-            onClick={() => setViewMode('grid')}
-            className={`p-1.5 rounded-md text-xs font-medium transition-colors ${
-              viewMode === 'grid' ? 'bg-white text-blue-600 shadow-2xs' : 'text-slate-500 hover:text-slate-800'
-            }`}
+            onClick={() => setIsAddModalOpen(true)}
+            className="px-4 py-2 bg-[#4F46E5] hover:bg-[#4338CA] text-white font-bold text-xs rounded-xl shadow-2xs flex items-center gap-1.5 transition-colors"
           >
-            <LayoutGrid className="w-4 h-4" />
+            <Plus className="w-4 h-4" /> Add Real Candidate
           </button>
-          <button
-            onClick={() => setViewMode('table')}
-            className={`p-1.5 rounded-md text-xs font-medium transition-colors ${
-              viewMode === 'table' ? 'bg-white text-blue-600 shadow-2xs' : 'text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <List className="w-4 h-4" />
-          </button>
+
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`p-1.5 rounded-lg text-xs font-medium transition-colors ${
+                viewMode === 'grid' ? 'bg-white text-indigo-600 shadow-2xs' : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              <LayoutGrid className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setViewMode('table')}
+              className={`p-1.5 rounded-lg text-xs font-medium transition-colors ${
+                viewMode === 'table' ? 'bg-white text-indigo-600 shadow-2xs' : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              <List className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -104,6 +117,12 @@ export const Candidates: React.FC = () => {
       ) : (
         <CandidateTable candidates={filteredCandidates} />
       )}
+
+      {/* Add Candidate Modal */}
+      <AddCandidateModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+      />
     </div>
   );
 };
