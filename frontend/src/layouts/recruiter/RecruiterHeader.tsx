@@ -2,14 +2,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   Menu,
   Search,
-  Bell,
   User,
-  Settings,
   LogOut,
-  Building2,
   ChevronDown,
-  Plus,
-  Coins
+  Briefcase,
+  PlusCircle,
+  Users,
+  FileText,
+  Bookmark
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useRecruiterStore } from '../../store/recruiterStore';
@@ -17,30 +17,16 @@ import { useRecruiterStore } from '../../store/recruiterStore';
 export const RecruiterHeader: React.FC = () => {
   const { organizationId = 'clyptus' } = useParams<{ organizationId: string }>();
   const navigate = useNavigate();
-  const {
-    profile,
-    toggleSidebar,
-    setGlobalSearchOpen,
-    notifications,
-    markAllNotificationsAsRead,
-    markNotificationAsRead
-  } = useRecruiterStore();
+  const { profile, toggleSidebar, setGlobalSearchOpen } = useRecruiterStore();
 
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<'jobs' | 'search' | 'apps' | 'profile' | null>(null);
 
-  const profileRef = useRef<HTMLDivElement>(null);
-  const notifRef = useRef<HTMLDivElement>(null);
-
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const headerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
-        setIsProfileOpen(false);
-      }
-      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
-        setIsNotifOpen(false);
+      if (headerRef.current && !headerRef.current.contains(e.target as Node)) {
+        setActiveDropdown(null);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -48,9 +34,9 @@ export const RecruiterHeader: React.FC = () => {
   }, []);
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200/90 px-4 lg:px-6 flex items-center justify-between sticky top-0 z-20 shadow-xs">
-      {/* Left Branding & Scope */}
-      <div className="flex items-center gap-3">
+    <header ref={headerRef} className="h-16 bg-white border-b border-slate-200/90 px-4 lg:px-6 flex items-center justify-between sticky top-0 z-40 shadow-xs select-none">
+      {/* Left Branding */}
+      <div className="flex items-center gap-4">
         <button
           onClick={toggleSidebar}
           className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
@@ -59,7 +45,7 @@ export const RecruiterHeader: React.FC = () => {
           <Menu className="w-5 h-5" />
         </button>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate(`/org/${organizationId}/recruiter/dashboard`)}>
           <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-extrabold text-lg shadow-sm shrink-0">
             C
           </div>
@@ -77,87 +63,120 @@ export const RecruiterHeader: React.FC = () => {
         </div>
       </div>
 
-      {/* Center / Global Search Trigger */}
-      <div className="hidden lg:flex flex-1 max-w-xs mx-4">
-        <button
-          onClick={() => setGlobalSearchOpen(true)}
-          className="w-full flex items-center justify-between bg-slate-50 hover:bg-slate-100/80 text-slate-400 text-xs px-3 py-1.5 rounded-xl border border-slate-200 transition-colors"
-        >
-          <div className="flex items-center gap-2">
-            <Search className="w-3.5 h-3.5 text-slate-400" />
-            <span>Search candidates, jobs...</span>
-          </div>
-          <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-white text-slate-400 rounded border border-slate-200">
-            Ctrl K
-          </kbd>
-        </button>
-      </div>
-
-      {/* Right Controls */}
-      <div className="flex items-center gap-3">
-
-
-
-        {/* Notifications */}
-        <div className="relative" ref={notifRef}>
+      {/* Center Top Navigation Dropdowns (Foundit & Naukri Style) */}
+      <nav className="hidden md:flex items-center gap-2">
+        {/* Jobs Dropdown */}
+        <div className="relative">
           <button
-            onClick={() => setIsNotifOpen(!isNotifOpen)}
-            className="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl relative transition-colors"
-            title="Notifications"
+            onClick={() => setActiveDropdown(activeDropdown === 'jobs' ? null : 'jobs')}
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+              activeDropdown === 'jobs' ? 'bg-indigo-50 text-indigo-700 ring-2 ring-indigo-500/20' : 'text-slate-700 hover:bg-slate-100'
+            }`}
           >
-            <Bell className="w-5 h-5" />
-            {unreadCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-rose-500 rounded-full ring-2 ring-white animate-pulse" />
-            )}
+            <Briefcase className="w-4 h-4 text-indigo-600" />
+            <span>Jobs</span>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
           </button>
 
-          {isNotifOpen && (
-            <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-xl border border-slate-200 py-2 z-50 animate-in fade-in zoom-in duration-150">
-              <div className="flex items-center justify-between px-4 py-2 border-b border-slate-100">
-                <h4 className="font-bold text-xs text-slate-900">Notifications</h4>
-                {unreadCount > 0 && (
-                  <button
-                    onClick={markAllNotificationsAsRead}
-                    className="text-[11px] font-semibold text-blue-600 hover:underline"
-                  >
-                    Mark all read
-                  </button>
-                )}
-              </div>
-              <div className="max-h-72 overflow-y-auto divide-y divide-slate-100">
-                {notifications.length === 0 ? (
-                  <div className="p-4 text-center text-xs text-slate-400">No notifications</div>
-                ) : (
-                  notifications.map((n) => (
-                    <div
-                      key={n.id}
-                      onClick={() => {
-                        markNotificationAsRead(n.id);
-                        if (n.link) navigate(`/org/${organizationId}/recruiter${n.link}`);
-                        setIsNotifOpen(false);
-                      }}
-                      className={`p-3 text-xs hover:bg-slate-50 cursor-pointer transition-colors ${
-                        !n.read ? 'bg-blue-50/40 font-medium' : ''
-                      }`}
-                    >
-                      <div className="flex items-center justify-between text-slate-800 font-bold mb-0.5">
-                        <span>{n.title}</span>
-                        <span className="text-[10px] text-slate-400 font-normal">{n.timestamp}</span>
-                      </div>
-                      <p className="text-slate-600 text-[11px] leading-snug">{n.message}</p>
-                    </div>
-                  ))
-                )}
-              </div>
+          {activeDropdown === 'jobs' && (
+            <div className="absolute left-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-200 py-2 z-50 animate-in fade-in zoom-in duration-150">
+              <button
+                onClick={() => {
+                  setActiveDropdown(null);
+                  navigate(`/org/${organizationId}/recruiter/jobs/create`);
+                }}
+                className="w-full px-4 py-2.5 text-left text-xs font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 flex items-center gap-2.5 transition-colors cursor-pointer"
+              >
+                <PlusCircle className="w-4 h-4 text-indigo-600" /> Post a Job
+              </button>
+              <button
+                onClick={() => {
+                  setActiveDropdown(null);
+                  navigate(`/org/${organizationId}/recruiter/jobs`);
+                }}
+                className="w-full px-4 py-2.5 text-left text-xs font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 flex items-center gap-2.5 transition-colors border-t border-slate-100 cursor-pointer"
+              >
+                <Briefcase className="w-4 h-4 text-indigo-600" /> Total Jobs Posted
+              </button>
             </div>
           )}
         </div>
 
-        {/* Profile Dropdown */}
-        <div className="relative" ref={profileRef}>
+        {/* Search Dropdown */}
+        <div className="relative">
           <button
-            onClick={() => setIsProfileOpen(!isProfileOpen)}
-            className="flex items-center gap-2.5 p-1 hover:bg-slate-100 rounded-xl transition-colors"
+            onClick={() => setActiveDropdown(activeDropdown === 'search' ? null : 'search')}
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+              activeDropdown === 'search' ? 'bg-indigo-50 text-indigo-700 ring-2 ring-indigo-500/20' : 'text-slate-700 hover:bg-slate-100'
+            }`}
+          >
+            <Search className="w-4 h-4 text-indigo-600" />
+            <span>Search</span>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+          </button>
+
+          {activeDropdown === 'search' && (
+            <div className="absolute left-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-200 py-2 z-50 animate-in fade-in zoom-in duration-150">
+              <button
+                onClick={() => {
+                  setActiveDropdown(null);
+                  navigate(`/org/${organizationId}/recruiter/candidates/search`);
+                }}
+                className="w-full px-4 py-2.5 text-left text-xs font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 flex items-center gap-2.5 transition-colors cursor-pointer"
+              >
+                <Users className="w-4 h-4 text-indigo-600" /> Candidate Search
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Applications Dropdown */}
+        <div className="relative">
+          <button
+            onClick={() => setActiveDropdown(activeDropdown === 'apps' ? null : 'apps')}
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+              activeDropdown === 'apps' ? 'bg-indigo-50 text-indigo-700 ring-2 ring-indigo-500/20' : 'text-slate-700 hover:bg-slate-100'
+            }`}
+          >
+            <FileText className="w-4 h-4 text-indigo-600" />
+            <span>Applications</span>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+          </button>
+
+          {activeDropdown === 'apps' && (
+            <div className="absolute left-0 mt-2 w-60 bg-white rounded-2xl shadow-xl border border-slate-200 py-2 z-50 animate-in fade-in zoom-in duration-150">
+              <button
+                onClick={() => {
+                  setActiveDropdown(null);
+                  navigate(`/org/${organizationId}/recruiter/candidates`);
+                }}
+                className="w-full px-4 py-2.5 text-left text-xs font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 flex items-center gap-2.5 transition-colors cursor-pointer"
+              >
+                <Bookmark className="w-4 h-4 text-indigo-600" /> Saved Candidate Profiles
+              </button>
+            </div>
+          )}
+        </div>
+      </nav>
+
+      {/* Right Controls: Global Search & Recruiter Avatar */}
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => setGlobalSearchOpen(true)}
+          className="flex items-center gap-2 bg-slate-50 hover:bg-slate-100 text-slate-400 text-xs px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
+        >
+          <Search className="w-3.5 h-3.5 text-slate-400" />
+          <span className="hidden sm:inline font-medium">Search...</span>
+          <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-white text-slate-400 rounded border border-slate-200">
+            Ctrl K
+          </kbd>
+        </button>
+
+        {/* Profile Avatar */}
+        <div className="relative">
+          <button
+            onClick={() => setActiveDropdown(activeDropdown === 'profile' ? null : 'profile')}
+            className="flex items-center gap-2.5 p-1 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
           >
             <img
               src={profile.avatar}
@@ -171,7 +190,7 @@ export const RecruiterHeader: React.FC = () => {
             <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden lg:block" />
           </button>
 
-          {isProfileOpen && (
+          {activeDropdown === 'profile' && (
             <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-200 py-2 z-50 animate-in fade-in zoom-in duration-150">
               <div className="px-4 py-2 border-b border-slate-100">
                 <div className="font-bold text-xs text-slate-900">{profile.name}</div>
@@ -180,23 +199,12 @@ export const RecruiterHeader: React.FC = () => {
               <div className="py-1">
                 <button
                   onClick={() => {
-                    setIsProfileOpen(false);
-                    navigate(`/org/${organizationId}/recruiter/profile`);
-                  }}
-                  className="w-full px-4 py-2 text-left text-xs text-slate-700 hover:bg-slate-50 font-medium flex items-center gap-2"
-                >
-                  <User className="w-4 h-4 text-slate-400" /> Recruiter Profile
-                </button>
-              </div>
-              <div className="pt-1 border-t border-slate-100">
-                <button
-                  onClick={() => {
-                    setIsProfileOpen(false);
+                    setActiveDropdown(null);
                     if (confirm('Log out of Employee Portal?')) {
                       navigate('/');
                     }
                   }}
-                  className="w-full px-4 py-2 text-left text-xs text-rose-600 hover:bg-rose-50 font-medium flex items-center gap-2"
+                  className="w-full px-4 py-2 text-left text-xs text-rose-600 hover:bg-rose-50 font-bold flex items-center gap-2 cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" /> Sign Out
                 </button>
@@ -208,4 +216,3 @@ export const RecruiterHeader: React.FC = () => {
     </header>
   );
 };
-
