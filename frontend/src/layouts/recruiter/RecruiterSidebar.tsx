@@ -22,8 +22,7 @@ export const RecruiterSidebar: React.FC = () => {
     { label: 'Dashboard', path: `/org/${organizationId}/recruiter/dashboard`, icon: LayoutDashboard },
     { label: 'Messages', path: `/org/${organizationId}/recruiter/messages`, icon: MessageSquare },
     { label: 'AI Tools', path: `/org/${organizationId}/recruiter/ai-tools`, icon: Sparkles },
-    { label: 'Token Usage', path: `/org/${organizationId}/recruiter/tokens`, icon: Coins },
-    { label: 'Analytics', path: `/org/${organizationId}/recruiter/analytics`, icon: BarChart3 }
+    { label: 'Token Usage', path: `/org/${organizationId}/recruiter/tokens`, icon: Coins }
   ];
 
   if (!sidebarOpen) return null;
@@ -66,15 +65,7 @@ export const RecruiterSidebar: React.FC = () => {
       </nav>
 
       {/* Bottom Profile Footer */}
-      <div className="p-3 border-t border-slate-800/80 bg-[#0B0F19]/60 shrink-0 space-y-2">
-        <button
-          onClick={() => navigate(`/org/${organizationId}/recruiter/profile`)}
-          className="w-full px-3 py-2 bg-slate-800/60 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-bold rounded-xl flex items-center gap-2 transition-colors border border-slate-700/60 cursor-pointer"
-        >
-          <UserCheck className="w-4 h-4 text-indigo-400" />
-          <span>Profile & Settings</span>
-        </button>
-
+      <div className="p-3 border-t border-slate-800/80 bg-[#0B0F19]/60 shrink-0">
         <div className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-800/50 transition-colors">
           <div className="flex items-center gap-2.5 overflow-hidden min-w-0">
             <img
