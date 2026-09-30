@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate, useParams } from 'react-router-dom';
 import {
   Search,
@@ -40,29 +40,38 @@ export const CandidateSearch: React.FC = () => {
   const [searchMode, setSearchMode] = useState<'form' | 'jd'>('form');
   const [selectedCountry, setSelectedCountry] = useState('India');
 
-  // Interactive Keyword Tags System (Matching Screenshots 1, 2, 3)
-  const [keywordTags, setKeywordTags] = useState<KeywordTag[]>([
-    { id: '1', text: 'ai', isMandatory: true },
-    { id: '2', text: 'frontend', isMandatory: false },
-    { id: '3', text: 'Backend Developer', isMandatory: true }
-  ]);
+  // Interactive Keyword Tags System (starts empty)
+  const [keywordTags, setKeywordTags] = useState<KeywordTag[]>([]);
   const [tagInput, setTagInput] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [activeTooltipId, setActiveTooltipId] = useState<string | null>('1');
+  const [activeTooltipId, setActiveTooltipId] = useState<string | null>(null);
 
   const [booleanSearch, setBooleanSearch] = useState(false);
   const [searchIn, setSearchIn] = useState('Profile');
-  const [excludeSynonyms, setExcludeSynonyms] = useState(false);
-  const [showExcludeKeywords, setShowExcludeKeywords] = useState(false);
-  const [excludeKeywordInput, setExcludeKeywordInput] = useState('');
 
-  // Experience
-  const [experienceMin, setExperienceMin] = useState<string>('');
-  const [experienceMax, setExperienceMax] = useState<string>('');
-  const [showMonths, setShowMonths] = useState(false);
+  // Experience Minimum & Maximum with Years & Months (Matching Screenshot 1)
+  const [experienceMinYears, setExperienceMinYears] = useState<string>('');
+  const [experienceMinMonths, setExperienceMinMonths] = useState<string>('');
+  const [experienceMaxYears, setExperienceMaxYears] = useState<string>('');
+  const [experienceMaxMonths, setExperienceMaxMonths] = useState<string>('');
 
-  // Location
+  // Location & Top Cities Dropdown (Matching Screenshot 1)
   const [currentLocation, setCurrentLocation] = useState('');
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
+  const [selectedCities, setSelectedCities] = useState<string[]>([]);
+  const topCitiesList = [
+    'Ahmedabad',
+    'Bengaluru',
+    'Chennai',
+    'Delhi',
+    'Gurugram',
+    'Hyderabad',
+    'Mumbai',
+    'Pune',
+    'Kolkata',
+    'Noida'
+  ];
+
   const [includeRelocating, setIncludeRelocating] = useState(true);
   const [showPreferredLocation, setShowPreferredLocation] = useState(false);
   const [preferredLocationInput, setPreferredLocationInput] = useState('');
@@ -76,24 +85,35 @@ export const CandidateSearch: React.FC = () => {
   const [noticePeriod, setNoticePeriod] = useState<string>('Any');
   const [noticePeriodType, setNoticePeriodType] = useState<'without' | 'serving'>('without');
 
-  // Education & Employment Collapsibles
+  // Education Details (Matching Screenshot 2)
   const [educationOpen, setEducationOpen] = useState(true);
   const [ugQual, setUgQual] = useState<'Any UG' | 'Specific UG' | 'No UG'>('Any UG');
   const [pgQual, setPgQual] = useState<'Any PG' | 'Specific PG' | 'No PG'>('Any PG');
+  const [phdQual, setPhdQual] = useState<'Any PhD' | 'Specific PhD' | 'No PhD'>('Any PhD');
 
+  // Employment Details (Matching Screenshot 2)
   const [employmentOpen, setEmploymentOpen] = useState(true);
   const [industryInput, setIndustryInput] = useState('');
+  const [showIndustryDropdown, setShowIndustryDropdown] = useState(false);
+  const [selectedIndustryCategory, setSelectedIndustryCategory] = useState<string>('Software');
+  const [selectedSubIndustries, setSelectedSubIndustries] = useState<string[]>([]);
   const [companyInput, setCompanyInput] = useState('');
 
-  // Additional Details Collapsible (Matching Screenshot 2)
+  const industrySubCategories: Record<string, string[]> = {
+    Software: ['Select All', 'Apps', 'Retail Technology', 'Enterprise Applications', 'Text Analytics', 'PaaS'],
+    'Media and Entertainment': ['Select All', 'Digital Media', 'Gaming', 'Broadcasting', 'Publishing'],
+    'Tech Hardware': ['Select All', 'Semiconductors', 'Embedded Systems', 'IoT Devices', 'Hardware Design'],
+    'Banking / Financial Services': ['Select All', 'Fintech', 'Investment Banking', 'Retail Banking', 'Risk & Compliance'],
+    'Information Technology': ['Select All', 'IT Services', 'Software Development', 'Data Analytics', 'Cybersecurity'],
+    Other: ['Select All', 'Consulting', 'Education', 'Healthcare', 'E-commerce']
+  };
+
+  // Additional Details Collapsible
   const [additionalDetailsOpen, setAdditionalDetailsOpen] = useState(true);
   const [genderFilter, setGenderFilter] = useState<string>('');
   const [selectedDiffAbled, setSelectedDiffAbled] = useState<string[]>([]);
   const [languageInput, setLanguageInput] = useState('');
-
-  // Visa & Filters (Matching Screenshot 4)
   const [selectedVisas, setSelectedVisas] = useState<string[]>([]);
-  const [hideCandidatesWith, setHideCandidatesWith] = useState<string[]>([]);
 
   // Age (Matching Screenshot 1)
   const [ageMin, setAgeMin] = useState<string>('');
@@ -110,6 +130,8 @@ export const CandidateSearch: React.FC = () => {
   // Search Execution & Results
   const [hasSearched, setHasSearched] = useState(initialQuery ? true : false);
   const [savedIds, setSavedIds] = useState<string[]>([]);
+
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Autocomplete Suggestions
   const availableSuggestions = [
@@ -154,6 +176,17 @@ export const CandidateSearch: React.FC = () => {
     }
   }, [searchParams]);
 
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setShowLocationDropdown(false);
+        setShowIndustryDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const handleAddTag = (textToAdd: string) => {
     const trimmed = textToAdd.trim();
     if (trimmed && !keywordTags.some((t) => t.text.toLowerCase() === trimmed.toLowerCase())) {
@@ -190,22 +223,25 @@ export const CandidateSearch: React.FC = () => {
     setTagInput('');
     setBooleanSearch(false);
     setSearchIn('Profile');
-    setExcludeSynonyms(false);
-    setExperienceMin('');
-    setExperienceMax('');
+    setExperienceMinYears('');
+    setExperienceMinMonths('');
+    setExperienceMaxYears('');
+    setExperienceMaxMonths('');
     setCurrentLocation('');
+    setSelectedCities([]);
     setSalaryMin('');
     setSalaryMax('');
     setNoticePeriod('Any');
     setUgQual('Any UG');
     setPgQual('Any PG');
+    setPhdQual('Any PhD');
     setIndustryInput('');
+    setSelectedSubIndustries([]);
     setCompanyInput('');
     setGenderFilter('');
     setSelectedDiffAbled([]);
     setLanguageInput('');
     setSelectedVisas([]);
-    setHideCandidatesWith([]);
     setAgeMin('');
     setAgeMax('');
     setShowOnlyFilters([]);
@@ -224,10 +260,6 @@ export const CandidateSearch: React.FC = () => {
 
   const toggleVisa = (visa: string) => {
     setSelectedVisas((prev) => (prev.includes(visa) ? prev.filter((v) => v !== visa) : [...prev, visa]));
-  };
-
-  const toggleHideCandidate = (item: string) => {
-    setHideCandidatesWith((prev) => (prev.includes(item) ? prev.filter((v) => v !== item) : [...prev, item]));
   };
 
   const toggleShowOnly = (item: string) => {
@@ -259,21 +291,21 @@ export const CandidateSearch: React.FC = () => {
       return false;
     }
 
-    if (experienceMin && cand.experienceYears < Number(experienceMin)) return false;
-    if (experienceMax && cand.experienceYears > Number(experienceMax)) return false;
+    if (experienceMinYears && cand.experienceYears < Number(experienceMinYears)) return false;
+    if (experienceMaxYears && cand.experienceYears > Number(experienceMaxYears)) return false;
 
     return true;
   });
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto pb-32 font-sans text-slate-900 select-none animate-in fade-in duration-200">
+    <div ref={dropdownRef} className="space-y-6 max-w-6xl mx-auto pb-32 font-sans text-slate-900 select-none animate-in fade-in duration-200">
       
       {/* Top Title & Mode Switcher */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div className="flex items-center gap-2">
           <Sparkles className="w-6 h-6 text-indigo-600" />
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-            Find the right candidates with AI
+            Candidate Search
           </h1>
         </div>
 
@@ -445,102 +477,142 @@ export const CandidateSearch: React.FC = () => {
                 </div>
               )}
             </div>
-
-            <div className="flex flex-wrap items-center justify-between gap-2 mt-2 text-xs">
-              <label className="flex items-center gap-2 font-semibold text-slate-700 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={excludeSynonyms}
-                  onChange={(e) => setExcludeSynonyms(e.target.checked)}
-                  className="w-4 h-4 text-indigo-600 rounded border-slate-300"
-                />
-                <span>Exclude synonyms</span>
-                <Info className="w-3.5 h-3.5 text-slate-400" title="Only match exact query terms without AI keyword expansion" />
-              </label>
-
-              <button
-                type="button"
-                onClick={() => setShowExcludeKeywords(!showExcludeKeywords)}
-                className="text-xs font-bold text-indigo-600 hover:underline flex items-center gap-1 cursor-pointer"
-              >
-                <Plus className="w-3.5 h-3.5" /> Add keywords to exclude from search
-              </button>
-            </div>
-
-            {showExcludeKeywords && (
-              <div className="mt-2">
-                <input
-                  type="text"
-                  value={excludeKeywordInput}
-                  onChange={(e) => setExcludeKeywordInput(e.target.value)}
-                  placeholder="Enter keywords to exclude (e.g. Intern, Trainee)"
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium"
-                />
-              </div>
-            )}
           </div>
 
-          {/* Experience row */}
+          {/* Experience row with side-by-side Years & Months (Matching Screenshot 1) */}
           <div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
                   Experience (Minimum)
                 </label>
-                <select
-                  value={experienceMin}
-                  onChange={(e) => setExperienceMin(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 bg-white focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-                >
-                  <option value="">Years</option>
-                  {[0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 15].map((y) => (
-                    <option key={y} value={y}>{y} Years</option>
-                  ))}
-                </select>
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <select
+                      value={experienceMinYears}
+                      onChange={(e) => setExperienceMinYears(e.target.value)}
+                      className="w-full appearance-none bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500 cursor-pointer pr-8"
+                    >
+                      <option value="">Years</option>
+                      {[0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 15].map((y) => (
+                        <option key={y} value={y}>{y} Years</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-3 pointer-events-none" />
+                  </div>
+
+                  <div className="relative flex-1">
+                    <select
+                      value={experienceMinMonths}
+                      onChange={(e) => setExperienceMinMonths(e.target.value)}
+                      className="w-full appearance-none bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500 cursor-pointer pr-8"
+                    >
+                      <option value="">Months</option>
+                      {Array.from({ length: 12 }, (_, i) => i).map((m) => (
+                        <option key={m} value={m}>{m} Months</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-3 pointer-events-none" />
+                  </div>
+                </div>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
                   Experience (Maximum)
                 </label>
-                <div className="flex items-center gap-3">
-                  <select
-                    value={experienceMax}
-                    onChange={(e) => setExperienceMax(e.target.value)}
-                    className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 bg-white focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-                  >
-                    <option value="">Years</option>
-                    {[1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20].map((y) => (
-                      <option key={y} value={y}>{y} Years</option>
-                    ))}
-                  </select>
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <select
+                      value={experienceMaxYears}
+                      onChange={(e) => setExperienceMaxYears(e.target.value)}
+                      className="w-full appearance-none bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500 cursor-pointer pr-8"
+                    >
+                      <option value="">Years</option>
+                      {[1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20].map((y) => (
+                        <option key={y} value={y}>{y} Years</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-3 pointer-events-none" />
+                  </div>
 
-                  <button
-                    type="button"
-                    onClick={() => setShowMonths(!showMonths)}
-                    className="text-xs font-bold text-indigo-600 hover:underline shrink-0 flex items-center gap-1 cursor-pointer"
-                  >
-                    <Plus className="w-3.5 h-3.5" /> Add months
-                  </button>
+                  <div className="relative flex-1">
+                    <select
+                      value={experienceMaxMonths}
+                      onChange={(e) => setExperienceMaxMonths(e.target.value)}
+                      className="w-full appearance-none bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500 cursor-pointer pr-8"
+                    >
+                      <option value="">Months</option>
+                      {Array.from({ length: 12 }, (_, i) => i).map((m) => (
+                        <option key={m} value={m}>{m} Months</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-3 pointer-events-none" />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Current Location row */}
+          {/* Current Location row & Top Cities Dropdown (Matching Screenshot 1) */}
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1">
               Current location
             </label>
             <div className="relative">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-              <input
-                type="text"
-                value={currentLocation}
-                onChange={(e) => setCurrentLocation(e.target.value)}
-                placeholder="Enter current location (e.g. San Francisco, Austin, Remote)"
-                className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:ring-2 focus:ring-indigo-500"
-              />
+              <div className="relative flex items-center">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3.5" />
+                <input
+                  type="text"
+                  value={currentLocation}
+                  onChange={(e) => setCurrentLocation(e.target.value)}
+                  onFocus={() => setShowLocationDropdown(true)}
+                  placeholder="Enter current location"
+                  className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+                />
+              </div>
+
+              {/* Top Cities Dropdown (Matching Screenshot 1) */}
+              {showLocationDropdown && (
+                <div className="mt-1.5 bg-white border border-slate-300 rounded-xl shadow-xl p-4 z-40 max-w-xl animate-in fade-in zoom-in duration-100">
+                  <div className="flex items-center justify-between font-bold text-xs text-slate-800 pb-2.5 border-b border-slate-100 mb-2">
+                    <span>In Top Cities</span>
+                    <div className="flex flex-col text-[10px] text-slate-400 leading-none">
+                      <span>▲</span>
+                      <span>▼</span>
+                    </div>
+                  </div>
+
+                  <div className="max-h-48 overflow-y-auto space-y-2 pr-2">
+                    {topCitiesList.map((city) => {
+                      const isChecked = selectedCities.includes(city);
+                      return (
+                        <label
+                          key={city}
+                          className="flex items-center gap-3 text-xs font-medium text-slate-800 hover:bg-slate-50 p-1.5 rounded-lg cursor-pointer select-none"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => {
+                              let updated: string[];
+                              if (isChecked) {
+                                updated = selectedCities.filter((c) => c !== city);
+                              } else {
+                                updated = [...selectedCities, city];
+                              }
+                              setSelectedCities(updated);
+                              setCurrentLocation(updated.join(', '));
+                            }}
+                            className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
+                          />
+                          <span>{city}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="flex items-center justify-between mt-2.5 text-xs font-semibold">
@@ -693,7 +765,7 @@ export const CandidateSearch: React.FC = () => {
           </div>
         </div>
 
-        {/* Card 3: Collapsible Education Details */}
+        {/* Card 3: Collapsible Education Details (Matching Screenshot 2) */}
         <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 space-y-4">
           <button
             type="button"
@@ -718,7 +790,7 @@ export const CandidateSearch: React.FC = () => {
                       type="button"
                       onClick={() => setUgQual(opt)}
                       className={`px-4 py-1.5 rounded-full font-bold border transition-all cursor-pointer ${
-                        ugQual === opt ? 'bg-indigo-50 text-indigo-700 border-indigo-300' : 'bg-white text-slate-700 border-slate-300'
+                        ugQual === opt ? 'bg-indigo-50 text-indigo-700 border-indigo-300 ring-2 ring-indigo-500/20' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
                       }`}
                     >
                       {opt}
@@ -736,7 +808,7 @@ export const CandidateSearch: React.FC = () => {
                       type="button"
                       onClick={() => setPgQual(opt)}
                       className={`px-4 py-1.5 rounded-full font-bold border transition-all cursor-pointer ${
-                        pgQual === opt ? 'bg-indigo-50 text-indigo-700 border-indigo-300' : 'bg-white text-slate-700 border-slate-300'
+                        pgQual === opt ? 'bg-indigo-50 text-indigo-700 border-indigo-300 ring-2 ring-indigo-500/20' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
                       }`}
                     >
                       {opt}
@@ -746,15 +818,27 @@ export const CandidateSearch: React.FC = () => {
               </div>
 
               <div>
-                <button type="button" className="text-xs font-bold text-indigo-600 hover:underline cursor-pointer">
-                  + Add Doctorate qualification
-                </button>
+                <div className="font-bold text-slate-800 mb-2">Doctorate qualification</div>
+                <div className="flex items-center gap-2">
+                  {(['Any PhD', 'Specific PhD', 'No PhD'] as const).map((opt) => (
+                    <button
+                      key={opt}
+                      type="button"
+                      onClick={() => setPhdQual(opt)}
+                      className={`px-4 py-1.5 rounded-full font-bold border transition-all cursor-pointer ${
+                        phdQual === opt ? 'bg-indigo-50 text-indigo-700 border-indigo-300 ring-2 ring-indigo-500/20' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+                      }`}
+                    >
+                      {opt}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           )}
         </div>
 
-        {/* Card 4: Collapsible Employment Details */}
+        {/* Card 4: Collapsible Employment Details (Matching Screenshot 2) */}
         <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 space-y-4">
           <button
             type="button"
@@ -772,14 +856,97 @@ export const CandidateSearch: React.FC = () => {
             <div className="space-y-4 pt-2 text-xs">
               <div>
                 <label className="block font-bold text-slate-800 mb-1">Industry</label>
-                <input
-                  type="text"
-                  value={industryInput}
-                  onChange={(e) => setIndustryInput(e.target.value)}
-                  placeholder="Enter industry (e.g. IT Software, Fintech, Healthcare)"
-                  className="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:ring-2 focus:ring-indigo-500"
-                />
-                <div className="text-[11px] text-slate-400 mt-1 font-medium">Include: Current or past industry</div>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={industryInput}
+                    onChange={(e) => setIndustryInput(e.target.value)}
+                    onFocus={() => setShowIndustryDropdown(true)}
+                    placeholder="Enter industry"
+                    className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+
+                  {/* 2-Column Industry Dropdown (Matching Screenshot 2) */}
+                  {showIndustryDropdown && (
+                    <div className="mt-1.5 bg-white border border-slate-300 rounded-xl shadow-xl p-3 z-40 max-w-2xl grid grid-cols-2 gap-3 divide-x divide-slate-200 animate-in fade-in duration-100">
+                      {/* Left Column: Categories */}
+                      <div className="space-y-1 max-h-56 overflow-y-auto pr-1">
+                        {[
+                          { name: 'Software', count: 87 },
+                          { name: 'Media and Entertainment', count: 60 },
+                          { name: 'Tech Hardware', count: 51 },
+                          { name: 'Banking / Financial Services', count: 44 },
+                          { name: 'Information Technology', count: 43 },
+                          { name: 'Other', count: 31 }
+                        ].map((cat) => {
+                          const isSelectedCat = selectedIndustryCategory === cat.name;
+                          return (
+                            <div
+                              key={cat.name}
+                              onClick={() => setSelectedIndustryCategory(cat.name)}
+                              className={`flex items-center justify-between p-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
+                                isSelectedCat ? 'bg-indigo-50 text-indigo-700 font-bold' : 'hover:bg-slate-50 text-slate-800'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="checkbox"
+                                  checked={isSelectedCat}
+                                  readOnly
+                                  className="w-3.5 h-3.5 text-indigo-600 rounded border-slate-300"
+                                />
+                                <span>{cat.name} ({cat.count})</span>
+                              </div>
+                              <span className="text-slate-400 font-bold">&gt;</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Right Column: Sub Categories */}
+                      <div className="pl-3 space-y-1.5 max-h-56 overflow-y-auto">
+                        <div className="flex items-center justify-between text-[11px] text-slate-400 font-bold mb-1">
+                          <span>Sub Categories</span>
+                          <span>▲▼</span>
+                        </div>
+                        {industrySubCategories[selectedIndustryCategory]?.map((sub) => {
+                          const isChecked = selectedSubIndustries.includes(sub);
+                          return (
+                            <label
+                              key={sub}
+                              className="flex items-center gap-2.5 text-xs font-semibold text-slate-800 hover:bg-slate-50 p-1.5 rounded-lg cursor-pointer select-none"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={() => {
+                                  let updated: string[];
+                                  if (sub === 'Select All') {
+                                    if (isChecked) {
+                                      updated = [];
+                                    } else {
+                                      updated = [...industrySubCategories[selectedIndustryCategory]];
+                                    }
+                                  } else {
+                                    if (isChecked) {
+                                      updated = selectedSubIndustries.filter((s) => s !== sub);
+                                    } else {
+                                      updated = [...selectedSubIndustries, sub];
+                                    }
+                                  }
+                                  setSelectedSubIndustries(updated);
+                                  setIndustryInput(updated.filter(s => s !== 'Select All').join(', '));
+                                }}
+                                className="w-3.5 h-3.5 text-indigo-600 rounded border-slate-300"
+                              />
+                              <span>{sub}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div>
@@ -797,7 +964,7 @@ export const CandidateSearch: React.FC = () => {
           )}
         </div>
 
-        {/* Card 5: Collapsible Additional Details (Matching Screenshot 2) */}
+        {/* Card 5: Collapsible Additional Details */}
         <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 space-y-5">
           <button
             type="button"
@@ -922,7 +1089,7 @@ export const CandidateSearch: React.FC = () => {
           )}
         </div>
 
-        {/* Card 6: Age & Show Only Preferences (Matching Screenshot 1) */}
+        {/* Card 6: Age & Show Only Preferences */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-6 text-xs">
           
           {/* Age (Years) */}
@@ -964,7 +1131,7 @@ export const CandidateSearch: React.FC = () => {
               </div>
             </div>
 
-            {/* Switch toggle matching screenshot 1 */}
+            {/* Switch toggle */}
             <div className="pt-1">
               <button
                 type="button"
@@ -981,7 +1148,7 @@ export const CandidateSearch: React.FC = () => {
             </div>
           </div>
 
-          {/* Show only section matching screenshot 1 */}
+          {/* Show only section */}
           <div className="space-y-3 pt-2 border-t border-slate-100">
             <div className="font-bold text-slate-800 text-sm">Show only</div>
             <div className="flex flex-wrap items-center gap-2">
@@ -1014,7 +1181,7 @@ export const CandidateSearch: React.FC = () => {
 
       </div>
 
-      {/* Sticky Bottom Action Bar (Matching Screenshot 3) */}
+      {/* Sticky Bottom Action Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 p-4 shadow-xl z-40 flex items-center justify-between px-6 lg:px-12">
         <div className="relative">
           <button
@@ -1026,7 +1193,7 @@ export const CandidateSearch: React.FC = () => {
             <ChevronUp className={`w-4 h-4 text-slate-500 transition-transform ${timeRangeOpen ? 'rotate-180' : ''}`} />
           </button>
 
-          {/* Time Range Dropdown Menu Popup (Matching Screenshot 3) */}
+          {/* Time Range Dropdown Menu Popup */}
           {timeRangeOpen && (
             <div className="absolute bottom-full left-0 mb-2 w-56 bg-white rounded-xl shadow-2xl border border-slate-200 py-1.5 z-50 animate-in fade-in slide-in-from-bottom-2 duration-150">
               <div className="max-h-60 overflow-y-auto divide-y divide-slate-100">
