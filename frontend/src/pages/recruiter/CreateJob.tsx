@@ -911,12 +911,8 @@ Qualifications & Requirements:
       </div>
 
       {/* Sticky Bottom Action Bar (Matching Foundit layout) */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 p-4 shadow-xl z-30 flex items-center justify-between px-6 lg:px-12">
-        <div className="text-xs text-slate-500 font-semibold hidden sm:block">
-          Clyptus Requisition Engine • Ready to publish to target candidate pool
-        </div>
-
-        <div className="flex items-center gap-4 ml-auto">
+      <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 p-4 shadow-xl z-30 flex items-center justify-end px-6 lg:px-12">
+        <div className="flex items-center gap-4">
           <button
             type="button"
             onClick={() => handleSubmit('Draft')}
