@@ -11,8 +11,7 @@ interface JobCardProps {
 export const JobCard: React.FC<JobCardProps> = ({ job }) => {
   const navigate = useNavigate();
   const { organizationId = 'clyptus' } = useParams<{ organizationId: string }>();
-  const { updateJobStatus, profile } = useRecruiterStore();
-  const [assignedRecruiter, setAssignedRecruiter] = useState(job.assignedRecruiterName || profile.name);
+  const { updateJobStatus } = useRecruiterStore();
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between space-y-4">
@@ -39,30 +38,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
         </p>
       </div>
 
-      {/* Assigned Recruiter Box */}
-      <div className="bg-slate-50/80 rounded-xl p-3 border border-slate-100 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-full bg-indigo-600 text-white font-extrabold text-[11px] flex items-center justify-center shrink-0">
-            {assignedRecruiter.split(' ').map((n) => n[0]).join('').toUpperCase()}
-          </div>
-          <div>
-            <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
-              ASSIGNED RECRUITER
-            </div>
-            <div className="text-xs font-bold text-slate-800">{assignedRecruiter}</div>
-          </div>
-        </div>
 
-        <select
-          value={assignedRecruiter}
-          onChange={(e) => setAssignedRecruiter(e.target.value)}
-          className="px-2 py-1 bg-white border border-slate-200 rounded-lg text-[11px] font-semibold text-slate-700 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
-        >
-          <option value={profile.name}>{profile.name}</option>
-          <option value="Elena Rostova">Elena Rostova</option>
-          <option value="Kushi">Kushi</option>
-        </select>
-      </div>
 
       {/* Job Details Grid Box */}
       <div className="bg-slate-50/50 rounded-xl p-3 border border-slate-100 grid grid-cols-2 gap-2 text-xs">
