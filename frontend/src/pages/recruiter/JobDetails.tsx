@@ -103,7 +103,93 @@ export const JobDetails: React.FC = () => {
         </div>
       </div>
 
-      {/* Details Sections */}
+      {/* Job Posting Details Card */}
+      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div className="flex items-center gap-2">
+            <Briefcase className="w-5 h-5 text-indigo-600" />
+            <h2 className="text-base font-extrabold text-slate-900">Job Posting Details</h2>
+          </div>
+          <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+            Requisition ID: {job.id}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 text-xs">
+          <div className="space-y-1">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Job Title</span>
+            <div className="font-extrabold text-slate-900 text-sm">{job.title}</div>
+          </div>
+
+          <div className="space-y-1">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Department</span>
+            <div className="font-bold text-slate-800">{job.department}</div>
+          </div>
+
+          <div className="space-y-1">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Job Location</span>
+            <div className="font-bold text-slate-800 flex items-center gap-1">
+              <MapPin className="w-3.5 h-3.5 text-indigo-500" />
+              <span>{job.location}</span>
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Work Mode</span>
+            <div className="font-bold text-slate-800">{job.workMode}</div>
+          </div>
+
+          <div className="space-y-1">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Employment Type</span>
+            <div className="font-bold text-slate-800">{job.employmentType}</div>
+          </div>
+
+          <div className="space-y-1">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Experience Range</span>
+            <div className="font-bold text-slate-800">
+              {job.experienceMin !== undefined && job.experienceMax !== undefined
+                ? `${job.experienceMin} - ${job.experienceMax} Years`
+                : job.experienceLevel}
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Annual Salary Range</span>
+            <div className="font-bold text-slate-800">
+              {job.salaryMin ? `${job.salaryMin} - ${job.salaryMax} Lacs` : `${job.currency} ${job.salaryMin} - ${job.salaryMax}`}
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Number of Openings</span>
+            <div className="font-bold text-slate-800">{job.openings} Open Positions</div>
+          </div>
+
+          {job.noticePeriod && (
+            <div className="space-y-1">
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Notice Period</span>
+              <div className="font-bold text-slate-800">{job.noticePeriod}</div>
+            </div>
+          )}
+
+          {job.educationLevel && (
+            <div className="space-y-1">
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Education Level</span>
+              <div className="font-bold text-slate-800">{job.educationLevel}</div>
+            </div>
+          )}
+
+          <div className="space-y-1">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Assigned Recruiter</span>
+            <div className="font-bold text-slate-800">{job.assignedRecruiterName || 'Sarah Jenkins'}</div>
+          </div>
+
+          <div className="space-y-1">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Posted Date</span>
+            <div className="font-bold text-slate-800">{job.postedDate}</div>
+          </div>
+        </div>
+      </div>
       <div className="bg-white rounded-xl border border-slate-200/80 p-6 space-y-6">
         <div>
           <h3 className="font-bold text-slate-900 text-sm mb-2">Job Description & Summary</h3>

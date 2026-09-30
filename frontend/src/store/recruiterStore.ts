@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import {
   RecruiterProfile,
   Job,
@@ -289,7 +290,9 @@ interface RecruiterState {
   seedDemoApplications: () => void;
 }
 
-export const useRecruiterStore = create<RecruiterState>((set, get) => ({
+export const useRecruiterStore = create<RecruiterState>()(
+  persist(
+    (set, get) => ({
   profile: initialProfile,
   jobs: initialJobs,
   candidates: initialCandidates,
@@ -763,4 +766,9 @@ export const useRecruiterStore = create<RecruiterState>((set, get) => ({
       profile: { ...state.profile, ...profileUpdates }
     }));
   }
-}));
+}),
+    {
+      name: 'clyptus_recruiter_store_v1'
+    }
+  )
+);
