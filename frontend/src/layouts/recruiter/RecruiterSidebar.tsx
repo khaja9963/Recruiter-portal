@@ -1,10 +1,8 @@
 import React from 'react';
 import { NavLink, useParams } from 'react-router-dom';
 import {
-  LayoutDashboard,
-  Search,
-  MessageSquare,
-  Sparkles,
+  Briefcase,
+  FileText,
   Coins
 } from 'lucide-react';
 import { useRecruiterStore } from '../../store/recruiterStore';
@@ -14,7 +12,8 @@ export const RecruiterSidebar: React.FC = () => {
   const { sidebarOpen } = useRecruiterStore();
 
   const navItems = [
-    { label: 'Dashboard', path: `/org/${organizationId}/recruiter/dashboard`, icon: LayoutDashboard },
+    { label: 'Jobs', path: `/org/${organizationId}/recruiter/jobs`, icon: Briefcase },
+    { label: 'Applications', path: `/org/${organizationId}/recruiter/applications`, icon: FileText },
     { label: 'Token Usage', path: `/org/${organizationId}/recruiter/tokens`, icon: Coins }
   ];
 
