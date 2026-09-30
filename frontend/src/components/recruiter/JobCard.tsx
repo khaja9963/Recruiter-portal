@@ -109,7 +109,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
           onClick={() => updateJobStatus(job.id, job.status === 'Published' ? 'Paused' : 'Published')}
           className={`py-2 px-3 text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-2xs ${
             job.status === 'Published'
-              ? 'bg-[#13113C] hover:bg-[#1E1A55] text-white'
+              ? 'bg-slate-700 hover:bg-slate-800 text-white'
               : 'bg-emerald-600 hover:bg-emerald-700 text-white'
           }`}
         >
