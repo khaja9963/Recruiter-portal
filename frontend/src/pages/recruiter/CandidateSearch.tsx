@@ -40,26 +40,29 @@ export const CandidateSearch: React.FC = () => {
   const [searchMode, setSearchMode] = useState<'form' | 'jd'>('form');
   const [selectedCountry, setSelectedCountry] = useState('India');
 
-  // Interactive Keyword Tags System (starts empty)
+  // Interactive Keyword Tags System (starts 100% empty)
   const [keywordTags, setKeywordTags] = useState<KeywordTag[]>([]);
   const [tagInput, setTagInput] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [activeTooltipId, setActiveTooltipId] = useState<string | null>(null);
 
+  // Boolean Search Mode (Matching Screenshot 1)
   const [booleanSearch, setBooleanSearch] = useState(false);
+  const [booleanQuery, setBooleanQuery] = useState('');
   const [searchIn, setSearchIn] = useState('Profile');
+  const [excludeSynonyms, setExcludeSynonyms] = useState(false);
+  const [showAiBanner, setShowAiBanner] = useState(true);
 
-  // Experience Minimum & Maximum with Years & Months (Matching Screenshot 1)
+  // Experience Minimum & Maximum (Years only, no months)
   const [experienceMinYears, setExperienceMinYears] = useState<string>('');
-  const [experienceMinMonths, setExperienceMinMonths] = useState<string>('');
   const [experienceMaxYears, setExperienceMaxYears] = useState<string>('');
-  const [experienceMaxMonths, setExperienceMaxMonths] = useState<string>('');
 
-  // Location & Top Cities Dropdown (Matching Screenshot 1)
-  const [currentLocation, setCurrentLocation] = useState('');
+  // Multi-Location Tag System (Matching Keyword Tags style)
+  const [locationTags, setLocationTags] = useState<string[]>([]);
+  const [locationInput, setLocationInput] = useState('');
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
-  const [selectedCities, setSelectedCities] = useState<string[]>([]);
-  const topCitiesList = [
+
+  const allCitiesList = [
     'Ahmedabad',
     'Bengaluru',
     'Chennai',
@@ -69,8 +72,21 @@ export const CandidateSearch: React.FC = () => {
     'Mumbai',
     'Pune',
     'Kolkata',
-    'Noida'
+    'Noida',
+    'Austin',
+    'San Francisco',
+    'New York',
+    'London',
+    'Dubai',
+    'Remote'
   ];
+
+  // Filter cities: matching search query displays FIRST
+  const filteredCities = allCitiesList.filter(
+    (c) =>
+      !locationTags.includes(c) &&
+      (locationInput.trim() === '' || c.toLowerCase().includes(locationInput.toLowerCase().trim()))
+  );
 
   const [includeRelocating, setIncludeRelocating] = useState(true);
   const [showPreferredLocation, setShowPreferredLocation] = useState(false);
@@ -85,13 +101,13 @@ export const CandidateSearch: React.FC = () => {
   const [noticePeriod, setNoticePeriod] = useState<string>('Any');
   const [noticePeriodType, setNoticePeriodType] = useState<'without' | 'serving'>('without');
 
-  // Education Details (Matching Screenshot 2)
+  // Education Details with Toggle / Undo support
   const [educationOpen, setEducationOpen] = useState(true);
-  const [ugQual, setUgQual] = useState<'Any UG' | 'Specific UG' | 'No UG'>('Any UG');
-  const [pgQual, setPgQual] = useState<'Any PG' | 'Specific PG' | 'No PG'>('Any PG');
-  const [phdQual, setPhdQual] = useState<'Any PhD' | 'Specific PhD' | 'No PhD'>('Any PhD');
+  const [ugQual, setUgQual] = useState<string>('');
+  const [pgQual, setPgQual] = useState<string>('');
+  const [phdQual, setPhdQual] = useState<string>('');
 
-  // Employment Details (Matching Screenshot 2)
+  // Employment Details
   const [employmentOpen, setEmploymentOpen] = useState(true);
   const [industryInput, setIndustryInput] = useState('');
   const [showIndustryDropdown, setShowIndustryDropdown] = useState(false);
@@ -115,7 +131,7 @@ export const CandidateSearch: React.FC = () => {
   const [languageInput, setLanguageInput] = useState('');
   const [selectedVisas, setSelectedVisas] = useState<string[]>([]);
 
-  // Age (Matching Screenshot 1)
+  // Age
   const [ageMin, setAgeMin] = useState<string>('');
   const [ageMax, setAgeMax] = useState<string>('');
   const [includeNoAge, setIncludeNoAge] = useState(true);
@@ -123,7 +139,7 @@ export const CandidateSearch: React.FC = () => {
   // Show Only Filters
   const [showOnlyFilters, setShowOnlyFilters] = useState<string[]>([]);
 
-  // Time Range (Matching Screenshot 3)
+  // Time Range Dropdown
   const [timeRangeFilter, setTimeRangeFilter] = useState<string>('In last 6 months');
   const [timeRangeOpen, setTimeRangeOpen] = useState(false);
 
@@ -133,7 +149,7 @@ export const CandidateSearch: React.FC = () => {
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Autocomplete Suggestions
+  // Autocomplete Suggestions for Keyword Tags
   const availableSuggestions = [
     'Frontend',
     'Frontend Developer',
@@ -218,23 +234,44 @@ export const CandidateSearch: React.FC = () => {
     setKeywordTags(keywordTags.filter((t) => t.id !== id));
   };
 
+  // Location Tag Handlers
+  const handleAddLocationTag = (cityToAdd: string) => {
+    const trimmed = cityToAdd.trim();
+    if (trimmed && !locationTags.includes(trimmed)) {
+      setLocationTags([...locationTags, trimmed]);
+      setLocationInput('');
+    }
+  };
+
+  const handleKeyDownLocationTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (locationInput.trim()) {
+        handleAddLocationTag(locationInput);
+      }
+    }
+  };
+
+  const handleRemoveLocationTag = (cityToRemove: string) => {
+    setLocationTags(locationTags.filter((c) => c !== cityToRemove));
+  };
+
   const handleClearAll = () => {
     setKeywordTags([]);
     setTagInput('');
     setBooleanSearch(false);
+    setBooleanQuery('');
     setSearchIn('Profile');
     setExperienceMinYears('');
-    setExperienceMinMonths('');
     setExperienceMaxYears('');
-    setExperienceMaxMonths('');
-    setCurrentLocation('');
-    setSelectedCities([]);
+    setLocationTags([]);
+    setLocationInput('');
     setSalaryMin('');
     setSalaryMax('');
     setNoticePeriod('Any');
-    setUgQual('Any UG');
-    setPgQual('Any PG');
-    setPhdQual('Any PhD');
+    setUgQual('');
+    setPgQual('');
+    setPhdQual('');
     setIndustryInput('');
     setSelectedSubIndustries([]);
     setCompanyInput('');
@@ -287,8 +324,9 @@ export const CandidateSearch: React.FC = () => {
       if (!matchesAnyOptional) return false;
     }
 
-    if (currentLocation.trim() && !cand.location.toLowerCase().includes(currentLocation.toLowerCase())) {
-      return false;
+    if (locationTags.length > 0) {
+      const matchesLocation = locationTags.some((loc) => cand.location.toLowerCase().includes(loc.toLowerCase()));
+      if (!matchesLocation) return false;
     }
 
     if (experienceMinYears && cand.experienceYears < Number(experienceMinYears)) return false;
@@ -348,172 +386,245 @@ export const CandidateSearch: React.FC = () => {
       {/* Main Search Form */}
       <div className="space-y-6">
         
-        {/* Card 1: Keywords & Basic Criteria */}
+        {/* Card 1: Keywords / Boolean Search & Basic Criteria */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-5">
           
-          {/* Keywords row */}
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="text-xs font-bold text-slate-800">
-                Keywords
-              </label>
-              
-              <div className="flex items-center gap-4 text-xs font-semibold text-slate-700">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={booleanSearch}
-                    onChange={(e) => setBooleanSearch(e.target.checked)}
-                    className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
-                  />
-                  <span>Boolean search</span>
-                </label>
-
-                <div className="flex items-center gap-1">
-                  <span>Search in</span>
-                  <select
-                    value={searchIn}
-                    onChange={(e) => setSearchIn(e.target.value)}
-                    className="bg-slate-50 border border-slate-300 px-2.5 py-1 rounded-lg text-xs font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-                  >
-                    <option value="Profile">Profile</option>
-                    <option value="Job Title">Job Title</option>
-                    <option value="Skills Only">Skills Only</option>
-                  </select>
-                </div>
+          {/* AI Search Banner (Shown when Boolean Search is Active - Matching Screenshot 1) */}
+          {booleanSearch && showAiBanner && (
+            <div className="bg-sky-50/80 border border-sky-200 rounded-2xl p-4 flex items-start justify-between gap-4 animate-in fade-in duration-150">
+              <div className="space-y-0.5">
+                <h3 className="text-sm font-extrabold text-slate-900">Search just got smarter!</h3>
+                <p className="text-xs text-slate-600 font-medium">
+                  Find more relevant results with AI that understands your search intent
+                </p>
               </div>
+              <button
+                onClick={() => setShowAiBanner(false)}
+                className="text-slate-400 hover:text-slate-700 rounded-lg p-1 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
+          )}
 
-            {/* Tag Input Box */}
-            <div className="relative">
-              <div className="flex flex-wrap items-center gap-2 p-2.5 min-h-[46px] border border-slate-300 rounded-xl focus-within:ring-2 focus-within:ring-indigo-500 bg-white">
-                <Search className="w-4 h-4 text-slate-400 shrink-0 ml-1" />
+          {/* Keywords or Boolean Search Row */}
+          <div>
+            {!booleanSearch ? (
+              // Standard Keyword Search Mode
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-bold text-slate-800">
+                    Keywords
+                  </label>
+                  
+                  <div className="flex items-center gap-4 text-xs font-semibold text-slate-700">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={booleanSearch}
+                        onChange={(e) => setBooleanSearch(e.target.checked)}
+                        className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
+                      />
+                      <span>Boolean search</span>
+                    </label>
 
-                {/* Tag Chips */}
-                {keywordTags.map((tag) => (
-                  <div key={tag.id} className="relative group">
-                    <span
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold transition-all border ${
-                        tag.isMandatory
-                          ? 'bg-purple-100 text-purple-900 border-purple-300 shadow-2xs'
-                          : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
-                      }`}
-                    >
-                      <button
-                        type="button"
-                        onClick={() => toggleTagMandatory(tag.id)}
-                        onMouseEnter={() => setActiveTooltipId(tag.id)}
-                        onMouseLeave={() => setActiveTooltipId(null)}
-                        className="cursor-pointer focus:outline-none transition-transform hover:scale-110"
-                        title={tag.isMandatory ? "Marked as Mandatory" : "Click to mark as Mandatory"}
+                    <div className="flex items-center gap-1">
+                      <span>Search in</span>
+                      <select
+                        value={searchIn}
+                        onChange={(e) => setSearchIn(e.target.value)}
+                        className="bg-slate-50 border border-slate-300 px-2.5 py-1 rounded-lg text-xs font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 cursor-pointer"
                       >
-                        <Star
-                          className={`w-3.5 h-3.5 ${
+                        <option value="Profile">Profile</option>
+                        <option value="Job Title">Job Title</option>
+                        <option value="Skills Only">Skills Only</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tag Input Box */}
+                <div className="relative">
+                  <div className="flex flex-wrap items-center gap-2 p-2.5 min-h-[46px] border border-slate-300 rounded-xl focus-within:ring-2 focus-within:ring-indigo-500 bg-white">
+                    <Search className="w-4 h-4 text-slate-400 shrink-0 ml-1" />
+
+                    {/* Tag Chips */}
+                    {keywordTags.map((tag) => (
+                      <div key={tag.id} className="relative group">
+                        <span
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold transition-all border ${
                             tag.isMandatory
-                              ? 'text-purple-700 fill-purple-700'
-                              : 'text-slate-400 hover:text-purple-600'
+                              ? 'bg-purple-100 text-purple-900 border-purple-300 shadow-2xs'
+                              : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
                           }`}
-                        />
-                      </button>
+                        >
+                          <button
+                            type="button"
+                            onClick={() => toggleTagMandatory(tag.id)}
+                            onMouseEnter={() => setActiveTooltipId(tag.id)}
+                            onMouseLeave={() => setActiveTooltipId(null)}
+                            className="cursor-pointer focus:outline-none transition-transform hover:scale-110"
+                            title={tag.isMandatory ? "Marked as Mandatory" : "Click to mark as Mandatory"}
+                          >
+                            <Star
+                              className={`w-3.5 h-3.5 ${
+                                tag.isMandatory
+                                  ? 'text-purple-700 fill-purple-700'
+                                  : 'text-slate-400 hover:text-purple-600'
+                              }`}
+                            />
+                          </button>
 
-                      <span>{tag.text}</span>
+                          <span>{tag.text}</span>
 
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveTag(tag.id)}
+                            className="hover:text-rose-600 rounded-full cursor-pointer ml-0.5"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </span>
+
+                        {tag.isMandatory && activeTooltipId === tag.id && (
+                          <div className="absolute bottom-full left-0 mb-1.5 z-50 whitespace-nowrap bg-[#1E1B4B] text-white text-[11px] font-bold px-2.5 py-1 rounded-lg shadow-xl animate-in fade-in duration-100">
+                            This keyword is marked as 'Mandatory'.
+                          </div>
+                        )}
+                      </div>
+                    ))}
+
+                    <input
+                      type="text"
+                      value={tagInput}
+                      onChange={(e) => {
+                        setTagInput(e.target.value);
+                        setShowSuggestions(true);
+                      }}
+                      onKeyDown={handleKeyDownTag}
+                      onFocus={() => setShowSuggestions(true)}
+                      placeholder={keywordTags.length === 0 ? "Enter keywords like Skills and Job Title" : "Type another keyword"}
+                      className="flex-1 min-w-[160px] bg-transparent text-xs font-semibold text-slate-900 border-none focus:outline-none py-1"
+                    />
+
+                    {keywordTags.length > 0 && (
                       <button
                         type="button"
-                        onClick={() => handleRemoveTag(tag.id)}
-                        className="hover:text-rose-600 rounded-full cursor-pointer ml-0.5"
+                        onClick={() => setKeywordTags([])}
+                        className="p-1 text-slate-400 hover:text-slate-700 rounded-lg shrink-0 cursor-pointer ml-auto"
+                        title="Clear all keywords"
                       >
-                        <X className="w-3 h-3" />
+                        <X className="w-4 h-4" />
                       </button>
-                    </span>
-
-                    {tag.isMandatory && activeTooltipId === tag.id && (
-                      <div className="absolute bottom-full left-0 mb-1.5 z-50 whitespace-nowrap bg-[#1E1B4B] text-white text-[11px] font-bold px-2.5 py-1 rounded-lg shadow-xl animate-in fade-in duration-100">
-                        This keyword is marked as 'Mandatory'.
-                      </div>
                     )}
                   </div>
-                ))}
 
-                <input
-                  type="text"
-                  value={tagInput}
-                  onChange={(e) => {
-                    setTagInput(e.target.value);
-                    setShowSuggestions(true);
-                  }}
-                  onKeyDown={handleKeyDownTag}
-                  onFocus={() => setShowSuggestions(true)}
-                  placeholder={keywordTags.length === 0 ? "Enter keywords like Skills and Job Title" : "Type another keyword"}
-                  className="flex-1 min-w-[160px] bg-transparent text-xs font-semibold text-slate-900 border-none focus:outline-none py-1"
-                />
-
-                {keywordTags.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => setKeywordTags([])}
-                    className="p-1 text-slate-400 hover:text-slate-700 rounded-lg shrink-0 cursor-pointer ml-auto"
-                    title="Clear all keywords"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-
-              {/* Autocomplete Dropdown */}
-              {showSuggestions && availableSuggestions.length > 0 && (
-                <div className="absolute left-0 right-0 mt-1.5 bg-white rounded-xl shadow-xl border border-slate-200 py-1.5 z-50 animate-in fade-in zoom-in duration-100">
-                  {availableSuggestions.map((suggestion) => (
-                    <button
-                      key={suggestion}
-                      type="button"
-                      onClick={() => handleAddTag(suggestion)}
-                      className="w-full px-4 py-2 text-left text-xs font-bold text-slate-800 hover:bg-slate-100 flex items-center justify-between cursor-pointer transition-colors"
-                    >
-                      <span>{suggestion}</span>
-                      <span className="text-[10px] text-slate-400 font-normal">+ Add Tag</span>
-                    </button>
-                  ))}
+                  {/* Autocomplete Dropdown */}
+                  {showSuggestions && availableSuggestions.length > 0 && (
+                    <div className="absolute left-0 right-0 mt-1.5 bg-white rounded-xl shadow-xl border border-slate-200 py-1.5 z-50 animate-in fade-in zoom-in duration-100">
+                      {availableSuggestions.map((suggestion) => (
+                        <button
+                          key={suggestion}
+                          type="button"
+                          onClick={() => handleAddTag(suggestion)}
+                          className="w-full px-4 py-2 text-left text-xs font-bold text-slate-800 hover:bg-slate-100 flex items-center justify-between cursor-pointer transition-colors"
+                        >
+                          <span>{suggestion}</span>
+                          <span className="text-[10px] text-slate-400 font-normal">+ Add Tag</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+              </div>
+            ) : (
+              // Boolean Search Mode (Matching Screenshot 1)
+              <div className="space-y-3 animate-in fade-in duration-150">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-xs font-extrabold text-slate-900">
+                    <span>Boolean search</span>
+                    <span className="text-purple-600 font-bold">(AI-powered)</span>
+                  </div>
+
+                  <div className="flex items-center gap-4 text-xs font-semibold text-slate-700">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={booleanSearch}
+                        onChange={(e) => setBooleanSearch(e.target.checked)}
+                        className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
+                      />
+                      <span>Boolean search</span>
+                    </label>
+
+                    <div className="flex items-center gap-1">
+                      <span>Search in</span>
+                      <select
+                        value={searchIn}
+                        onChange={(e) => setSearchIn(e.target.value)}
+                        className="bg-white border border-slate-300 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                      >
+                        <option value="Profile">Profile</option>
+                        <option value="Job Title">Job Title</option>
+                        <option value="Skills Only">Skills Only</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="relative">
+                  <textarea
+                    value={booleanQuery}
+                    onChange={(e) => {
+                      if (e.target.value.length <= 300) {
+                        setBooleanQuery(e.target.value);
+                      }
+                    }}
+                    rows={4}
+                    maxLength={300}
+                    placeholder='Try something like: (Java OR J2EE) AND "php" NOT css'
+                    className="w-full p-4 bg-white border border-slate-300 rounded-2xl text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-slate-400 resize-none"
+                  />
+                  <div className="text-right text-[11px] font-bold text-slate-400 mt-1">
+                    {booleanQuery.length}/ 300 characters limit
+                  </div>
+                </div>
+
+                <div className="pt-1">
+                  <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={excludeSynonyms}
+                      onChange={(e) => setExcludeSynonyms(e.target.checked)}
+                      className="w-4 h-4 text-indigo-600 rounded border-slate-300"
+                    />
+                    <span>Exclude synonyms</span>
+                    <Info className="w-3.5 h-3.5 text-slate-400" title="Only match exact query terms without AI keyword expansion" />
+                  </label>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Experience row with side-by-side Years & Months (Matching Screenshot 1) */}
+          {/* Experience row (Years only, no months) */}
           <div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
                   Experience (Minimum)
                 </label>
-                <div className="flex items-center gap-2">
-                  <div className="relative flex-1">
-                    <select
-                      value={experienceMinYears}
-                      onChange={(e) => setExperienceMinYears(e.target.value)}
-                      className="w-full appearance-none bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500 cursor-pointer pr-8"
-                    >
-                      <option value="">Years</option>
-                      {[0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 15].map((y) => (
-                        <option key={y} value={y}>{y} Years</option>
-                      ))}
-                    </select>
-                    <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-3 pointer-events-none" />
-                  </div>
-
-                  <div className="relative flex-1">
-                    <select
-                      value={experienceMinMonths}
-                      onChange={(e) => setExperienceMinMonths(e.target.value)}
-                      className="w-full appearance-none bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500 cursor-pointer pr-8"
-                    >
-                      <option value="">Months</option>
-                      {Array.from({ length: 12 }, (_, i) => i).map((m) => (
-                        <option key={m} value={m}>{m} Months</option>
-                      ))}
-                    </select>
-                    <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-3 pointer-events-none" />
-                  </div>
+                <div className="relative">
+                  <select
+                    value={experienceMinYears}
+                    onChange={(e) => setExperienceMinYears(e.target.value)}
+                    className="w-full appearance-none bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500 cursor-pointer pr-8"
+                  >
+                    <option value="">Years</option>
+                    {[0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 15].map((y) => (
+                      <option key={y} value={y}>{y} Years</option>
+                    ))}
+                  </select>
+                  <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-3 pointer-events-none" />
                 </div>
               </div>
 
@@ -521,95 +632,107 @@ export const CandidateSearch: React.FC = () => {
                 <label className="block text-xs font-bold text-slate-700 mb-1">
                   Experience (Maximum)
                 </label>
-                <div className="flex items-center gap-2">
-                  <div className="relative flex-1">
-                    <select
-                      value={experienceMaxYears}
-                      onChange={(e) => setExperienceMaxYears(e.target.value)}
-                      className="w-full appearance-none bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500 cursor-pointer pr-8"
-                    >
-                      <option value="">Years</option>
-                      {[1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20].map((y) => (
-                        <option key={y} value={y}>{y} Years</option>
-                      ))}
-                    </select>
-                    <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-3 pointer-events-none" />
-                  </div>
-
-                  <div className="relative flex-1">
-                    <select
-                      value={experienceMaxMonths}
-                      onChange={(e) => setExperienceMaxMonths(e.target.value)}
-                      className="w-full appearance-none bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500 cursor-pointer pr-8"
-                    >
-                      <option value="">Months</option>
-                      {Array.from({ length: 12 }, (_, i) => i).map((m) => (
-                        <option key={m} value={m}>{m} Months</option>
-                      ))}
-                    </select>
-                    <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-3 pointer-events-none" />
-                  </div>
+                <div className="relative">
+                  <select
+                    value={experienceMaxYears}
+                    onChange={(e) => setExperienceMaxYears(e.target.value)}
+                    className="w-full appearance-none bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500 cursor-pointer pr-8"
+                  >
+                    <option value="">Years</option>
+                    {[1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20].map((y) => (
+                      <option key={y} value={y}>{y} Years</option>
+                    ))}
+                  </select>
+                  <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-3 pointer-events-none" />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Current Location row & Top Cities Dropdown (Matching Screenshot 1) */}
+          {/* Current Location Multi-Tag System (Matching Keyword Tags style) */}
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1">
               Current location
             </label>
             <div className="relative">
-              <div className="relative flex items-center">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3.5" />
+              <div className="flex flex-wrap items-center gap-2 p-2.5 min-h-[46px] border border-slate-300 rounded-xl focus-within:ring-2 focus-within:ring-indigo-500 bg-white">
+                <Search className="w-4 h-4 text-slate-400 shrink-0 ml-1" />
+
+                {/* Location Tags Chips */}
+                {locationTags.map((loc) => (
+                  <span
+                    key={loc}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200"
+                  >
+                    <MapPin className="w-3 h-3 text-indigo-500" />
+                    <span>{loc}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveLocationTag(loc)}
+                      className="hover:text-rose-600 rounded-full cursor-pointer ml-0.5"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+
                 <input
                   type="text"
-                  value={currentLocation}
-                  onChange={(e) => setCurrentLocation(e.target.value)}
+                  value={locationInput}
+                  onChange={(e) => {
+                    setLocationInput(e.target.value);
+                    setShowLocationDropdown(true);
+                  }}
+                  onKeyDown={handleKeyDownLocationTag}
                   onFocus={() => setShowLocationDropdown(true)}
-                  placeholder="Enter current location"
-                  className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+                  placeholder={locationTags.length === 0 ? "Enter current location" : "Add another location"}
+                  className="flex-1 min-w-[160px] bg-transparent text-xs font-semibold text-slate-900 border-none focus:outline-none py-1"
                 />
+
+                {locationTags.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setLocationTags([])}
+                    className="p-1 text-slate-400 hover:text-slate-700 rounded-lg shrink-0 cursor-pointer ml-auto"
+                    title="Clear all locations"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
               </div>
 
-              {/* Top Cities Dropdown (Matching Screenshot 1) */}
+              {/* Top Cities Dropdown (Searched results shown FIRST at top!) */}
               {showLocationDropdown && (
-                <div className="mt-1.5 bg-white border border-slate-300 rounded-xl shadow-xl p-4 z-40 max-w-xl animate-in fade-in zoom-in duration-100">
+                <div className="absolute left-0 right-0 mt-1.5 bg-white border border-slate-300 rounded-xl shadow-xl p-4 z-40 max-w-xl animate-in fade-in zoom-in duration-100">
                   <div className="flex items-center justify-between font-bold text-xs text-slate-800 pb-2.5 border-b border-slate-100 mb-2">
-                    <span>In Top Cities</span>
+                    <span>{locationInput.trim() ? `Matching Cities for "${locationInput}"` : 'In Top Cities'}</span>
                     <div className="flex flex-col text-[10px] text-slate-400 leading-none">
                       <span>▲</span>
                       <span>▼</span>
                     </div>
                   </div>
 
-                  <div className="max-h-48 overflow-y-auto space-y-2 pr-2">
-                    {topCitiesList.map((city) => {
-                      const isChecked = selectedCities.includes(city);
-                      return (
-                        <label
+                  <div className="max-h-48 overflow-y-auto space-y-1 pr-2">
+                    {filteredCities.length === 0 ? (
+                      <div className="text-xs text-slate-400 py-2">No matching city found. Press Enter to add "{locationInput}"</div>
+                    ) : (
+                      filteredCities.map((city) => (
+                        <div
                           key={city}
-                          className="flex items-center gap-3 text-xs font-medium text-slate-800 hover:bg-slate-50 p-1.5 rounded-lg cursor-pointer select-none"
+                          onClick={() => {
+                            handleAddLocationTag(city);
+                            setShowLocationDropdown(false);
+                          }}
+                          className="flex items-center justify-between text-xs font-medium text-slate-800 hover:bg-slate-100 p-2 rounded-lg cursor-pointer transition-colors"
                         >
-                          <input
-                            type="checkbox"
-                            checked={isChecked}
-                            onChange={() => {
-                              let updated: string[];
-                              if (isChecked) {
-                                updated = selectedCities.filter((c) => c !== city);
-                              } else {
-                                updated = [...selectedCities, city];
-                              }
-                              setSelectedCities(updated);
-                              setCurrentLocation(updated.join(', '));
-                            }}
-                            className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
-                          />
-                          <span>{city}</span>
-                        </label>
-                      );
-                    })}
+                          <div className="flex items-center gap-2">
+                            <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                            <span>{city}</span>
+                          </div>
+                          <span className="text-[10px] text-slate-400 font-bold">+ Select</span>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
               )}
@@ -727,7 +850,7 @@ export const CandidateSearch: React.FC = () => {
                 <button
                   key={item}
                   type="button"
-                  onClick={() => setNoticePeriod(item)}
+                  onClick={() => setNoticePeriod(noticePeriod === item ? '' : item)}
                   className={`px-4 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer ${
                     noticePeriod === item
                       ? 'bg-indigo-50 text-indigo-700 border-indigo-300 ring-2 ring-indigo-500/20'
@@ -765,7 +888,7 @@ export const CandidateSearch: React.FC = () => {
           </div>
         </div>
 
-        {/* Card 3: Collapsible Education Details (Matching Screenshot 2) */}
+        {/* Card 3: Collapsible Education Details (With Toggle / Undo support) */}
         <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 space-y-4">
           <button
             type="button"
@@ -788,7 +911,7 @@ export const CandidateSearch: React.FC = () => {
                     <button
                       key={opt}
                       type="button"
-                      onClick={() => setUgQual(opt)}
+                      onClick={() => setUgQual(ugQual === opt ? '' : opt)}
                       className={`px-4 py-1.5 rounded-full font-bold border transition-all cursor-pointer ${
                         ugQual === opt ? 'bg-indigo-50 text-indigo-700 border-indigo-300 ring-2 ring-indigo-500/20' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
                       }`}
@@ -806,7 +929,7 @@ export const CandidateSearch: React.FC = () => {
                     <button
                       key={opt}
                       type="button"
-                      onClick={() => setPgQual(opt)}
+                      onClick={() => setPgQual(pgQual === opt ? '' : opt)}
                       className={`px-4 py-1.5 rounded-full font-bold border transition-all cursor-pointer ${
                         pgQual === opt ? 'bg-indigo-50 text-indigo-700 border-indigo-300 ring-2 ring-indigo-500/20' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
                       }`}
@@ -824,7 +947,7 @@ export const CandidateSearch: React.FC = () => {
                     <button
                       key={opt}
                       type="button"
-                      onClick={() => setPhdQual(opt)}
+                      onClick={() => setPhdQual(phdQual === opt ? '' : opt)}
                       className={`px-4 py-1.5 rounded-full font-bold border transition-all cursor-pointer ${
                         phdQual === opt ? 'bg-indigo-50 text-indigo-700 border-indigo-300 ring-2 ring-indigo-500/20' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
                       }`}
@@ -838,7 +961,7 @@ export const CandidateSearch: React.FC = () => {
           )}
         </div>
 
-        {/* Card 4: Collapsible Employment Details (Matching Screenshot 2) */}
+        {/* Card 4: Collapsible Employment Details */}
         <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 space-y-4">
           <button
             type="button"
@@ -866,7 +989,7 @@ export const CandidateSearch: React.FC = () => {
                     className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
 
-                  {/* 2-Column Industry Dropdown (Matching Screenshot 2) */}
+                  {/* 2-Column Industry Dropdown */}
                   {showIndustryDropdown && (
                     <div className="mt-1.5 bg-white border border-slate-300 rounded-xl shadow-xl p-3 z-40 max-w-2xl grid grid-cols-2 gap-3 divide-x divide-slate-200 animate-in fade-in duration-100">
                       {/* Left Column: Categories */}
