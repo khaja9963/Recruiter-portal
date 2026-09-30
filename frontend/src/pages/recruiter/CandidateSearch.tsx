@@ -101,14 +101,14 @@ export const CandidateSearch: React.FC = () => {
   const [noticePeriod, setNoticePeriod] = useState<string>('Any');
   const [noticePeriodType, setNoticePeriodType] = useState<'without' | 'serving'>('without');
 
-  // Education Details with Toggle / Undo support
-  const [educationOpen, setEducationOpen] = useState(true);
+  // Education Details with Toggle / Undo support (Collapsed by default)
+  const [educationOpen, setEducationOpen] = useState(false);
   const [ugQual, setUgQual] = useState<string>('');
   const [pgQual, setPgQual] = useState<string>('');
   const [phdQual, setPhdQual] = useState<string>('');
 
-  // Employment Details
-  const [employmentOpen, setEmploymentOpen] = useState(true);
+  // Employment Details (Collapsed by default)
+  const [employmentOpen, setEmploymentOpen] = useState(false);
   const [industryInput, setIndustryInput] = useState('');
   const [showIndustryDropdown, setShowIndustryDropdown] = useState(false);
   const [selectedIndustryCategory, setSelectedIndustryCategory] = useState<string>('Software');
@@ -124,8 +124,8 @@ export const CandidateSearch: React.FC = () => {
     Other: ['Select All', 'Consulting', 'Education', 'Healthcare', 'E-commerce']
   };
 
-  // Additional Details Collapsible
-  const [additionalDetailsOpen, setAdditionalDetailsOpen] = useState(true);
+  // Additional Details Collapsible (Collapsed by default)
+  const [additionalDetailsOpen, setAdditionalDetailsOpen] = useState(false);
   const [genderFilter, setGenderFilter] = useState<string>('');
   const [selectedDiffAbled, setSelectedDiffAbled] = useState<string[]>([]);
   const [languageInput, setLanguageInput] = useState('');
@@ -1119,51 +1119,6 @@ export const CandidateSearch: React.FC = () => {
                 </div>
               </div>
 
-              {/* Differently abled */}
-              <div>
-                <div className="font-bold text-slate-800 mb-2">Differently abled</div>
-                <div className="bg-slate-100/90 border border-slate-200/70 text-slate-600 px-3.5 py-2 rounded-xl text-xs font-medium mb-3 flex items-center gap-2 max-w-2xl">
-                  <Info className="w-4 h-4 text-slate-500 shrink-0" />
-                  <span>Filter not applicable to sourced profiles</span>
-                </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  {['Developmental', 'Mental', 'Physical'].map((item) => {
-                    const isSelected = selectedDiffAbled.includes(item);
-                    return (
-                      <button
-                        key={item}
-                        type="button"
-                        onClick={() => toggleDiffAbled(item)}
-                        className={`px-4 py-2 rounded-full font-semibold border text-xs transition-all cursor-pointer flex items-center gap-1.5 ${
-                          isSelected
-                            ? 'bg-indigo-50 text-indigo-700 border-indigo-300 ring-2 ring-indigo-500/20 shadow-2xs'
-                            : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
-                        }`}
-                      >
-                        <span>{item}</span>
-                        <span className="font-bold">{isSelected ? '✓' : '+'}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Languages */}
-              <div>
-                <div className="font-bold text-slate-800 mb-2">Languages</div>
-                <div className="bg-slate-100/90 border border-slate-200/70 text-slate-600 px-3.5 py-2 rounded-xl text-xs font-medium mb-3 flex items-center gap-2 max-w-2xl">
-                  <Info className="w-4 h-4 text-slate-500 shrink-0" />
-                  <span>Filter not applicable to sourced profiles</span>
-                </div>
-                <input
-                  type="text"
-                  value={languageInput}
-                  onChange={(e) => setLanguageInput(e.target.value)}
-                  placeholder="Enter language"
-                  className="w-full max-w-xl px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-slate-400"
-                />
-              </div>
-
               {/* Visa status */}
               <div>
                 <div className="font-bold text-slate-800 mb-2">Visa status</div>
@@ -1203,67 +1158,10 @@ export const CandidateSearch: React.FC = () => {
           )}
         </div>
 
-        {/* Card 6: Age & Show Only Preferences */}
+        {/* Card 6: Show Only Preferences */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-6 text-xs">
-          
-          {/* Age (Years) */}
-          <div className="space-y-3">
-            <div className="font-bold text-slate-800 text-sm">Age (Years)</div>
-            
-            <div className="bg-slate-100/90 border border-slate-200/70 text-slate-600 px-3.5 py-2 rounded-xl text-xs font-medium flex items-center gap-2 max-w-2xl">
-              <Info className="w-4 h-4 text-slate-500 shrink-0" />
-              <span>Filter not applicable to sourced profiles</span>
-            </div>
-
-            <div className="flex items-center gap-3 max-w-xs">
-              <div className="relative flex-1">
-                <select
-                  value={ageMin}
-                  onChange={(e) => setAgeMin(e.target.value)}
-                  className="w-full appearance-none bg-white border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer pr-8"
-                >
-                  <option value="">Min</option>
-                  {[18, 20, 22, 25, 28, 30, 35, 40, 45, 50].map((a) => (
-                    <option key={a} value={a}>{a}</option>
-                  ))}
-                </select>
-                <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" />
-              </div>
-
-              <div className="relative flex-1">
-                <select
-                  value={ageMax}
-                  onChange={(e) => setAgeMax(e.target.value)}
-                  className="w-full appearance-none bg-white border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer pr-8"
-                >
-                  <option value="">Max</option>
-                  {[22, 25, 30, 35, 40, 45, 50, 55, 60, 65].map((a) => (
-                    <option key={a} value={a}>{a}</option>
-                  ))}
-                </select>
-                <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" />
-              </div>
-            </div>
-
-            {/* Switch toggle */}
-            <div className="pt-1">
-              <button
-                type="button"
-                onClick={() => setIncludeNoAge(!includeNoAge)}
-                className="flex items-center gap-2.5 cursor-pointer group select-none"
-              >
-                <div className={`w-9 h-5 flex items-center rounded-full p-0.5 transition-colors ${includeNoAge ? 'bg-[#2D1B69]' : 'bg-slate-300'}`}>
-                  <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform flex items-center justify-center ${includeNoAge ? 'translate-x-4' : 'translate-x-0'}`}>
-                    {includeNoAge && <span className="text-[9px] text-[#2D1B69] font-black">✓</span>}
-                  </div>
-                </div>
-                <span className="text-xs font-semibold text-slate-800">Include profiles without age</span>
-              </button>
-            </div>
-          </div>
-
           {/* Show only section */}
-          <div className="space-y-3 pt-2 border-t border-slate-100">
+          <div className="space-y-3">
             <div className="font-bold text-slate-800 text-sm">Show only</div>
             <div className="flex flex-wrap items-center gap-2">
               {[
