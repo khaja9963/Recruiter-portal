@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams, useNavigate, useParams } from 'react-router-dom';
 import {
   Search,
   Filter,
@@ -19,9 +19,11 @@ import { useRecruiterStore } from '../../store/recruiterStore';
 export const CandidateSearch: React.FC = () => {
   const { organizationId = 'clyptus' } = useParams<{ organizationId: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const initialQuery = searchParams.get('q') || '';
   const { candidates } = useRecruiterStore();
 
-  const [keyword, setKeyword] = useState('');
+  const [keyword, setKeyword] = React.useState(initialQuery);
   const [selectedSkill, setSelectedSkill] = useState<string>('All');
   const [selectedLocation, setSelectedLocation] = useState<string>('All');
   const [selectedExperience, setSelectedExperience] = useState<string>('All');
@@ -29,6 +31,13 @@ export const CandidateSearch: React.FC = () => {
   const [sortBy, setSortBy] = useState<'relevance' | 'experience' | 'matchScore'>('relevance');
   const [savedIds, setSavedIds] = useState<string[]>([]);
   const [shortlistedIds, setShortlistedIds] = useState<string[]>([]);
+
+  React.useEffect(() => {
+    const queryParam = searchParams.get('q');
+    if (queryParam !== null) {
+      setKeyword(queryParam);
+    }
+  }, [searchParams]);
 
   const allSkills = ['All', 'React', 'TypeScript', 'Node.js', 'PostgreSQL', 'Tailwind CSS', 'Next.js', 'Python', 'Docker'];
   const allLocations = ['All', 'San Francisco, CA', 'Austin, TX', 'New York, NY', 'Remote', 'Seattle, WA'];
@@ -50,12 +59,18 @@ export const CandidateSearch: React.FC = () => {
   };
 
   const filteredCandidates = candidates.filter((cand) => {
-    const matchesKeyword =
-      !keyword ||
-      cand.name.toLowerCase().includes(keyword.toLowerCase()) ||
-      cand.title.toLowerCase().includes(keyword.toLowerCase()) ||
-      cand.skills.some((s) => s.toLowerCase().includes(keyword.toLowerCase())) ||
-      cand.location.toLowerCase().includes(keyword.toLowerCase());
+    let matchesKeyword = true;
+    if (keyword.trim()) {
+      const searchTerms = keyword
+        .replace(/["()]/g, '')
+        .split(/\s+AND\s+|\s+OR\s+|\s+/)
+        .map((t) => t.trim().toLowerCase())
+        .filter((t) => t.length > 0);
+
+      const fullCandidateText = `${cand.name} ${cand.title} ${cand.skills.join(' ')} ${cand.location} ${cand.summary || ''}`.toLowerCase();
+
+      matchesKeyword = searchTerms.some((term) => fullCandidateText.includes(term));
+    }
 
     const matchesSkill = selectedSkill === 'All' || cand.skills.includes(selectedSkill);
     const matchesLocation = selectedLocation === 'All' || cand.location.includes(selectedLocation);
