@@ -36,8 +36,6 @@ export const CandidateSearch: React.FC = () => {
   const initialQuery = searchParams.get('q') || '';
   const { candidates, addRecentSearch } = useRecruiterStore();
 
-  // Search Mode Tabs
-  const [searchMode, setSearchMode] = useState<'form' | 'jd'>('form');
   const [selectedCountry, setSelectedCountry] = useState('India');
 
   // Interactive Keyword Tags System (starts 100% empty)
@@ -49,7 +47,6 @@ export const CandidateSearch: React.FC = () => {
   // Boolean Search Mode (Matching Screenshot 1)
   const [booleanSearch, setBooleanSearch] = useState(false);
   const [booleanQuery, setBooleanQuery] = useState('');
-  const [jdText, setJdText] = useState('');
   const [searchIn, setSearchIn] = useState('Profile');
   const [excludeSynonyms, setExcludeSynonyms] = useState(false);
   const [showAiBanner, setShowAiBanner] = useState(true);
@@ -269,7 +266,6 @@ export const CandidateSearch: React.FC = () => {
     setTagInput('');
     setBooleanSearch(false);
     setBooleanQuery('');
-    setJdText('');
     setSearchIn('Profile');
     setExperienceMinYears('');
     setExperienceMaxYears('');
@@ -299,9 +295,7 @@ export const CandidateSearch: React.FC = () => {
     setHasSearched(true);
 
     let queryText = '';
-    if (searchMode === 'jd' && jdText.trim()) {
-      queryText = `JD: "${jdText.trim().slice(0, 40)}..."`;
-    } else if (booleanSearch && booleanQuery.trim()) {
+    if (booleanSearch && booleanQuery.trim()) {
       queryText = booleanQuery.trim();
     } else if (keywordTags.length > 0) {
       queryText = keywordTags.map((t) => (t.isMandatory ? `"${t.text}"` : t.text)).join(' AND ');
@@ -344,15 +338,7 @@ export const CandidateSearch: React.FC = () => {
 
     const fullCandidateText = `${cand.name} ${cand.title} ${cand.skills.join(' ')} ${cand.location} ${cand.summary || ''}`.toLowerCase();
 
-    if (searchMode === 'jd' && jdText.trim()) {
-      const jdTerms = jdText.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter((t) => t.length > 3);
-      if (jdTerms.length > 0) {
-        const matchesAnyJdTerm = jdTerms.some((t) => fullCandidateText.includes(t));
-        if (!matchesAnyJdTerm) return false;
-      }
-    }
-
-    if (searchMode === 'form' && mandatoryTags.length > 0) {
+    if (mandatoryTags.length > 0) {
       const matchesAllMandatory = mandatoryTags.every((t) => fullCandidateText.includes(t));
       if (!matchesAllMandatory) return false;
     }
@@ -400,62 +386,16 @@ export const CandidateSearch: React.FC = () => {
         </div>
       </div>
 
-      {/* Mode Switcher Tabs */}
-      <div className="flex items-center gap-2 bg-slate-100/80 p-1.5 rounded-2xl max-w-md border border-slate-200">
-        <button
-          onClick={() => setSearchMode('form')}
-          className={`flex-1 py-2 px-4 rounded-xl text-xs font-extrabold transition-all cursor-pointer text-center ${
-            searchMode === 'form' ? 'bg-white text-indigo-700 shadow-2xs border border-slate-200' : 'text-slate-600 hover:text-slate-900'
-          }`}
-        >
-          Search form
-        </button>
 
-        <button
-          onClick={() => setSearchMode('jd')}
-          className={`flex-1 py-2 px-4 rounded-xl text-xs font-extrabold transition-all cursor-pointer text-center ${
-            searchMode === 'jd' ? 'bg-white text-indigo-700 shadow-2xs border border-slate-200' : 'text-slate-600 hover:text-slate-900'
-          }`}
-        >
-          Search by Job Description
-        </button>
-      </div>
 
       {/* Main Search Form */}
       <div className="space-y-6">
         
         {/* Card 1: Keywords / Boolean Search & Basic Criteria */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-5">
-          {searchMode === 'jd' ? (
-            /* Search by Job Description Mode (Matching User Image) */
-            <div className="space-y-4 animate-in fade-in duration-150">
-              <h2 className="text-xl font-bold text-slate-900 tracking-tight">
-                Find the right candidate matches in seconds!
-              </h2>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-2">
-                  Write or paste job description here to search
-                </label>
-                <div className="relative">
-                  <textarea
-                    rows={8}
-                    maxLength={5000}
-                    value={jdText}
-                    onChange={(e) => setJdText(e.target.value)}
-                    placeholder="Try something like: I'm looking for software engineering leader over 10 years of experience for tech insights."
-                    className="w-full p-4 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 min-h-[180px] resize-y"
-                  />
-                  <div className="text-right text-[11px] font-bold text-slate-400 mt-1.5">
-                    {jdText.length}/5000 characters limit
-                  </div>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <>
-              {/* AI Search Banner (Shown when Boolean Search is Active - Matching Screenshot 1) */}
-              {booleanSearch && showAiBanner && (
+          
+          {/* AI Search Banner (Shown when Boolean Search is Active - Matching Screenshot 1) */}
+          {booleanSearch && showAiBanner && (
             <div className="bg-sky-50/80 border border-sky-200 rounded-2xl p-4 flex items-start justify-between gap-4 animate-in fade-in duration-150">
               <div className="space-y-0.5">
                 <h3 className="text-sm font-extrabold text-slate-900">Search just got smarter!</h3>
@@ -670,8 +610,6 @@ export const CandidateSearch: React.FC = () => {
               </div>
             )}
           </div>
-            </>
-          )}
 
           {/* Experience row (Years only, no months) */}
           <div>
