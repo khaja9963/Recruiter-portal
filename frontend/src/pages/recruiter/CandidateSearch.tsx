@@ -18,9 +18,16 @@ import {
   SlidersHorizontal,
   Mail,
   Phone,
-  FileText
+  FileText,
+  Star
 } from 'lucide-react';
 import { useRecruiterStore } from '../../store/recruiterStore';
+
+interface KeywordTag {
+  id: string;
+  text: string;
+  isMandatory: boolean;
+}
 
 export const CandidateSearch: React.FC = () => {
   const { organizationId = 'clyptus' } = useParams<{ organizationId: string }>();
@@ -29,13 +36,20 @@ export const CandidateSearch: React.FC = () => {
   const initialQuery = searchParams.get('q') || '';
   const { candidates } = useRecruiterStore();
 
-  // Search Mode
-  const [searchMode, setSearchMode] = useState<'form' | 'jd' | 'voice'>('form');
+  // Search Mode Tabs
+  const [searchMode, setSearchMode] = useState<'form' | 'jd'>('form');
   const [selectedCountry, setSelectedCountry] = useState('India');
-  const [showAiBanner, setShowAiBanner] = useState(true);
 
-  // Form Field State (Foundit structure)
-  const [keyword, setKeyword] = useState(initialQuery);
+  // Interactive Keyword Tags System (Matching Screenshots 1, 2, 3)
+  const [keywordTags, setKeywordTags] = useState<KeywordTag[]>([
+    { id: '1', text: 'ai', isMandatory: true },
+    { id: '2', text: 'frontend', isMandatory: false },
+    { id: '3', text: 'Backend Developer', isMandatory: true }
+  ]);
+  const [tagInput, setTagInput] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [activeTooltipId, setActiveTooltipId] = useState<string | null>('1');
+
   const [booleanSearch, setBooleanSearch] = useState(false);
   const [searchIn, setSearchIn] = useState('Profile');
   const [excludeSynonyms, setExcludeSynonyms] = useState(false);
@@ -76,27 +90,88 @@ export const CandidateSearch: React.FC = () => {
   const [hideCandidatesWith, setHideCandidatesWith] = useState<string[]>([]);
   const [showOnlyFilters, setShowOnlyFilters] = useState<string[]>([]);
 
-  // Search execution & Results
+  // Search Execution & Results
   const [hasSearched, setHasSearched] = useState(initialQuery ? true : false);
   const [savedIds, setSavedIds] = useState<string[]>([]);
-  const [shortlistedIds, setShortlistedIds] = useState<string[]>([]);
+
+  // Autocomplete Suggestions
+  const availableSuggestions = [
+    'Frontend',
+    'Frontend Developer',
+    'Backend Developer',
+    'Full Stack Engineer',
+    'React',
+    'TypeScript',
+    'Node.js',
+    'Python',
+    'Java',
+    'System Design',
+    'DevOps',
+    'PostgreSQL'
+  ].filter(
+    (s) =>
+      tagInput.trim().length > 0 &&
+      s.toLowerCase().includes(tagInput.toLowerCase().trim()) &&
+      !keywordTags.some((t) => t.text.toLowerCase() === s.toLowerCase())
+  );
 
   useEffect(() => {
     const queryParam = searchParams.get('q');
     if (queryParam !== null && queryParam.trim().length > 0) {
-      setKeyword(queryParam);
+      // Parse initial query into tags if provided
+      const terms = queryParam
+        .replace(/["()]/g, '')
+        .split(/\s+AND\s+|\s+OR\s+|\s+/)
+        .map((t) => t.trim())
+        .filter((t) => t.length > 0);
+
+      if (terms.length > 0) {
+        setKeywordTags(
+          terms.map((t, idx) => ({
+            id: Date.now().toString() + idx,
+            text: t,
+            isMandatory: idx === 0
+          }))
+        );
+      }
       setHasSearched(true);
     }
   }, [searchParams]);
 
-  const handleSearch = () => {
-    setHasSearched(true);
-    // Smooth scroll down to results section
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  const handleAddTag = (textToAdd: string) => {
+    const trimmed = textToAdd.trim();
+    if (trimmed && !keywordTags.some((t) => t.text.toLowerCase() === trimmed.toLowerCase())) {
+      setKeywordTags([
+        ...keywordTags,
+        { id: Date.now().toString(), text: trimmed, isMandatory: false }
+      ]);
+      setTagInput('');
+      setShowSuggestions(false);
+    }
+  };
+
+  const handleKeyDownTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (tagInput.trim()) {
+        handleAddTag(tagInput);
+      }
+    }
+  };
+
+  const toggleTagMandatory = (id: string) => {
+    setKeywordTags(
+      keywordTags.map((t) => (t.id === id ? { ...t, isMandatory: !t.isMandatory } : t))
+    );
+  };
+
+  const handleRemoveTag = (id: string) => {
+    setKeywordTags(keywordTags.filter((t) => t.id !== id));
   };
 
   const handleClearAll = () => {
-    setKeyword('');
+    setKeywordTags([]);
+    setTagInput('');
     setBooleanSearch(false);
     setSearchIn('Profile');
     setExcludeSynonyms(false);
@@ -116,51 +191,44 @@ export const CandidateSearch: React.FC = () => {
     setHasSearched(false);
   };
 
+  const handleSearch = () => {
+    setHasSearched(true);
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  };
+
   const toggleVisa = (visa: string) => {
-    if (selectedVisas.includes(visa)) {
-      setSelectedVisas(selectedVisas.filter((v) => v !== visa));
-    } else {
-      setSelectedVisas([...selectedVisas, visa]);
-    }
+    setSelectedVisas((prev) => (prev.includes(visa) ? prev.filter((v) => v !== visa) : [...prev, visa]));
   };
 
   const toggleHideCandidate = (item: string) => {
-    if (hideCandidatesWith.includes(item)) {
-      setHideCandidatesWith(hideCandidatesWith.filter((v) => v !== item));
-    } else {
-      setHideCandidatesWith([...hideCandidatesWith, item]);
-    }
+    setHideCandidatesWith((prev) => (prev.includes(item) ? prev.filter((v) => v !== item) : [...prev, item]));
   };
 
   const toggleShowOnly = (item: string) => {
-    if (showOnlyFilters.includes(item)) {
-      setShowOnlyFilters(showOnlyFilters.filter((v) => v !== item));
-    } else {
-      setShowOnlyFilters([...showOnlyFilters, item]);
-    }
+    setShowOnlyFilters((prev) => (prev.includes(item) ? prev.filter((v) => v !== item) : [...prev, item]));
   };
 
   const toggleSave = (id: string) => {
     setSavedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
   };
 
-  const toggleShortlist = (id: string) => {
-    setShortlistedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
-  };
-
-  // Filter candidates matching the criteria
+  // Filter candidates matching tags and experience
   const filteredCandidates = candidates.filter((cand) => {
-    if (keyword.trim()) {
-      const searchTerms = keyword
-        .replace(/["()]/g, '')
-        .split(/\s+AND\s+|\s+OR\s+|\s+/)
-        .map((t) => t.trim().toLowerCase())
-        .filter((t) => t.length > 0);
+    const mandatoryTags = keywordTags.filter((t) => t.isMandatory).map((t) => t.text.toLowerCase());
+    const optionalTags = keywordTags.filter((t) => !t.isMandatory).map((t) => t.text.toLowerCase());
 
-      const fullCandidateText = `${cand.name} ${cand.title} ${cand.skills.join(' ')} ${cand.location} ${cand.summary || ''}`.toLowerCase();
+    const fullCandidateText = `${cand.name} ${cand.title} ${cand.skills.join(' ')} ${cand.location} ${cand.summary || ''}`.toLowerCase();
 
-      const matchesKeyword = searchTerms.some((term) => fullCandidateText.includes(term));
-      if (!matchesKeyword) return false;
+    // Must match ALL mandatory tags if any exist
+    if (mandatoryTags.length > 0) {
+      const matchesAllMandatory = mandatoryTags.every((t) => fullCandidateText.includes(t));
+      if (!matchesAllMandatory) return false;
+    }
+
+    // Must match at least ONE optional tag if no mandatory tags exist
+    if (mandatoryTags.length === 0 && optionalTags.length > 0) {
+      const matchesAnyOptional = optionalTags.some((t) => fullCandidateText.includes(t));
+      if (!matchesAnyOptional) return false;
     }
 
     if (currentLocation.trim() && !cand.location.toLowerCase().includes(currentLocation.toLowerCase())) {
@@ -176,10 +244,10 @@ export const CandidateSearch: React.FC = () => {
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-32 font-sans text-slate-900 select-none animate-in fade-in duration-200">
       
-      {/* Top Title & Mode Tabs (Matching Screenshot 1) */}
+      {/* Top Title & Mode Switcher (Clean Header) */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-6 h-6 text-purple-600" />
+          <Sparkles className="w-6 h-6 text-indigo-600" />
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
             Find the right candidates with AI
           </h1>
@@ -192,76 +260,46 @@ export const CandidateSearch: React.FC = () => {
             onChange={(e) => setSelectedCountry(e.target.value)}
             className="bg-transparent font-bold text-slate-800 focus:outline-none cursor-pointer"
           >
-            <option value="India">India ∨</option>
-            <option value="United States">United States ∨</option>
-            <option value="United Kingdom">United Kingdom ∨</option>
-            <option value="UAE">UAE ∨</option>
+            <option value="India">India</option>
+            <option value="United States">United States</option>
+            <option value="United Kingdom">United Kingdom</option>
+            <option value="UAE">UAE</option>
           </select>
         </div>
       </div>
 
-      {/* Mode Switcher Tabs */}
-      <div className="flex items-center gap-2 bg-slate-100/80 p-1.5 rounded-2xl max-w-xl border border-slate-200">
+      {/* Mode Switcher Tabs (Removed BETA badge and Voice Search as requested) */}
+      <div className="flex items-center gap-2 bg-slate-100/80 p-1.5 rounded-2xl max-w-md border border-slate-200">
         <button
           onClick={() => setSearchMode('form')}
-          className={`flex-1 py-2 px-4 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center gap-2 ${
+          className={`flex-1 py-2 px-4 rounded-xl text-xs font-extrabold transition-all cursor-pointer text-center ${
             searchMode === 'form' ? 'bg-white text-indigo-700 shadow-2xs border border-slate-200' : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          <span>Search form</span>
-          <span className="bg-rose-500 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-md uppercase tracking-wider">
-            BETA
-          </span>
+          Search form
         </button>
 
         <button
           onClick={() => setSearchMode('jd')}
-          className={`flex-1 py-2 px-4 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+          className={`flex-1 py-2 px-4 rounded-xl text-xs font-extrabold transition-all cursor-pointer text-center ${
             searchMode === 'jd' ? 'bg-white text-indigo-700 shadow-2xs border border-slate-200' : 'text-slate-600 hover:text-slate-900'
           }`}
         >
           Search by Job Description
         </button>
-
-        <button
-          onClick={() => setSearchMode('voice')}
-          className={`flex-1 py-2 px-4 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
-            searchMode === 'voice' ? 'bg-white text-indigo-700 shadow-2xs border border-slate-200' : 'text-slate-600 hover:text-slate-900'
-          }`}
-        >
-          Voice Search
-        </button>
       </div>
 
-      {/* AI Smart Search Banner */}
-      {showAiBanner && (
-        <div className="bg-amber-50/80 border border-amber-200/90 rounded-2xl p-4 flex items-center justify-between gap-3 text-xs animate-in fade-in duration-150">
-          <div>
-            <div className="font-extrabold text-amber-950 text-sm">Search just got smarter!</div>
-            <div className="text-amber-800 font-medium">
-              Find more relevant results with AI that understands your search intent
-            </div>
-          </div>
-          <button
-            onClick={() => setShowAiBanner(false)}
-            className="p-1 text-amber-600 hover:text-amber-900 rounded-lg cursor-pointer"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      )}
-
-      {/* Main Search Form (Foundit Structure) */}
+      {/* Main Search Form */}
       <div className="space-y-6">
         
         {/* Card 1: Keywords & Basic Criteria */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-5">
           
-          {/* Keywords row */}
+          {/* Keywords row (Interactive Tag Input Box matching Screenshots 1, 2, 3) */}
           <div>
             <div className="flex items-center justify-between mb-1">
               <label className="text-xs font-bold text-slate-800">
-                Keywords <span className="text-purple-600 font-extrabold">(AI-powered)</span>
+                Keywords
               </label>
               
               <div className="flex items-center gap-4 text-xs font-semibold text-slate-700">
@@ -282,23 +320,111 @@ export const CandidateSearch: React.FC = () => {
                     onChange={(e) => setSearchIn(e.target.value)}
                     className="bg-slate-50 border border-slate-300 px-2.5 py-1 rounded-lg text-xs font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 cursor-pointer"
                   >
-                    <option value="Profile">Profile ∨</option>
-                    <option value="Job Title">Job Title ∨</option>
-                    <option value="Skills Only">Skills Only ∨</option>
+                    <option value="Profile">Profile</option>
+                    <option value="Job Title">Job Title</option>
+                    <option value="Skills Only">Skills Only</option>
                   </select>
                 </div>
               </div>
             </div>
 
+            {/* Tag Input Box */}
             <div className="relative">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-              <input
-                type="text"
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
-                placeholder="Enter keywords like Skills and Job Title (e.g. React, TypeScript, Senior Architect)"
-                className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:ring-2 focus:ring-indigo-500"
-              />
+              <div className="flex flex-wrap items-center gap-2 p-2.5 min-h-[46px] border border-slate-300 rounded-xl focus-within:ring-2 focus-within:ring-indigo-500 bg-white">
+                <Search className="w-4 h-4 text-slate-400 shrink-0 ml-1" />
+
+                {/* Tag Chips */}
+                {keywordTags.map((tag) => (
+                  <div key={tag.id} className="relative group">
+                    <span
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold transition-all border ${
+                        tag.isMandatory
+                          ? 'bg-purple-100 text-purple-900 border-purple-300 shadow-2xs'
+                          : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
+                      }`}
+                    >
+                      {/* Star Button for Mandatory Toggle */}
+                      <button
+                        type="button"
+                        onClick={() => toggleTagMandatory(tag.id)}
+                        onMouseEnter={() => setActiveTooltipId(tag.id)}
+                        onMouseLeave={() => setActiveTooltipId(null)}
+                        className="cursor-pointer focus:outline-none transition-transform hover:scale-110"
+                        title={tag.isMandatory ? "Marked as Mandatory" : "Click to mark as Mandatory"}
+                      >
+                        <Star
+                          className={`w-3.5 h-3.5 ${
+                            tag.isMandatory
+                              ? 'text-purple-700 fill-purple-700'
+                              : 'text-slate-400 hover:text-purple-600'
+                          }`}
+                        />
+                      </button>
+
+                      <span>{tag.text}</span>
+
+                      {/* Remove Tag Button */}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveTag(tag.id)}
+                        className="hover:text-rose-600 rounded-full cursor-pointer ml-0.5"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+
+                    {/* Tooltip for Mandatory Keyword */}
+                    {tag.isMandatory && activeTooltipId === tag.id && (
+                      <div className="absolute bottom-full left-0 mb-1.5 z-50 whitespace-nowrap bg-[#1E1B4B] text-white text-[11px] font-bold px-2.5 py-1 rounded-lg shadow-xl animate-in fade-in duration-100">
+                        This keyword is marked as 'Mandatory'.
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+                {/* Text input inside box */}
+                <input
+                  type="text"
+                  value={tagInput}
+                  onChange={(e) => {
+                    setTagInput(e.target.value);
+                    setShowSuggestions(true);
+                  }}
+                  onKeyDown={handleKeyDownTag}
+                  onFocus={() => setShowSuggestions(true)}
+                  placeholder={keywordTags.length === 0 ? "Enter keywords like Skills and Job Title" : "Type another keyword"}
+                  className="flex-1 min-w-[160px] bg-transparent text-xs font-semibold text-slate-900 border-none focus:outline-none py-1"
+                />
+
+                {/* Clear All Keywords Button */}
+                {keywordTags.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setKeywordTags([])}
+                    className="p-1 text-slate-400 hover:text-slate-700 rounded-lg shrink-0 cursor-pointer ml-auto"
+                    title="Clear all keywords"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+
+              {/* Autocomplete Dropdown (Matching Screenshot 2) */}
+              {showSuggestions && availableSuggestions.length > 0 && (
+                <div className="absolute left-0 right-0 mt-1.5 bg-white rounded-xl shadow-xl border border-slate-200 py-1.5 z-50 animate-in fade-in zoom-in duration-100">
+                  {availableSuggestions.map((suggestion) => (
+                    <button
+                      key={suggestion}
+                      type="button"
+                      onClick={() => handleAddTag(suggestion)}
+                      className="w-full px-4 py-2 text-left text-xs font-bold text-slate-800 hover:bg-slate-100 flex items-center justify-between cursor-pointer transition-colors"
+                    >
+                      <span>{suggestion}</span>
+                      <span className="text-[10px] text-slate-400 font-normal">+ Add Tag</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="flex flex-wrap items-center justify-between gap-2 mt-2 text-xs">
@@ -347,7 +473,7 @@ export const CandidateSearch: React.FC = () => {
                   onChange={(e) => setExperienceMin(e.target.value)}
                   className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 bg-white focus:ring-2 focus:ring-indigo-500 cursor-pointer"
                 >
-                  <option value="">Years ∨</option>
+                  <option value="">Years</option>
                   {[0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 15].map((y) => (
                     <option key={y} value={y}>{y} Years</option>
                   ))}
@@ -364,7 +490,7 @@ export const CandidateSearch: React.FC = () => {
                     onChange={(e) => setExperienceMax(e.target.value)}
                     className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 bg-white focus:ring-2 focus:ring-indigo-500 cursor-pointer"
                   >
-                    <option value="">Years ∨</option>
+                    <option value="">Years</option>
                     {[1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20].map((y) => (
                       <option key={y} value={y}>{y} Years</option>
                     ))}
@@ -447,7 +573,7 @@ export const CandidateSearch: React.FC = () => {
                   onChange={(e) => setSalaryMin(e.target.value)}
                   className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 bg-white focus:ring-2 focus:ring-indigo-500 cursor-pointer"
                 >
-                  <option value="">Lacs ∨</option>
+                  <option value="">Lacs</option>
                   <option value="3">3 Lacs</option>
                   <option value="5">5 Lacs</option>
                   <option value="8">8 Lacs</option>
@@ -467,7 +593,7 @@ export const CandidateSearch: React.FC = () => {
                     onChange={(e) => setSalaryMax(e.target.value)}
                     className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 bg-white focus:ring-2 focus:ring-indigo-500 cursor-pointer"
                   >
-                    <option value="">Lacs ∨</option>
+                    <option value="">Lacs</option>
                     <option value="6">6 Lacs</option>
                     <option value="10">10 Lacs</option>
                     <option value="15">15 Lacs</option>
@@ -637,7 +763,7 @@ export const CandidateSearch: React.FC = () => {
                     placeholder="Enter industry (e.g. IT Software, Fintech, Healthcare)"
                     className="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:ring-2 focus:ring-indigo-500"
                   />
-                  <div className="text-[11px] text-slate-400 mt-1 font-medium">Include: Current or past industry ∨</div>
+                  <div className="text-[11px] text-slate-400 mt-1 font-medium">Include: Current or past industry</div>
                 </div>
 
                 <div>
@@ -649,16 +775,15 @@ export const CandidateSearch: React.FC = () => {
                     placeholder="Enter company name"
                     className="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:ring-2 focus:ring-indigo-500"
                   />
-                  <div className="text-[11px] text-slate-400 mt-1 font-medium">Include: Current employees ∨</div>
+                  <div className="text-[11px] text-slate-400 mt-1 font-medium">Include: Current employees</div>
                 </div>
               </div>
             )}
           </div>
         </div>
 
-        {/* Card 4: Advanced Visa & Filter Preferences (Matching Screenshot 4) */}
+        {/* Card 4: Advanced Visa & Filter Preferences */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-5 text-xs">
-          {/* Visa Status */}
           <div>
             <div className="font-bold text-slate-800 mb-2">Visa status</div>
             <div className="flex flex-wrap items-center gap-2">
@@ -679,7 +804,6 @@ export const CandidateSearch: React.FC = () => {
             </div>
           </div>
 
-          {/* Hide candidates with */}
           <div>
             <div className="font-bold text-slate-800 mb-2">Hide candidates with</div>
             <div className="flex flex-wrap items-center gap-2">
@@ -700,7 +824,6 @@ export const CandidateSearch: React.FC = () => {
             </div>
           </div>
 
-          {/* Show only */}
           <div>
             <div className="font-bold text-slate-800 mb-2">Show only</div>
             <div className="flex flex-wrap items-center gap-2">
@@ -724,16 +847,13 @@ export const CandidateSearch: React.FC = () => {
 
       </div>
 
-      {/* Sticky Bottom Action Bar (Matching Foundit layout) */}
+      {/* Sticky Bottom Action Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 p-4 shadow-xl z-30 flex items-center justify-between px-6 lg:px-12">
         <div className="flex items-center gap-3 text-xs font-semibold">
-          <select className="bg-slate-50 border border-slate-300 px-3 py-1.5 rounded-xl font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 cursor-pointer">
-            <option>Active/updated ∨</option>
-          </select>
-          <select className="bg-slate-50 border border-slate-300 px-3 py-1.5 rounded-xl font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 cursor-pointer">
-            <option>In last 6 months ∨</option>
-            <option>In last 3 months ∨</option>
-            <option>In last 1 month ∨</option>
+          <select className="bg-slate-50 border border-slate-300 px-3.5 py-2 rounded-xl font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 cursor-pointer">
+            <option>In last 6 months</option>
+            <option>In last 3 months</option>
+            <option>In last 1 month</option>
           </select>
         </div>
 
@@ -757,7 +877,7 @@ export const CandidateSearch: React.FC = () => {
         </div>
       </div>
 
-      {/* Search Results Display Area (Expands when Search Candidates is clicked) */}
+      {/* Search Results Area */}
       {hasSearched && (
         <div className="mt-12 space-y-4 pt-6 border-t-2 border-indigo-100">
           <div className="flex items-center justify-between">
@@ -767,7 +887,7 @@ export const CandidateSearch: React.FC = () => {
                 Search Results ({filteredCandidates.length} Candidates Found)
               </h2>
               <p className="text-xs text-slate-500 font-medium">
-                Matching query criteria within Clyptus Talent Directory
+                Matching keyword tags within Clyptus Talent Directory
               </p>
             </div>
 
@@ -789,7 +909,6 @@ export const CandidateSearch: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {filteredCandidates.map((cand) => {
                 const isSaved = savedIds.includes(cand.id);
-                const isShortlisted = shortlistedIds.includes(cand.id);
 
                 return (
                   <div
@@ -820,7 +939,6 @@ export const CandidateSearch: React.FC = () => {
                       </span>
                     </div>
 
-                    {/* Skills Chips */}
                     <div className="flex flex-wrap gap-1">
                       {cand.skills.map((s) => (
                         <span key={s} className="px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md text-[10px] font-bold">
@@ -829,7 +947,6 @@ export const CandidateSearch: React.FC = () => {
                       ))}
                     </div>
 
-                    {/* Actions Row */}
                     <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
                       <button
                         onClick={() => toggleSave(cand.id)}
