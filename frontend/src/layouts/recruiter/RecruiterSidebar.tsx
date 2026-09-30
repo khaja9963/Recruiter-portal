@@ -1,21 +1,15 @@
 import React from 'react';
-import { NavLink, useParams, useNavigate } from 'react-router-dom';
+import { NavLink, useParams } from 'react-router-dom';
 import {
   LayoutDashboard,
-  FileText,
-  Kanban,
   MessageSquare,
   Sparkles,
-  Coins,
-  BarChart3,
-  LogOut,
-  UserCheck
+  Coins
 } from 'lucide-react';
 import { useRecruiterStore } from '../../store/recruiterStore';
 
 export const RecruiterSidebar: React.FC = () => {
   const { organizationId = 'clyptus' } = useParams<{ organizationId: string }>();
-  const navigate = useNavigate();
   const { profile, sidebarOpen } = useRecruiterStore();
 
   const navItems = [
@@ -66,29 +60,16 @@ export const RecruiterSidebar: React.FC = () => {
 
       {/* Bottom Profile Footer */}
       <div className="p-3 border-t border-slate-800/80 bg-[#0B0F19]/60 shrink-0">
-        <div className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-800/50 transition-colors">
-          <div className="flex items-center gap-2.5 overflow-hidden min-w-0">
-            <img
-              src={profile.avatar}
-              alt={profile.name}
-              className="w-8 h-8 rounded-full object-cover shrink-0 border border-slate-700"
-            />
-            <div className="overflow-hidden min-w-0">
-              <div className="text-xs font-bold text-slate-200 truncate">{profile.name}</div>
-              <div className="text-[11px] text-slate-500 truncate">{profile.email}</div>
-            </div>
+        <div className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-slate-800/50 transition-colors">
+          <img
+            src={profile.avatar}
+            alt={profile.name}
+            className="w-8 h-8 rounded-full object-cover shrink-0 border border-slate-700"
+          />
+          <div className="overflow-hidden min-w-0">
+            <div className="text-xs font-bold text-slate-200 truncate">{profile.name}</div>
+            <div className="text-[11px] text-slate-500 truncate">{profile.email}</div>
           </div>
-          <button
-            onClick={() => {
-              if (confirm('Log out of Employee Portal?')) {
-                navigate('/');
-              }
-            }}
-            title="Sign out"
-            className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-md transition-colors shrink-0 cursor-pointer"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-          </button>
         </div>
       </div>
     </aside>
