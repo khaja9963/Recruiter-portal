@@ -40,11 +40,6 @@ export const CandidateSearch: React.FC = () => {
   const [searchMode, setSearchMode] = useState<'form' | 'jd'>('form');
   const [selectedCountry, setSelectedCountry] = useState('India');
 
-  // Job Description Search State (Matching Uploaded Image)
-  const [jdText, setJdText] = useState('');
-  const [jdTimeRange, setJdTimeRange] = useState('In last 6 months');
-  const [jdTimeRangeOpen, setJdTimeRangeOpen] = useState(false);
-
   // Interactive Keyword Tags System (starts 100% empty)
   const [keywordTags, setKeywordTags] = useState<KeywordTag[]>([]);
   const [tagInput, setTagInput] = useState('');
@@ -54,6 +49,7 @@ export const CandidateSearch: React.FC = () => {
   // Boolean Search Mode (Matching Screenshot 1)
   const [booleanSearch, setBooleanSearch] = useState(false);
   const [booleanQuery, setBooleanQuery] = useState('');
+  const [jdText, setJdText] = useState('');
   const [searchIn, setSearchIn] = useState('Profile');
   const [excludeSynonyms, setExcludeSynonyms] = useState(false);
   const [showAiBanner, setShowAiBanner] = useState(true);
@@ -273,6 +269,7 @@ export const CandidateSearch: React.FC = () => {
     setTagInput('');
     setBooleanSearch(false);
     setBooleanQuery('');
+    setJdText('');
     setSearchIn('Profile');
     setExperienceMinYears('');
     setExperienceMaxYears('');
@@ -302,7 +299,9 @@ export const CandidateSearch: React.FC = () => {
     setHasSearched(true);
 
     let queryText = '';
-    if (booleanSearch && booleanQuery.trim()) {
+    if (searchMode === 'jd' && jdText.trim()) {
+      queryText = `JD: "${jdText.trim().slice(0, 40)}..."`;
+    } else if (booleanSearch && booleanQuery.trim()) {
       queryText = booleanQuery.trim();
     } else if (keywordTags.length > 0) {
       queryText = keywordTags.map((t) => (t.isMandatory ? `"${t.text}"` : t.text)).join(' AND ');
@@ -319,25 +318,6 @@ export const CandidateSearch: React.FC = () => {
 
     addRecentSearch(queryText, locationText, count);
 
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-  };
-
-  const handleJdSearch = () => {
-    setHasSearched(true);
-    const cleanJd = jdText.trim();
-    const querySummary = cleanJd
-      ? `JD Search: ${cleanJd.substring(0, 45)}${cleanJd.length > 45 ? '...' : ''}`
-      : 'Job Description Search';
-
-    const terms = cleanJd.toLowerCase().split(/\s+/).filter((t) => t.length > 3);
-    const count = terms.length > 0
-      ? candidates.filter((cand) => {
-          const fullText = `${cand.name} ${cand.title} ${cand.skills.join(' ')} ${cand.summary || ''}`.toLowerCase();
-          return terms.some((term) => fullText.includes(term));
-        }).length
-      : candidates.length;
-
-    addRecentSearch(querySummary, 'All Locations', count);
     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
   };
 
@@ -364,7 +344,15 @@ export const CandidateSearch: React.FC = () => {
 
     const fullCandidateText = `${cand.name} ${cand.title} ${cand.skills.join(' ')} ${cand.location} ${cand.summary || ''}`.toLowerCase();
 
-    if (mandatoryTags.length > 0) {
+    if (searchMode === 'jd' && jdText.trim()) {
+      const jdTerms = jdText.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter((t) => t.length > 3);
+      if (jdTerms.length > 0) {
+        const matchesAnyJdTerm = jdTerms.some((t) => fullCandidateText.includes(t));
+        if (!matchesAnyJdTerm) return false;
+      }
+    }
+
+    if (searchMode === 'form' && mandatoryTags.length > 0) {
       const matchesAllMandatory = mandatoryTags.every((t) => fullCandidateText.includes(t));
       if (!matchesAllMandatory) return false;
     }
@@ -388,12 +376,12 @@ export const CandidateSearch: React.FC = () => {
   return (
     <div ref={dropdownRef} className="space-y-6 max-w-6xl mx-auto pb-32 font-sans text-slate-900 select-none animate-in fade-in duration-200">
       
-      {/* Top Title & Country Selector */}
+      {/* Top Title & Mode Switcher */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div className="flex items-center gap-2">
           <Sparkles className="w-6 h-6 text-indigo-600" />
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-            Find the right candidates with AI
+            Candidate Search
           </h1>
         </div>
 
@@ -412,143 +400,62 @@ export const CandidateSearch: React.FC = () => {
         </div>
       </div>
 
-      {/* Mode Switcher Tabs matching Naukri / Foundit screenshot */}
-      <div className="bg-slate-100/90 p-1.5 rounded-full inline-flex items-center gap-1 border border-slate-200 max-w-2xl text-xs font-bold">
+      {/* Mode Switcher Tabs */}
+      <div className="flex items-center gap-2 bg-slate-100/80 p-1.5 rounded-2xl max-w-md border border-slate-200">
         <button
-          type="button"
           onClick={() => setSearchMode('form')}
-          className={`px-5 py-2 rounded-full font-extrabold text-xs transition-all cursor-pointer flex items-center gap-1.5 ${
-            searchMode === 'form' ? 'bg-white text-slate-900 shadow-2xs border border-slate-200' : 'text-slate-600 hover:text-slate-900'
+          className={`flex-1 py-2 px-4 rounded-xl text-xs font-extrabold transition-all cursor-pointer text-center ${
+            searchMode === 'form' ? 'bg-white text-indigo-700 shadow-2xs border border-slate-200' : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          <span>Search form</span>
-          <span className="bg-pink-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-wider">
-            BETA
-          </span>
+          Search form
         </button>
 
         <button
-          type="button"
           onClick={() => setSearchMode('jd')}
-          className={`px-5 py-2 rounded-full font-extrabold text-xs transition-all cursor-pointer ${
-            searchMode === 'jd' ? 'bg-white text-slate-900 shadow-2xs border border-slate-200' : 'text-slate-600 hover:text-slate-900'
+          className={`flex-1 py-2 px-4 rounded-xl text-xs font-extrabold transition-all cursor-pointer text-center ${
+            searchMode === 'jd' ? 'bg-white text-indigo-700 shadow-2xs border border-slate-200' : 'text-slate-600 hover:text-slate-900'
           }`}
         >
           Search by Job Description
         </button>
-
-        <button
-          type="button"
-          onClick={() => alert('Voice search activated. Speak candidate requirement...')}
-          className="px-5 py-2 rounded-full font-extrabold text-xs text-slate-600 hover:text-slate-900 transition-all cursor-pointer"
-        >
-          Voice Search
-        </button>
       </div>
 
-      {/* Mode View Content */}
-      {searchMode === 'jd' ? (
-        /* Search by Job Description View (Matching Uploaded Screenshot) */
-        <div className="bg-white rounded-3xl border border-slate-200/90 p-8 shadow-xs space-y-6 animate-in fade-in duration-200">
-          <div>
-            <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-              Find the right candidate matches in seconds!
-            </h2>
-            <label className="block text-xs font-bold text-slate-700 mt-6 mb-2">
-              Write or paste job description here to search
-            </label>
-
-            <div className="relative border border-slate-300 rounded-2xl bg-white p-4 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all">
-              <textarea
-                rows={10}
-                maxLength={5000}
-                value={jdText}
-                onChange={(e) => setJdText(e.target.value)}
-                placeholder="Try something like: I'm looking for software engineering leader over 10 years of experience for tech insights."
-                className="w-full bg-transparent text-xs font-semibold text-slate-900 border-none focus:outline-none resize-none placeholder:text-slate-400 placeholder:font-normal leading-relaxed"
-              />
-
-              <div className="text-right text-[11px] font-bold text-slate-400 mt-2">
-                <span className="text-slate-900 font-extrabold">{jdText.length}</span>/5000 characters limit
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom Control Row */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-slate-100">
-            <div className="flex items-center gap-2">
-              <div className="relative inline-block">
-                <button
-                  type="button"
-                  onClick={() => setJdTimeRangeOpen(!jdTimeRangeOpen)}
-                  className="bg-white border border-slate-300 px-4 py-2 rounded-full text-xs font-bold text-slate-800 hover:bg-slate-50 transition-all flex items-center justify-between gap-2.5 cursor-pointer shadow-2xs"
-                >
-                  <span className="text-slate-500 font-medium">Active/updated</span>
-                  <span className="text-slate-300">|</span>
-                  <span>{jdTimeRange}</span>
-                  <ChevronDown className={`w-3.5 h-3.5 text-slate-500 transition-transform ${jdTimeRangeOpen ? 'rotate-180' : ''}`} />
-                </button>
-
-                {jdTimeRangeOpen && (
-                  <div className="absolute top-full left-0 mt-1.5 w-52 bg-white rounded-xl shadow-2xl border border-slate-200 py-1.5 z-50 animate-in fade-in zoom-in duration-100">
-                    {[
-                      'In last 1 day',
-                      'In last 3 days',
-                      'In last 7 days',
-                      'In last 15 days',
-                      'In last 1 month',
-                      'In last 3 months',
-                      'In last 6 months'
-                    ].map((range) => (
-                      <button
-                        key={range}
-                        type="button"
-                        onClick={() => {
-                          setJdTimeRange(range);
-                          setJdTimeRangeOpen(false);
-                        }}
-                        className={`w-full px-4 py-2 text-left text-xs font-semibold flex items-center justify-between transition-colors cursor-pointer ${
-                          jdTimeRange === range ? 'bg-indigo-50 text-indigo-700 font-bold' : 'text-slate-800 hover:bg-slate-50'
-                        }`}
-                      >
-                        <span>{range}</span>
-                        {jdTimeRange === range && <span className="text-indigo-600 font-bold">✓</span>}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="flex items-center justify-end gap-5">
-              <button
-                type="button"
-                onClick={() => setJdText('')}
-                className="text-xs font-bold text-slate-400 hover:text-slate-700 cursor-pointer"
-              >
-                Clear All
-              </button>
-
-              <button
-                type="button"
-                onClick={handleJdSearch}
-                className="px-8 py-2.5 bg-[#4F46E5] hover:bg-[#4338CA] text-white rounded-full text-xs font-extrabold shadow-md transition-all cursor-pointer flex items-center gap-2"
-              >
-                <Search className="w-4 h-4" />
-                <span>Search Candidates</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : (
-        /* Main Search Form */
-        <div className="space-y-6">
+      {/* Main Search Form */}
+      <div className="space-y-6">
         
         {/* Card 1: Keywords / Boolean Search & Basic Criteria */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-5">
-          
-          {/* AI Search Banner (Shown when Boolean Search is Active - Matching Screenshot 1) */}
-          {booleanSearch && showAiBanner && (
+          {searchMode === 'jd' ? (
+            /* Search by Job Description Mode (Matching User Image) */
+            <div className="space-y-4 animate-in fade-in duration-150">
+              <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+                Find the right candidate matches in seconds!
+              </h2>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-2">
+                  Write or paste job description here to search
+                </label>
+                <div className="relative">
+                  <textarea
+                    rows={8}
+                    maxLength={5000}
+                    value={jdText}
+                    onChange={(e) => setJdText(e.target.value)}
+                    placeholder="Try something like: I'm looking for software engineering leader over 10 years of experience for tech insights."
+                    className="w-full p-4 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 min-h-[180px] resize-y"
+                  />
+                  <div className="text-right text-[11px] font-bold text-slate-400 mt-1.5">
+                    {jdText.length}/5000 characters limit
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* AI Search Banner (Shown when Boolean Search is Active - Matching Screenshot 1) */}
+              {booleanSearch && showAiBanner && (
             <div className="bg-sky-50/80 border border-sky-200 rounded-2xl p-4 flex items-start justify-between gap-4 animate-in fade-in duration-150">
               <div className="space-y-0.5">
                 <h3 className="text-sm font-extrabold text-slate-900">Search just got smarter!</h3>
@@ -763,6 +670,8 @@ export const CandidateSearch: React.FC = () => {
               </div>
             )}
           </div>
+            </>
+          )}
 
           {/* Experience row (Years only, no months) */}
           <div>
@@ -1398,32 +1307,30 @@ export const CandidateSearch: React.FC = () => {
             </div>
           </div>
         </div>
+
       </div>
-    )}
 
-      {/* Sticky Bottom Action Bar (Only for Search Form mode) */}
-      {searchMode === 'form' && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 p-4 shadow-xl z-40 flex items-center justify-end px-6 lg:px-12">
-          <div className="flex items-center gap-4">
-            <button
-              type="button"
-              onClick={handleClearAll}
-              className="text-xs font-extrabold text-slate-500 hover:text-slate-900 cursor-pointer"
-            >
-              Clear All
-            </button>
+      {/* Sticky Bottom Action Bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 p-4 shadow-xl z-40 flex items-center justify-end px-6 lg:px-12">
+        <div className="flex items-center gap-4">
+          <button
+            type="button"
+            onClick={handleClearAll}
+            className="text-xs font-extrabold text-slate-500 hover:text-slate-900 cursor-pointer"
+          >
+            Clear All
+          </button>
 
-            <button
-              type="button"
-              onClick={handleSearch}
-              className="px-8 py-2.5 bg-[#4F46E5] hover:bg-[#4338CA] text-white rounded-xl text-xs font-extrabold shadow-md transition-all cursor-pointer flex items-center gap-2"
-            >
-              <Search className="w-4 h-4" />
-              <span>Search Candidates</span>
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={handleSearch}
+            className="px-8 py-2.5 bg-[#4F46E5] hover:bg-[#4338CA] text-white rounded-xl text-xs font-extrabold shadow-md transition-all cursor-pointer flex items-center gap-2"
+          >
+            <Search className="w-4 h-4" />
+            <span>Search Candidates</span>
+          </button>
         </div>
-      )}
+      </div>
 
       {/* Search Results Area */}
       {hasSearched && (
