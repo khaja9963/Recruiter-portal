@@ -40,51 +40,50 @@ export const CreateJob: React.FC = () => {
   const [jobCategory, setJobCategory] = useState<'Permanent' | 'Contract' | 'Walk-in'>('Permanent');
   const [employmentType, setEmploymentType] = useState<EmploymentType>('Full-time');
   const [scheduleMode, setScheduleMode] = useState<'now' | 'date'>('now');
-  const [scheduleDate, setScheduleDate] = useState('2026-10-01');
-  const [expiryDate, setExpiryDate] = useState('2026-11-29');
+  const [scheduleDate, setScheduleDate] = useState('');
+  const [expiryDate, setExpiryDate] = useState('');
   
   // Walk-in venue details
   const [venueAddress, setVenueAddress] = useState('');
-  const [walkinStartDate, setWalkinStartDate] = useState('2026-10-01');
-  const [walkinStartTime, setWalkinStartTime] = useState('12:00 AM');
-  const [walkinEndDate, setWalkinEndDate] = useState('2026-10-02');
-  const [walkinEndTime, setWalkinEndTime] = useState('12:00 AM');
+  const [walkinStartDate, setWalkinStartDate] = useState('');
+  const [walkinStartTime, setWalkinStartTime] = useState('');
+  const [walkinEndDate, setWalkinEndDate] = useState('');
+  const [walkinEndTime, setWalkinEndTime] = useState('');
 
-  // Main Job Details (Right Column)
+  // Main Job Details (Right Column - Starts 100% EMPTY)
   const [title, setTitle] = useState('');
   const [expType, setExpType] = useState<'experienced' | 'fresher'>('experienced');
-  const [experienceMin, setExperienceMin] = useState<number>(2);
-  const [experienceMax, setExperienceMax] = useState<number>(6);
+  const [experienceMin, setExperienceMin] = useState<string>('');
+  const [experienceMax, setExperienceMax] = useState<string>('');
   const [jobDescription, setJobDescription] = useState('');
   const [prioritizeWomen, setPrioritizeWomen] = useState(false);
 
-  // Skills & Location
-  const [skills, setSkills] = useState<string[]>(['React.js', 'TypeScript', 'Tailwind CSS']);
+  // Skills & Multi-Location Tag System
+  const [skills, setSkills] = useState<string[]>([]);
   const [skillInput, setSkillInput] = useState('');
-  const [workMode, setWorkMode] = useState<WorkMode>('On-site');
-  const [location, setLocation] = useState('Bangalore, Karnataka');
+  const [workMode, setWorkMode] = useState<WorkMode | ''>('');
+  const [jobLocations, setJobLocations] = useState<string[]>([]);
+  const [locationInput, setLocationInput] = useState('');
 
-  // Compensation & Benefits
-  const [salaryMin, setSalaryMin] = useState<number>(800000); // 8 LPA
-  const [salaryMax, setSalaryMax] = useState<number>(1500000); // 15 LPA
+  // Compensation & Benefits (Starts 100% EMPTY)
+  const [salaryMin, setSalaryMin] = useState<string>('');
+  const [salaryMax, setSalaryMax] = useState<string>('');
   const [hideSalary, setHideSalary] = useState<boolean>(false);
   const [perksAndBenefits, setPerksAndBenefits] = useState('');
-  const [industry, setIndustry] = useState('IT Software & Services');
-  const [functionRole, setFunctionRole] = useState('Software Engineering - Frontend');
-  const [educationLevel, setEducationLevel] = useState('B.E / B.Tech (CS / IT / ECE)');
+  const [industry, setIndustry] = useState('');
+  const [functionRole, setFunctionRole] = useState('');
+  const [educationLevel, setEducationLevel] = useState('');
 
-  // Folder & Questionnaire
-  const [folderName, setFolderName] = useState('Engineering Hiring 2026');
+  // Folder & Questionnaire (Starts 100% EMPTY)
+  const [folderName, setFolderName] = useState('');
   const [enableQuestionnaire, setEnableQuestionnaire] = useState(false);
-  const [screeningQuestions, setScreeningQuestions] = useState([
-    { id: '1', question: 'What is your current notice period?', required: true },
-    { id: '2', question: 'Are you open to working on-site in Bangalore?', required: true }
-  ]);
+  const [screeningQuestions, setScreeningQuestions] = useState<{ id: string; question: string; required: boolean }[]>([]);
 
   // AI & Preview state
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
+  // Skill Handlers
   const handleAddSkill = (e: React.KeyboardEvent | React.MouseEvent) => {
     if ('key' in e && e.key !== 'Enter') return;
     e.preventDefault();
@@ -96,6 +95,28 @@ export const CreateJob: React.FC = () => {
 
   const handleRemoveSkill = (skillToRemove: string) => {
     setSkills(skills.filter((s) => s !== skillToRemove));
+  };
+
+  // Location Handlers (Self-type & Multi-location tags)
+  const handleAddLocationTag = (locToAdd: string) => {
+    const trimmed = locToAdd.trim();
+    if (trimmed && !jobLocations.includes(trimmed)) {
+      setJobLocations([...jobLocations, trimmed]);
+      setLocationInput('');
+    }
+  };
+
+  const handleKeyDownLocation = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (locationInput.trim()) {
+        handleAddLocationTag(locationInput);
+      }
+    }
+  };
+
+  const handleRemoveLocationTag = (locToRemove: string) => {
+    setJobLocations(jobLocations.filter((l) => l !== locToRemove));
   };
 
   const handleAddQuestion = () => {
@@ -122,62 +143,49 @@ export const CreateJob: React.FC = () => {
 Key Responsibilities:
 • Architect, design, and deploy scalable, enterprise-grade application features.
 • Collaborate closely with product managers, UX designers, and system architects.
-• Write clean, robust, well-tested TypeScript & React code.
+• Write clean, robust, well-tested code.
 • Optimize application performance, accessibility, and cross-browser responsiveness.
 
 Qualifications & Requirements:
-• ${experienceMin}-${experienceMax} years of hands-on software development experience.
-• Proficiency in modern frontend technologies, REST/GraphQL APIs, and state management.
-• Strong problem-solving skills and passion for high-quality software engineering.`
+• Hands-on development experience in the industry.
+• Proficiency in modern frameworks, REST/GraphQL APIs, and system design.`
       );
-      setSkills(['React.js', 'TypeScript', 'Node.js', 'System Design', 'Tailwind CSS', 'GraphQL']);
+      setSkills(['React.js', 'TypeScript', 'Node.js', 'System Design', 'Tailwind CSS']);
       setIsGeneratingAI(false);
     }, 800);
   };
 
-  const handleCloneJob = (jobId: string) => {
-    const target = jobs.find((j) => j.id === jobId);
-    if (target) {
-      setTitle(`${target.title} (Copy)`);
-      setIndustry(target.department);
-      setLocation(target.location);
-      setEmploymentType(target.employmentType);
-      setWorkMode(target.workMode);
-      setExperienceMin(target.experienceMin || 2);
-      setExperienceMax(target.experienceMax || 6);
-      setSalaryMin(target.salaryMin || 800000);
-      setSalaryMax(target.salaryMax || 1500000);
-      setSkills(target.requiredSkills || []);
-      setJobDescription(target.summary || '');
-    }
-  };
-
   const buildJobPayload = (status: 'Published' | 'Draft') => {
+    const minExpNum = Number(experienceMin) || 0;
+    const maxExpNum = Number(experienceMax) || 5;
+    const minSalNum = Number(salaryMin) || 0;
+    const maxSalNum = Number(salaryMax) || 0;
+
     return {
       title,
-      department: industry,
-      location,
+      department: industry || 'Software Engineering',
+      location: jobLocations.length > 0 ? jobLocations.join(', ') : 'Remote',
       employmentType,
-      workMode,
-      experienceLevel: (experienceMin <= 2 ? 'Entry-level' : experienceMin >= 7 ? 'Senior' : 'Mid-level') as ExperienceLevel,
-      experienceMin,
-      experienceMax,
+      workMode: workMode || 'On-site',
+      experienceLevel: (minExpNum <= 2 ? 'Entry-level' : minExpNum >= 7 ? 'Senior' : 'Mid-level') as ExperienceLevel,
+      experienceMin: minExpNum,
+      experienceMax: maxExpNum,
       noticePeriod: '30 Days (Negotiable)',
-      educationLevel,
-      salaryMin,
-      salaryMax,
+      educationLevel: educationLevel || 'Any Graduate',
+      salaryMin: minSalNum,
+      salaryMax: maxSalNum,
       currency: 'INR',
       hideSalary,
       status,
-      deadline: expiryDate,
-      openings: 2,
+      deadline: expiryDate || '2026-12-31',
+      openings: 1,
       assignedRecruiterId: profile.id,
       assignedRecruiterName: profile.name,
       summary: jobDescription.substring(0, 300) || `${title} requisition at Clyptus Software Solution.`,
       responsibilities: jobDescription.split('\n').filter((s) => s.trim().length > 0),
       requiredSkills: skills,
       preferredSkills: ['Agile', 'Git', 'CI/CD'],
-      qualifications: [educationLevel, `${experienceMin}-${experienceMax} years experience`],
+      qualifications: [educationLevel, `${minExpNum}-${maxExpNum} years experience`],
       interviewProcess: ['HR Screening', 'Technical Evaluation', 'System Design', 'Final Managerial'],
       screeningQuestions: enableQuestionnaire ? screeningQuestions.filter((q) => q.question.trim().length > 0) : []
     };
@@ -218,13 +226,13 @@ Qualifications & Requirements:
       </div>
 
       {/* Main Two-Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
-        {/* Left Column (12 col md / 4 col lg) - Posting Details */}
-        <div className="lg:col-span-4 space-y-6">
+        {/* Left Column (Sticky / Freezed Posting Details Panel) */}
+        <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-20 lg:self-start z-20">
           
-          {/* Card 1: Posting Details */}
-          <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs space-y-4">
+          {/* Card 1: Freezed Posting Details */}
+          <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm space-y-4">
             <h3 className="font-extrabold text-slate-900 text-sm border-b border-slate-100 pb-2">
               Posting details
             </h3>
@@ -329,7 +337,7 @@ Qualifications & Requirements:
               </>
             )}
 
-            {/* Contract View (Matching Screenshot 1) */}
+            {/* Contract View */}
             {jobCategory === 'Contract' && (
               <>
                 <div className="space-y-2 pt-1">
@@ -388,7 +396,7 @@ Qualifications & Requirements:
               </>
             )}
 
-            {/* Walk-in View (Matching Screenshot 2) */}
+            {/* Walk-in View */}
             {jobCategory === 'Walk-in' && (
               <>
                 <div>
@@ -465,7 +473,7 @@ Qualifications & Requirements:
 
         </div>
 
-        {/* Right Column (12 col md / 8 col lg) - Job Details */}
+        {/* Right Column (Scrollable Main Job Details) */}
         <div className="lg:col-span-8 space-y-6">
           
           {/* Card 1: Job details */}
@@ -511,7 +519,7 @@ Qualifications & Requirements:
               )}
             </div>
 
-            {/* Experience Section: Fresher vs Experienced */}
+            {/* Experience Section */}
             <div className="space-y-3">
               <label className="block text-xs font-bold text-slate-700">
                 Experience <span className="text-rose-500">*</span>
@@ -522,8 +530,8 @@ Qualifications & Requirements:
                   type="button"
                   onClick={() => {
                     setExpType('fresher');
-                    setExperienceMin(0);
-                    setExperienceMax(1);
+                    setExperienceMin('0');
+                    setExperienceMax('1');
                   }}
                   className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all border cursor-pointer ${
                     expType === 'fresher'
@@ -553,9 +561,10 @@ Qualifications & Requirements:
                   </label>
                   <select
                     value={experienceMin}
-                    onChange={(e) => setExperienceMin(Number(e.target.value))}
+                    onChange={(e) => setExperienceMin(e.target.value)}
                     className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 bg-white focus:ring-2 focus:ring-indigo-500 cursor-pointer"
                   >
+                    <option value="">Years</option>
                     {[0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 15].map((y) => (
                       <option key={y} value={y}>{y} Years</option>
                     ))}
@@ -568,9 +577,10 @@ Qualifications & Requirements:
                   </label>
                   <select
                     value={experienceMax}
-                    onChange={(e) => setExperienceMax(Number(e.target.value))}
+                    onChange={(e) => setExperienceMax(e.target.value)}
                     className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 bg-white focus:ring-2 focus:ring-indigo-500 cursor-pointer"
                   >
+                    <option value="">Years</option>
                     {[1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 15, 20].map((y) => (
                       <option key={y} value={y}>{y} Years</option>
                     ))}
@@ -650,7 +660,7 @@ Qualifications & Requirements:
             </div>
           </div>
 
-          {/* Card 2: Skills & Job Location */}
+          {/* Card 2: Skills & Multi-Location Self-Type Job Location */}
           <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-5">
             {/* Skills */}
             <div>
@@ -685,45 +695,72 @@ Qualifications & Requirements:
               <div className="text-[11px] text-slate-400 mt-1">Press Enter to add skills tag</div>
             </div>
 
-            {/* Job Location */}
+            {/* Multi-Location Self-Type Job Location */}
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
                 Job location <span className="text-rose-500">*</span>
               </label>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div>
+              <div className="space-y-3">
+                <div className="max-w-xs">
                   <select
                     value={workMode}
                     onChange={(e) => setWorkMode(e.target.value as WorkMode)}
                     className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 bg-white focus:ring-2 focus:ring-indigo-500 cursor-pointer"
                   >
+                    <option value="">Select Work Mode</option>
                     <option value="On-site">On-site</option>
                     <option value="Hybrid">Hybrid</option>
                     <option value="Remote">Remote</option>
                   </select>
                 </div>
 
-                <div className="sm:col-span-2">
-                  <select
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 bg-white focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-                  >
-                    <option value="Bangalore, Karnataka">Bangalore, Karnataka</option>
-                    <option value="Hyderabad, Telangana">Hyderabad, Telangana</option>
-                    <option value="Pune, Maharashtra">Pune, Maharashtra</option>
-                    <option value="Mumbai, Maharashtra">Mumbai, Maharashtra</option>
-                    <option value="Delhi NCR / Gurgaon">Delhi NCR / Gurgaon</option>
-                    <option value="Chennai, Tamil Nadu">Chennai, Tamil Nadu</option>
-                    <option value="Remote, India">Remote, India</option>
-                  </select>
+                {/* Multi-Location Tag Chips Input Box */}
+                <div className="flex flex-wrap items-center gap-2 p-2.5 border border-slate-300 rounded-xl focus-within:ring-2 focus-within:ring-indigo-500 bg-white min-h-[46px]">
+                  <MapPin className="w-4 h-4 text-slate-400 shrink-0 ml-1" />
+
+                  {jobLocations.map((loc) => (
+                    <span
+                      key={loc}
+                      className="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-bold px-3 py-1 rounded-full"
+                    >
+                      <span>{loc}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveLocationTag(loc)}
+                        className="hover:text-rose-600 rounded-full cursor-pointer ml-0.5"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+
+                  <input
+                    type="text"
+                    value={locationInput}
+                    onChange={(e) => setLocationInput(e.target.value)}
+                    onKeyDown={handleKeyDownLocation}
+                    placeholder={jobLocations.length === 0 ? "Self type job location e.g. Bangalore, Hyderabad and press Enter" : "Add another location..."}
+                    className="flex-1 min-w-[220px] bg-transparent text-xs font-medium text-slate-900 border-none focus:outline-none py-1"
+                  />
+
+                  {jobLocations.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setJobLocations([])}
+                      className="p-1 text-slate-400 hover:text-slate-700 rounded-lg shrink-0 cursor-pointer ml-auto"
+                      title="Clear all locations"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
+                <div className="text-[11px] text-slate-400">Type any location and press Enter to add multiple job locations</div>
               </div>
             </div>
           </div>
 
-          {/* Card 3: Salary & Classification */}
+          {/* Card 3: Salary & Classification (Starts 100% EMPTY) */}
           <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-5">
             {/* Min & Max Salary */}
             <div className="space-y-3">
@@ -734,15 +771,16 @@ Qualifications & Requirements:
                   </label>
                   <select
                     value={salaryMin}
-                    onChange={(e) => setSalaryMin(Number(e.target.value))}
+                    onChange={(e) => setSalaryMin(e.target.value)}
                     className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 bg-white focus:ring-2 focus:ring-indigo-500 cursor-pointer"
                   >
-                    <option value={300000}>₹ 3 Lakhs</option>
-                    <option value={500000}>₹ 5 Lakhs</option>
-                    <option value={800000}>₹ 8 Lakhs</option>
-                    <option value={1200000}>₹ 12 Lakhs</option>
-                    <option value={1800000}>₹ 18 Lakhs</option>
-                    <option value={2500000}>₹ 25 Lakhs</option>
+                    <option value="">Lacs</option>
+                    <option value="300000">₹ 3 Lakhs</option>
+                    <option value="500000">₹ 5 Lakhs</option>
+                    <option value="800000">₹ 8 Lakhs</option>
+                    <option value="1200000">₹ 12 Lakhs</option>
+                    <option value="1800000">₹ 18 Lakhs</option>
+                    <option value="2500000">₹ 25 Lakhs</option>
                   </select>
                 </div>
 
@@ -752,15 +790,16 @@ Qualifications & Requirements:
                   </label>
                   <select
                     value={salaryMax}
-                    onChange={(e) => setSalaryMax(Number(e.target.value))}
+                    onChange={(e) => setSalaryMax(e.target.value)}
                     className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 bg-white focus:ring-2 focus:ring-indigo-500 cursor-pointer"
                   >
-                    <option value={600000}>₹ 6 Lakhs</option>
-                    <option value={1000000}>₹ 10 Lakhs</option>
-                    <option value={1500000}>₹ 15 Lakhs</option>
-                    <option value={2200000}>₹ 22 Lakhs</option>
-                    <option value={3000000}>₹ 30 Lakhs</option>
-                    <option value={5000000}>₹ 50 Lakhs+</option>
+                    <option value="">Lacs</option>
+                    <option value="600000">₹ 6 Lakhs</option>
+                    <option value="1000000">₹ 10 Lakhs</option>
+                    <option value="1500000">₹ 15 Lakhs</option>
+                    <option value="2200000">₹ 22 Lakhs</option>
+                    <option value="3000000">₹ 30 Lakhs</option>
+                    <option value="5000000">₹ 50 Lakhs+</option>
                   </select>
                 </div>
               </div>
@@ -790,6 +829,7 @@ Qualifications & Requirements:
                 onChange={(e) => setIndustry(e.target.value)}
                 className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 bg-white focus:ring-2 focus:ring-indigo-500 cursor-pointer"
               >
+                <option value="">Select Industry</option>
                 <option value="IT Software & Services">IT Software & Services</option>
                 <option value="Engineering & Construction">Engineering & Construction</option>
                 <option value="Financial Services & Fintech">Financial Services & Fintech</option>
@@ -808,6 +848,7 @@ Qualifications & Requirements:
                 onChange={(e) => setFunctionRole(e.target.value)}
                 className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 bg-white focus:ring-2 focus:ring-indigo-500 cursor-pointer"
               >
+                <option value="">Select Function & Role</option>
                 <option value="Software Engineering - Frontend">Software Engineering - Frontend</option>
                 <option value="Software Engineering - Backend">Software Engineering - Backend</option>
                 <option value="Software Engineering - Full Stack">Software Engineering - Full Stack</option>
@@ -826,6 +867,7 @@ Qualifications & Requirements:
                 onChange={(e) => setEducationLevel(e.target.value)}
                 className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 bg-white focus:ring-2 focus:ring-indigo-500 cursor-pointer"
               >
+                <option value="">Select Education</option>
                 <option value="B.E / B.Tech (CS / IT / ECE)">B.E / B.Tech (CS / IT / ECE)</option>
                 <option value="M.Tech / MS in CS">M.Tech / MS in CS</option>
                 <option value="MCA / B.Sc Computer Science">MCA / B.Sc Computer Science</option>
@@ -905,7 +947,7 @@ Qualifications & Requirements:
         </div>
       </div>
 
-      {/* Sticky Bottom Action Bar (Matching Foundit layout) */}
+      {/* Sticky Bottom Action Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 p-4 shadow-xl z-30 flex items-center justify-end px-6 lg:px-12">
         <div className="flex items-center gap-4">
           <button
@@ -955,19 +997,19 @@ Qualifications & Requirements:
 
             <div className="space-y-3 text-xs text-slate-700">
               <div className="flex flex-wrap items-center gap-4 text-slate-500 font-semibold">
-                <span>📍 {location}</span>
+                <span>📍 {jobLocations.join(', ') || 'Location Not Specified'}</span>
                 <span>•</span>
-                <span>💼 {employmentType} ({workMode})</span>
+                <span>💼 {employmentType} ({workMode || 'On-site'})</span>
                 <span>•</span>
-                <span>⏱️ {experienceMin}-{experienceMax} Years Exp</span>
+                <span>⏱️ {experienceMin || 0}-{experienceMax || 5} Years Exp</span>
                 <span>•</span>
-                <span>💰 {hideSalary ? 'Confidential' : `₹${(salaryMin/100000).toFixed(1)}L - ₹${(salaryMax/100000).toFixed(1)}L PA`}</span>
+                <span>💰 {hideSalary ? 'Confidential' : salaryMin && salaryMax ? `₹${(Number(salaryMin)/100000).toFixed(1)}L - ₹${(Number(salaryMax)/100000).toFixed(1)}L PA` : 'Not Specified'}</span>
               </div>
 
               <div className="pt-2 border-t border-slate-100">
                 <h4 className="font-bold text-slate-900 mb-1">Required Skills:</h4>
                 <div className="flex flex-wrap gap-1.5">
-                  {skills.map((s) => (
+                  {skills.length === 0 ? <span className="text-slate-400 font-normal">No skills added</span> : skills.map((s) => (
                     <span key={s} className="px-2.5 py-0.5 bg-slate-100 rounded-full text-slate-800 font-semibold">{s}</span>
                   ))}
                 </div>
