@@ -20,8 +20,6 @@ export const RecruiterSidebar: React.FC = () => {
 
   const navItems = [
     { label: 'Dashboard', path: `/org/${organizationId}/recruiter/dashboard`, icon: LayoutDashboard },
-    { label: 'Applications', path: `/org/${organizationId}/recruiter/applications`, icon: FileText },
-    { label: 'ATS / Pipeline', path: `/org/${organizationId}/recruiter/ats`, icon: Kanban },
     { label: 'Messages', path: `/org/${organizationId}/recruiter/messages`, icon: MessageSquare },
     { label: 'AI Tools', path: `/org/${organizationId}/recruiter/ai-tools`, icon: Sparkles },
     { label: 'Token Usage', path: `/org/${organizationId}/recruiter/tokens`, icon: Coins },

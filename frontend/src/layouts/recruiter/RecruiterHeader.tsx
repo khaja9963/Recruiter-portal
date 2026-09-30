@@ -149,9 +149,18 @@ export const RecruiterHeader: React.FC = () => {
               <button
                 onClick={() => {
                   setActiveDropdown(null);
-                  navigate(`/org/${organizationId}/recruiter/candidates`);
+                  navigate(`/org/${organizationId}/recruiter/applications`);
                 }}
                 className="w-full px-4 py-2.5 text-left text-xs font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 flex items-center gap-2.5 transition-colors cursor-pointer"
+              >
+                <FileText className="w-4 h-4 text-indigo-600" /> Candidate Pipeline
+              </button>
+              <button
+                onClick={() => {
+                  setActiveDropdown(null);
+                  navigate(`/org/${organizationId}/recruiter/candidates`);
+                }}
+                className="w-full px-4 py-2.5 text-left text-xs font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 flex items-center gap-2.5 transition-colors border-t border-slate-100 cursor-pointer"
               >
                 <Bookmark className="w-4 h-4 text-indigo-600" /> Saved Candidate Profiles
               </button>
