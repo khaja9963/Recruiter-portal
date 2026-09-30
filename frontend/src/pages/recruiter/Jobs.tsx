@@ -1,17 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Plus, Search, Filter, LayoutGrid, List, Briefcase, RefreshCw } from 'lucide-react';
+import { Search, Briefcase, PlusCircle } from 'lucide-react';
 import { useRecruiterStore } from '../../store/recruiterStore';
-import { JobCard } from '../../components/recruiter/JobCard';
 import { JobTable } from '../../components/recruiter/JobTable';
-import { JobStatus, EmploymentType } from '../../types/recruiter.types';
 
 export const Jobs: React.FC = () => {
   const navigate = useNavigate();
   const { organizationId = 'clyptus' } = useParams<{ organizationId: string }>();
   const { jobs } = useRecruiterStore();
 
-  const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [deptFilter, setDeptFilter] = useState<string>('all');
@@ -43,9 +40,12 @@ export const Jobs: React.FC = () => {
           <p className="text-xs text-slate-500">Manage and publish job requisitions for your organization</p>
         </div>
 
-        <span className="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200">
-          Full Admin & Recruiter
-        </span>
+        <button
+          onClick={() => navigate(`/org/${organizationId}/recruiter/jobs/create`)}
+          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl flex items-center gap-2 transition-colors shadow-2xs cursor-pointer"
+        >
+          <PlusCircle className="w-4 h-4" /> Post New Job
+        </button>
       </div>
 
       {/* Filter Toolbar */}
@@ -59,7 +59,7 @@ export const Jobs: React.FC = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search job title or location..."
-              className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
 
@@ -67,7 +67,7 @@ export const Jobs: React.FC = () => {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full sm:w-40 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full sm:w-40 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
           >
             <option value="all">All Statuses</option>
             <option value="Published">Published</option>
@@ -80,7 +80,7 @@ export const Jobs: React.FC = () => {
           <select
             value={deptFilter}
             onChange={(e) => setDeptFilter(e.target.value)}
-            className="w-full sm:w-40 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full sm:w-40 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
           >
             <option value="all">All Departments</option>
             {departments.map((d) => (
@@ -90,40 +90,10 @@ export const Jobs: React.FC = () => {
             ))}
           </select>
         </div>
-
-        {/* View Switcher */}
-        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200 self-end md:self-auto">
-          <button
-            onClick={() => setViewMode('table')}
-            className={`p-1.5 rounded-md text-xs font-medium transition-colors ${
-              viewMode === 'table' ? 'bg-white text-blue-600 shadow-2xs' : 'text-slate-500 hover:text-slate-800'
-            }`}
-            title="Table View"
-          >
-            <List className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setViewMode('grid')}
-            className={`p-1.5 rounded-md text-xs font-medium transition-colors ${
-              viewMode === 'grid' ? 'bg-white text-blue-600 shadow-2xs' : 'text-slate-500 hover:text-slate-800'
-            }`}
-            title="Grid Card View"
-          >
-            <LayoutGrid className="w-4 h-4" />
-          </button>
-        </div>
       </div>
 
-      {/* Main Content */}
-      {viewMode === 'table' ? (
-        <JobTable jobs={filteredJobs} />
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredJobs.map((job) => (
-            <JobCard key={job.id} job={job} />
-          ))}
-        </div>
-      )}
+      {/* Clean Table View */}
+      <JobTable jobs={filteredJobs} />
     </div>
   );
 };
