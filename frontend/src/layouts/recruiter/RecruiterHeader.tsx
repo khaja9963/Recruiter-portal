@@ -186,15 +186,8 @@ export const RecruiterHeader: React.FC = () => {
         </button>
       </nav>
 
-      {/* Right Controls: Global Search & Recruiter Avatar */}
+      {/* Right Controls: Recruiter Avatar */}
       <div className="flex items-center gap-3">
-        <button
-          onClick={() => setGlobalSearchOpen(true)}
-          className="flex items-center gap-2 bg-slate-50 hover:bg-slate-100 text-slate-400 text-xs px-3 py-1.5 rounded-xl border border-slate-200 transition-colors cursor-pointer"
-        >
-          <Search className="w-3.5 h-3.5 text-slate-400" />
-          <span className="hidden sm:inline font-medium">Search...</span>
-        </button>
 
         {/* Profile Avatar */}
         <div className="relative">
