@@ -801,28 +801,19 @@ export const CandidateSearch: React.FC = () => {
                 <label className="block text-xs font-bold text-slate-700 mb-1">
                   Annual Salary (Maximum)
                 </label>
-                <div className="flex items-center gap-3">
-                  <select
-                    value={salaryMax}
-                    onChange={(e) => setSalaryMax(e.target.value)}
-                    className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 bg-white focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-                  >
-                    <option value="">Lacs</option>
-                    <option value="6">6 Lacs</option>
-                    <option value="10">10 Lacs</option>
-                    <option value="15">15 Lacs</option>
-                    <option value="22">22 Lacs</option>
-                    <option value="30">30 Lacs</option>
-                    <option value="50">50 Lacs+</option>
-                  </select>
-
-                  <button
-                    type="button"
-                    className="text-xs font-bold text-indigo-600 hover:underline shrink-0 flex items-center gap-1 cursor-pointer"
-                  >
-                    <Plus className="w-3.5 h-3.5" /> Add thousands
-                  </button>
-                </div>
+                <select
+                  value={salaryMax}
+                  onChange={(e) => setSalaryMax(e.target.value)}
+                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 bg-white focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                >
+                  <option value="">Lacs</option>
+                  <option value="6">6 Lacs</option>
+                  <option value="10">10 Lacs</option>
+                  <option value="15">15 Lacs</option>
+                  <option value="22">22 Lacs</option>
+                  <option value="30">30 Lacs</option>
+                  <option value="50">50 Lacs+</option>
+                </select>
               </div>
             </div>
 
