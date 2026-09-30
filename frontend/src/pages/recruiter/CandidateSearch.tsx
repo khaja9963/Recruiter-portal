@@ -1398,7 +1398,8 @@ export const CandidateSearch: React.FC = () => {
             </div>
           </div>
         </div>
-      )}
+      </div>
+    )}
 
       {/* Sticky Bottom Action Bar (Only for Search Form mode) */}
       {searchMode === 'form' && (
