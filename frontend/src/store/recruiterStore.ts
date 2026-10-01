@@ -269,6 +269,18 @@ interface RecruiterState {
   deleteJob: (jobId: string) => void;
 
   // Application & Candidate Actions
+  submitCandidateApplication: (data: {
+    jobId: string;
+    candidateName: string;
+    candidateEmail: string;
+    candidatePhone?: string;
+    candidateTitle?: string;
+    candidateLocation?: string;
+    candidateExperienceYears?: number;
+    candidateSkills?: string[];
+    resumeUrl?: string;
+    summary?: string;
+  }) => Application;
   updateApplicationStage: (applicationId: string, newStage: ApplicationStage) => void;
   addRecruiterNote: (applicationId: string, noteContent: string) => void;
   shortlistCandidate: (candidateId: string, jobId?: string) => void;
@@ -403,6 +415,93 @@ export const useRecruiterStore = create<RecruiterState>()(
     set((state) => ({
       jobs: state.jobs.filter((j) => j.id !== jobId)
     }));
+  },
+
+  submitCandidateApplication: (data) => {
+    const job = get().jobs.find((j) => j.id === data.jobId);
+    const candidateId = `cand-${Date.now()}`;
+    const newCandidate: Candidate = {
+      id: candidateId,
+      organizationId: get().profile.organizationId,
+      name: data.candidateName,
+      email: data.candidateEmail,
+      phone: data.candidatePhone || '+1 (555) 000-0000',
+      title: data.candidateTitle || job?.title || 'Job Applicant',
+      location: data.candidateLocation || 'Remote',
+      experienceYears: data.candidateExperienceYears || 3,
+      skills: data.candidateSkills || job?.requiredSkills || ['JavaScript', 'React'],
+      education: 'Bachelor Degree',
+      currentCompany: 'Candidate Applicant',
+      resumeUrl: data.resumeUrl || 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+      matchScore: Math.floor(Math.random() * 15) + 84,
+      overallRating: 4.5,
+      availability: 'Immediate',
+      appliedJobsCount: 1,
+      summary: data.summary || `Applicant for ${job?.title || 'position'} via Clyptus Candidate Portal.`
+    };
+
+    const newApp: Application = {
+      id: `app-${Date.now()}`,
+      candidateId,
+      jobId: data.jobId,
+      organizationId: get().profile.organizationId,
+      candidateName: data.candidateName,
+      candidateAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250',
+      candidateEmail: data.candidateEmail,
+      candidatePhone: data.candidatePhone || '+1 (555) 000-0000',
+      candidateTitle: data.candidateTitle || job?.title || 'Job Applicant',
+      candidateLocation: data.candidateLocation || 'Remote',
+      candidateExperienceYears: data.candidateExperienceYears || 3,
+      candidateSkills: data.candidateSkills || job?.requiredSkills || ['JavaScript', 'React'],
+      jobTitle: job?.title || 'Position',
+      department: job?.department || 'Engineering',
+      appliedDate: new Date().toISOString().split('T')[0],
+      stage: 'Applied',
+      matchScore: newCandidate.matchScore,
+      resumeUrl: newCandidate.resumeUrl,
+      notes: [],
+      timeline: [
+        {
+          id: `tl-${Date.now()}`,
+          stage: 'Applied',
+          date: new Date().toISOString().split('T')[0],
+          description: 'Application submitted via Clyptus Candidate Portal',
+          updatedBy: data.candidateName
+        }
+      ]
+    };
+
+    set((state) => ({
+      candidates: [newCandidate, ...state.candidates],
+      applications: [newApp, ...state.applications],
+      jobs: state.jobs.map((j) => (j.id === data.jobId ? { ...j, applicationsCount: j.applicationsCount + 1 } : j)),
+      notifications: [
+        {
+          id: `notif-${Date.now()}`,
+          title: 'New Application Received',
+          message: `${data.candidateName} applied for ${job?.title || 'position'} (${newCandidate.matchScore}% Match)`,
+          type: 'application',
+          timestamp: 'Just now',
+          read: false,
+          link: `/applications`
+        },
+        ...state.notifications
+      ],
+      activities: [
+        {
+          id: `act-${Date.now()}`,
+          type: 'application',
+          user: data.candidateName,
+          action: 'applied for job',
+          target: job?.title || 'position',
+          time: 'Just now',
+          badgeColor: 'bg-blue-100 text-blue-800'
+        },
+        ...state.activities
+      ]
+    }));
+
+    return newApp;
   },
 
   updateApplicationStage: (applicationId, newStage) => {
@@ -772,3 +871,14 @@ export const useRecruiterStore = create<RecruiterState>()(
     }
   )
 );
+
+if (typeof window !== 'undefined') {
+  (window as any).ClyptusPortalAPI = {
+    getPublishedJobs: () => useRecruiterStore.getState().jobs.filter((j) => j.status === 'Published'),
+    submitCandidateApplication: (data: any) => useRecruiterStore.getState().submitCandidateApplication(data),
+    getApplications: () => useRecruiterStore.getState().applications,
+    getCandidates: () => useRecruiterStore.getState().candidates,
+    updateApplicationStage: (appId: string, stage: ApplicationStage) =>
+      useRecruiterStore.getState().updateApplicationStage(appId, stage)
+  };
+}
