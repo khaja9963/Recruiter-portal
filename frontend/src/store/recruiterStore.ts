@@ -79,9 +79,9 @@ const initialJobs: Job[] = [
       { id: 'q1', question: 'How many years of commercial React & TypeScript experience do you have?', required: true },
       { id: 'q2', question: 'What is your notice period / availability?', required: true }
     ],
-    applicationsCount: 1,
-    shortlistedCount: 1,
-    viewsCount: 184
+    applicationsCount: 4,
+    shortlistedCount: 3,
+    viewsCount: 248
   }
 ];
 
@@ -137,6 +137,135 @@ const initialCandidates: Candidate[] = [
       'AWS Certified Solutions Architect',
       'Meta Senior Front-End Developer Specialization'
     ]
+  },
+  {
+    id: 'cand-02',
+    organizationId: 'clyptus',
+    name: 'Priya Sharma',
+    avatar: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&q=80&w=250',
+    title: 'Senior Frontend Developer',
+    email: 'priya.sharma@example.com',
+    phone: '+1 (555) 345-6789',
+    location: 'Austin, TX',
+    experienceYears: 5,
+    skills: ['React', 'TypeScript', 'Redux Toolkit', 'Tailwind CSS', 'GraphQL', 'Jest'],
+    education: 'B.Tech Computer Science, UT Austin (2019)',
+    currentCompany: 'CloudScale Inc.',
+    resumeUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    matchScore: 89,
+    overallRating: 4.6,
+    availability: 'Immediate (1 week notice)',
+    appliedJobsCount: 1,
+    summary: 'Senior Frontend Engineer with expertise in building responsive single-page applications, UI design systems, and automated test suites.',
+    workHistory: [
+      {
+        company: 'CloudScale Inc.',
+        role: 'Senior Frontend Developer',
+        duration: '2022 - Present',
+        description: 'Built customer analytics dashboards with React and Tailwind CSS. Implemented end-to-end testing with Cypress.'
+      }
+    ],
+    educationList: [
+      {
+        degree: 'B.Tech Computer Science',
+        institution: 'UT Austin',
+        year: '2015 - 2019'
+      }
+    ],
+    projects: [
+      {
+        title: 'React Micro-Frontend Starter Kit',
+        description: 'Modular boilerplate for quick micro-frontend deployment with Module Federation.',
+        link: 'https://github.com/example/react-mfe-starter'
+      }
+    ],
+    certifications: ['Certified Web Developer (W3C)']
+  },
+  {
+    id: 'cand-03',
+    organizationId: 'clyptus',
+    name: 'David Miller',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=250',
+    title: 'Lead Backend Engineer',
+    email: 'david.miller@example.com',
+    phone: '+1 (555) 456-7890',
+    location: 'Seattle, WA',
+    experienceYears: 8,
+    skills: ['Node.js', 'PostgreSQL', 'Docker', 'Kubernetes', 'AWS', 'TypeScript', 'Redis'],
+    education: 'M.S. Software Engineering, University of Washington (2017)',
+    currentCompany: 'DataPulse Systems',
+    resumeUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    matchScore: 92,
+    overallRating: 4.9,
+    availability: '1 Month notice',
+    appliedJobsCount: 1,
+    summary: 'Seasoned Backend Systems Architect specializing in microservice design, relational databases, distributed caching, and cloud infrastructure.',
+    workHistory: [
+      {
+        company: 'DataPulse Systems',
+        role: 'Lead Backend Engineer',
+        duration: '2020 - Present',
+        description: 'Architected scalable event-driven backend services serving 2M+ active daily API requests.'
+      }
+    ],
+    educationList: [
+      {
+        degree: 'M.S. Software Engineering',
+        institution: 'University of Washington',
+        year: '2015 - 2017'
+      }
+    ],
+    projects: [
+      {
+        title: 'Distributed Rate-Limiting Middleware',
+        description: 'Redis-backed token bucket algorithm for Express and Fastify endpoints.',
+        link: 'https://github.com/example/rate-limiter'
+      }
+    ],
+    certifications: ['AWS Certified DevOps Engineer - Professional']
+  },
+  {
+    id: 'cand-04',
+    organizationId: 'clyptus',
+    name: 'Rajesh Kumar',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=250',
+    title: 'Full Stack Developer',
+    email: 'rajesh.kumar@example.com',
+    phone: '+1 (555) 567-8901',
+    location: 'New York, NY',
+    experienceYears: 4,
+    skills: ['React', 'Node.js', 'Express', 'MongoDB', 'JavaScript', 'CSS3'],
+    education: 'B.S. Information Technology, NYU (2020)',
+    currentCompany: 'InnovateX Solutions',
+    resumeUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    matchScore: 84,
+    overallRating: 4.4,
+    availability: '2 Weeks notice',
+    appliedJobsCount: 1,
+    summary: 'Enthusiastic Full Stack Developer passionate about clean code, intuitive UI component development, and RESTful API integrations.',
+    workHistory: [
+      {
+        company: 'InnovateX Solutions',
+        role: 'Full Stack Developer',
+        duration: '2021 - Present',
+        description: 'Developed client features across Node.js services and React frontend web interfaces.'
+      }
+    ],
+    educationList: [
+      {
+        degree: 'B.S. Information Technology',
+        institution: 'NYU',
+        year: '2016 - 2020'
+      }
+    ],
+    projects: [
+      {
+        title: 'Realtime Kanban Board App',
+        description: 'Drag-and-drop workflow tracking tool using Socket.io and React.',
+        link: 'https://github.com/example/kanban-react'
+      }
+    ],
+    certifications: ['MongoDB Certified Developer']
   }
 ];
 
@@ -174,6 +303,98 @@ const initialApplications: Application[] = [
       { id: 'tl-2', stage: 'Screening', date: '2026-09-26', description: 'Passed HR Screening', updatedBy: 'Sarah Jenkins' },
       { id: 'tl-3', stage: 'Shortlisted', date: '2026-09-27', description: 'Moved to Shortlisted pool', updatedBy: 'Sarah Jenkins' },
       { id: 'tl-4', stage: 'Interview', date: '2026-09-28', description: 'Technical Deep Dive Interview Scheduled', updatedBy: 'Sarah Jenkins' }
+    ]
+  },
+  {
+    id: 'app-02',
+    candidateId: 'cand-02',
+    jobId: 'job-01',
+    organizationId: 'clyptus',
+    candidateName: 'Priya Sharma',
+    candidateAvatar: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&q=80&w=250',
+    candidateEmail: 'priya.sharma@example.com',
+    candidatePhone: '+1 (555) 345-6789',
+    candidateTitle: 'Senior Frontend Developer',
+    candidateLocation: 'Austin, TX',
+    candidateExperienceYears: 5,
+    candidateSkills: ['React', 'TypeScript', 'Redux Toolkit', 'Tailwind CSS', 'GraphQL'],
+    jobTitle: 'Senior Full Stack Engineer',
+    department: 'Engineering',
+    appliedDate: '2026-09-27',
+    stage: 'Screening',
+    matchScore: 89,
+    resumeUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    notes: [
+      {
+        id: 'note-2',
+        authorName: 'Sarah Jenkins',
+        authorAvatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=250',
+        content: 'Solid frontend background. Reviewing code samples and scheduling recruiter screening call.',
+        createdAt: '2026-09-28 02:15 PM'
+      }
+    ],
+    timeline: [
+      { id: 'tl-21', stage: 'Applied', date: '2026-09-27', description: 'Application submitted via portal', updatedBy: 'Priya Sharma' },
+      { id: 'tl-22', stage: 'Screening', date: '2026-09-28', description: 'Initial HR review in progress', updatedBy: 'Sarah Jenkins' }
+    ]
+  },
+  {
+    id: 'app-03',
+    candidateId: 'cand-03',
+    jobId: 'job-01',
+    organizationId: 'clyptus',
+    candidateName: 'David Miller',
+    candidateAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=250',
+    candidateEmail: 'david.miller@example.com',
+    candidatePhone: '+1 (555) 456-7890',
+    candidateTitle: 'Lead Backend Engineer',
+    candidateLocation: 'Seattle, WA',
+    candidateExperienceYears: 8,
+    candidateSkills: ['Node.js', 'PostgreSQL', 'Docker', 'Kubernetes', 'AWS'],
+    jobTitle: 'Senior Full Stack Engineer',
+    department: 'Engineering',
+    appliedDate: '2026-09-20',
+    stage: 'Offer',
+    matchScore: 92,
+    resumeUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    notes: [
+      {
+        id: 'note-3',
+        authorName: 'Sarah Jenkins',
+        authorAvatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=250',
+        content: 'Passed system architecture round with top score. Executive team approved official job offer.',
+        createdAt: '2026-09-29 11:00 AM'
+      }
+    ],
+    timeline: [
+      { id: 'tl-31', stage: 'Applied', date: '2026-09-20', description: 'Application received', updatedBy: 'David Miller' },
+      { id: 'tl-32', stage: 'Screening', date: '2026-09-21', description: 'Screening complete', updatedBy: 'Sarah Jenkins' },
+      { id: 'tl-33', stage: 'Interview', date: '2026-09-24', description: 'Architecture Onsite completed', updatedBy: 'Sarah Jenkins' },
+      { id: 'tl-34', stage: 'Offer', date: '2026-09-29', description: 'Formal Offer Letter issued', updatedBy: 'Sarah Jenkins' }
+    ]
+  },
+  {
+    id: 'app-04',
+    candidateId: 'cand-04',
+    jobId: 'job-01',
+    organizationId: 'clyptus',
+    candidateName: 'Rajesh Kumar',
+    candidateAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=250',
+    candidateEmail: 'rajesh.kumar@example.com',
+    candidatePhone: '+1 (555) 567-8901',
+    candidateTitle: 'Full Stack Developer',
+    candidateLocation: 'New York, NY',
+    candidateExperienceYears: 4,
+    candidateSkills: ['React', 'Node.js', 'Express', 'MongoDB'],
+    jobTitle: 'Senior Full Stack Engineer',
+    department: 'Engineering',
+    appliedDate: '2026-09-30',
+    stage: 'Applied',
+    matchScore: 84,
+    resumeUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    notes: [],
+    timeline: [
+      { id: 'tl-41', stage: 'Applied', date: '2026-09-30', description: 'Application submitted', updatedBy: 'Rajesh Kumar' }
     ]
   }
 ];
