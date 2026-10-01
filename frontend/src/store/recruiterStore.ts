@@ -1088,18 +1088,34 @@ export const useRecruiterStore = create<RecruiterState>()(
   }
 }),
     {
-      name: 'clyptus_recruiter_store_v1'
+      name: 'clyptus_recruiter_store_v2'
     }
   )
 );
 
 if (typeof window !== 'undefined') {
+  // Ensure candidates and applications are populated with the 4 dummy candidates
+  const state = useRecruiterStore.getState();
+  if (!state.candidates || state.candidates.length < 4) {
+    useRecruiterStore.setState({
+      candidates: initialCandidates,
+      applications: initialApplications,
+      jobs: initialJobs.length > 0 ? state.jobs : initialJobs
+    });
+  }
+
   (window as any).ClyptusPortalAPI = {
     getPublishedJobs: () => useRecruiterStore.getState().jobs.filter((j) => j.status === 'Published'),
     submitCandidateApplication: (data: any) => useRecruiterStore.getState().submitCandidateApplication(data),
     getApplications: () => useRecruiterStore.getState().applications,
     getCandidates: () => useRecruiterStore.getState().candidates,
     updateApplicationStage: (appId: string, stage: ApplicationStage) =>
-      useRecruiterStore.getState().updateApplicationStage(appId, stage)
+      useRecruiterStore.getState().updateApplicationStage(appId, stage),
+    resetDemoCandidates: () =>
+      useRecruiterStore.setState({
+        candidates: initialCandidates,
+        applications: initialApplications,
+        jobs: initialJobs
+      })
   };
 }
