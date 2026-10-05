@@ -1193,22 +1193,31 @@ export const CandidateSearch: React.FC = () => {
                 );
               })}
             </div>
+          </div>
+        </div>
 
-            {/* Time Range Filter pill button placed directly under Show Only */}
-            <div className="pt-2">
-              <div className="relative inline-block min-w-[180px]">
+      </div>
+
+      {/* Sticky Bottom Action Bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 p-3.5 shadow-2xl z-40 px-6 lg:px-12 max-w-6xl mx-auto rounded-t-2xl">
+        <div className="flex flex-col gap-2.5">
+          {/* Top Row: "In last 1 day" Filter beside "Clear All" */}
+          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-500">Active within:</span>
+              <div className="relative inline-block">
                 <button
                   type="button"
                   onClick={() => setTimeRangeOpen(!timeRangeOpen)}
-                  className="bg-white border border-slate-300 px-4 py-2 rounded-full text-xs font-bold text-slate-800 hover:bg-slate-50 transition-all flex items-center justify-between gap-3 cursor-pointer shadow-2xs"
+                  className="bg-slate-50 border border-slate-300 px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-800 hover:bg-slate-100 transition-all flex items-center justify-between gap-2 cursor-pointer shadow-2xs"
                 >
                   <span>{timeRangeFilter}</span>
-                  <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${timeRangeOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-3.5 h-3.5 text-slate-500 transition-transform ${timeRangeOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {/* Time Range Dropdown Menu Popup */}
                 {timeRangeOpen && (
-                  <div className="absolute top-full left-0 mt-1.5 min-w-[200px] bg-white rounded-xl shadow-2xl border border-slate-200 py-1.5 z-50 animate-in fade-in zoom-in duration-100">
+                  <div className="absolute bottom-full left-0 mb-2 min-w-[200px] bg-white rounded-xl shadow-2xl border border-slate-200 py-1.5 z-50 animate-in fade-in zoom-in duration-100">
                     <div className="max-h-60 overflow-y-auto divide-y divide-slate-100">
                       {[
                         'In last 1 day',
@@ -1226,7 +1235,7 @@ export const CandidateSearch: React.FC = () => {
                             setTimeRangeFilter(range);
                             setTimeRangeOpen(false);
                           }}
-                          className={`w-full px-4 py-2.5 text-left text-xs font-semibold flex items-center justify-between transition-colors cursor-pointer ${
+                          className={`w-full px-4 py-2 text-left text-xs font-semibold flex items-center justify-between transition-colors cursor-pointer ${
                             timeRangeFilter === range
                               ? 'bg-indigo-50 text-indigo-700 font-extrabold'
                               : 'text-slate-800 hover:bg-slate-50'
@@ -1243,26 +1252,21 @@ export const CandidateSearch: React.FC = () => {
                 )}
               </div>
             </div>
+
+            <button
+              type="button"
+              onClick={handleClearAll}
+              className="text-xs font-extrabold text-slate-500 hover:text-slate-900 cursor-pointer underline"
+            >
+              Clear All Filters
+            </button>
           </div>
-        </div>
 
-      </div>
-
-      {/* Sticky Bottom Action Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 p-4 shadow-xl z-40 flex items-center justify-end px-6 lg:px-12">
-        <div className="flex items-center gap-4">
-          <button
-            type="button"
-            onClick={handleClearAll}
-            className="text-xs font-extrabold text-slate-500 hover:text-slate-900 cursor-pointer"
-          >
-            Clear All
-          </button>
-
+          {/* Bottom Row: Search Candidates Button (Down) */}
           <button
             type="button"
             onClick={handleSearch}
-            className="px-8 py-2.5 bg-[#4F46E5] hover:bg-[#4338CA] text-white rounded-xl text-xs font-extrabold shadow-md transition-all cursor-pointer flex items-center gap-2"
+            className="w-full py-2.5 bg-[#4F46E5] hover:bg-[#4338CA] text-white rounded-xl text-xs font-extrabold shadow-md transition-all cursor-pointer flex items-center justify-center gap-2"
           >
             <Search className="w-4 h-4" />
             <span>Search Candidates</span>
