@@ -102,7 +102,7 @@ export const RecruiterHeader: React.FC = () => {
                 }}
                 className="w-full px-4 py-2.5 text-left text-xs font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 flex items-center gap-2.5 transition-colors border-t border-slate-100 cursor-pointer"
               >
-                <Briefcase className="w-4 h-4 text-indigo-600" /> Total Jobs Posted
+                <Briefcase className="w-4 h-4 text-indigo-600" /> Jobs posted
               </button>
             </div>
           )}

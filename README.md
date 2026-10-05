@@ -113,7 +113,7 @@ The job creation workflow allows hiring managers to construct and publish new jo
 
 1. **Top Navbar Structure:**
    - **Dashboard**: Direct link placed in front of `Jobs`.
-   - **Jobs**: Dropdown containing *Post a Job* and *Total Jobs Posted*.
+   - **Jobs**: Dropdown containing *Post a Job* and *Jobs posted*.
    - **Search**: Dropdown containing *Candidate Search*.
    - **Applications**: Dropdown containing *Candidate Pipeline* and *Saved Candidate Profiles*.
    - **Token Usage**: Direct link placed after `Applications`.

@@ -306,7 +306,7 @@ export const Dashboard: React.FC = () => {
               className="p-4 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl flex flex-col justify-between text-left transition-all cursor-pointer group"
             >
               <div className="flex items-center justify-between mb-2">
-                <span className="font-bold text-xs text-slate-800">Total Jobs Posted</span>
+                <span className="font-bold text-xs text-slate-800">Jobs posted</span>
                 <Briefcase className="w-4 h-4 text-slate-500" />
               </div>
               <p className="text-[11px] text-slate-500">Manage all requisition status</p>
